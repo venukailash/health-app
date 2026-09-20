@@ -1,111 +1,103 @@
+@import 'tailwindcss';
+
+@theme {
+  /* Macro colours — one hue per nutrient, reused by every bar, ring and dot. */
+  --color-kcal: oklch(0.62 0.16 178);
+  --color-carbs: oklch(0.72 0.16 70);
+  --color-protein: oklch(0.6 0.16 255);
+  --color-fat: oklch(0.68 0.17 25);
+  --color-satfat: oklch(0.58 0.2 15);
+  --color-salt: oklch(0.6 0.16 300);
+
+  --color-brand: oklch(0.52 0.11 185);
+  --color-over: oklch(0.58 0.2 25);
+}
+
 :root {
-  --text: #6b6375;
-  --text-h: #08060d;
-  --bg: #fff;
-  --border: #e5e4e7;
-  --code-bg: #f4f3ec;
-  --accent: #aa3bff;
-  --accent-bg: rgba(170, 59, 255, 0.1);
-  --accent-border: rgba(170, 59, 255, 0.5);
-  --social-bg: rgba(244, 243, 236, 0.5);
-  --shadow:
-    rgba(0, 0, 0, 0.1) 0 10px 15px -3px, rgba(0, 0, 0, 0.05) 0 4px 6px -2px;
-
-  --sans: system-ui, 'Segoe UI', Roboto, sans-serif;
-  --heading: system-ui, 'Segoe UI', Roboto, sans-serif;
-  --mono: ui-monospace, Consolas, monospace;
-
-  font: 18px/145% var(--sans);
-  letter-spacing: 0.18px;
   color-scheme: light dark;
-  color: var(--text);
-  background: var(--bg);
-  font-synthesis: none;
-  text-rendering: optimizeLegibility;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-
-  @media (max-width: 1024px) {
-    font-size: 16px;
-  }
+  --surface: oklch(0.99 0.004 220);
+  --surface-raised: oklch(1 0 0);
+  --border: oklch(0.9 0.008 220);
+  --text: oklch(0.24 0.02 250);
+  --text-muted: oklch(0.52 0.02 250);
+  --track: oklch(0.93 0.006 220);
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --text: #9ca3af;
-    --text-h: #f3f4f6;
-    --bg: #16171d;
-    --border: #2e303a;
-    --code-bg: #1f2028;
-    --accent: #c084fc;
-    --accent-bg: rgba(192, 132, 252, 0.15);
-    --accent-border: rgba(192, 132, 252, 0.5);
-    --social-bg: rgba(47, 48, 58, 0.5);
-    --shadow:
-      rgba(0, 0, 0, 0.4) 0 10px 15px -3px, rgba(0, 0, 0, 0.25) 0 4px 6px -2px;
-  }
-
-  #social .button-icon {
-    filter: invert(1) brightness(2);
+    --surface: oklch(0.19 0.015 250);
+    --surface-raised: oklch(0.24 0.018 250);
+    --border: oklch(0.33 0.02 250);
+    --text: oklch(0.95 0.005 250);
+    --text-muted: oklch(0.68 0.015 250);
+    --track: oklch(0.31 0.02 250);
   }
 }
 
+html,
+body,
 #root {
-  width: 1126px;
-  max-width: 100%;
-  margin: 0 auto;
-  text-align: center;
-  border-inline: 1px solid var(--border);
-  min-height: 100svh;
-  display: flex;
-  flex-direction: column;
-  box-sizing: border-box;
+  min-height: 100%;
 }
 
 body {
   margin: 0;
+  background: var(--surface);
+  color: var(--text);
+  font-family: ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  /* Room for the fixed bottom tab bar, plus the iOS home indicator. */
+  padding-bottom: calc(4.5rem + env(safe-area-inset-bottom));
 }
 
-h1,
-h2 {
-  font-family: var(--heading);
-  font-weight: 500;
-  color: var(--text-h);
+@utility card {
+  background: var(--surface-raised);
+  border: 1px solid var(--border);
+  border-radius: 1rem;
 }
 
-h1 {
-  font-size: 56px;
-  letter-spacing: -1.68px;
-  margin: 32px 0;
-  @media (max-width: 1024px) {
-    font-size: 36px;
-    margin: 20px 0;
-  }
+@utility muted {
+  color: var(--text-muted);
 }
-h2 {
-  font-size: 24px;
-  line-height: 118%;
-  letter-spacing: -0.24px;
-  margin: 0 0 8px;
-  @media (max-width: 1024px) {
-    font-size: 20px;
-  }
+
+@utility field {
+  background: var(--surface-raised);
+  border: 1px solid var(--border);
+  color: var(--text);
+  border-radius: 0.625rem;
+  padding: 0.5rem 0.75rem;
+  width: 100%;
+  /* 16px stops iOS Safari zooming the viewport when a field is focused. */
+  font-size: 1rem;
 }
-p {
+
+@utility field-focus {
+  outline: 2px solid var(--color-brand);
+  outline-offset: 1px;
+}
+
+.field:focus,
+.field:focus-visible {
+  outline: 2px solid var(--color-brand);
+  outline-offset: 1px;
+}
+
+/* Number inputs: hide the spinners, they are fiddly on touch and on desktop. */
+input[type='number']::-webkit-outer-spin-button,
+input[type='number']::-webkit-inner-spin-button {
+  appearance: none;
   margin: 0;
 }
 
-code,
-.counter {
-  font-family: var(--mono);
-  display: inline-flex;
-  border-radius: 4px;
-  color: var(--text-h);
+input[type='number'] {
+  appearance: textfield;
 }
 
-code {
-  font-size: 15px;
-  line-height: 135%;
-  padding: 4px 8px;
-  background: var(--code-bg);
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
 }

@@ -5,7 +5,6 @@ import {
   useEffect,
   useMemo,
   useReducer,
-  useRef,
   useState,
   type ReactNode,
 } from 'react'
@@ -94,12 +93,4 @@ export function useAppState(): AppState {
 
 export function useDispatch(): (action: Action) => void {
   return useStore().dispatch
-}
-
-/** Stable ref to the latest state, for callbacks that must not re-subscribe. */
-export function useStateRef(): { current: AppState } {
-  const { state } = useStore()
-  const ref = useRef(state)
-  ref.current = state
-  return ref
 }
