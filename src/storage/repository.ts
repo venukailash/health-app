@@ -1,4 +1,4 @@
-import type { Food, Goals, LogByDate, Recipe } from '../domain/types'
+import type { ActivityByDate, ActivityGoals, Food, Goals, LogByDate, Recipe } from '../domain/types'
 
 /**
  * The only module in the app that touches localStorage. Every record is
@@ -14,6 +14,8 @@ export const STORAGE_KEYS = {
   recipes: 'healthapp.recipes.v1',
   log: 'healthapp.log.v1',
   goals: 'healthapp.goals.v1',
+  activity: 'healthapp.activity.v1',
+  activityGoals: 'healthapp.activitygoals.v1',
   meta: 'healthapp.meta.v1',
 } as const
 
@@ -47,6 +49,9 @@ export const DEFAULT_GOALS: Goals = {
 }
 
 export const DEFAULT_META: Meta = { seedVersion: 0 }
+
+/** 10,000 is the convention rather than a clinical figure, but it is the one people expect. */
+export const DEFAULT_ACTIVITY_GOALS: ActivityGoals = { steps: 10000 }
 
 function storage(): Storage | null {
   try {
@@ -182,6 +187,13 @@ export const repository = {
   saveGoals: (goals: Goals): void => write(STORAGE_KEYS.goals, goals),
 
   loadMeta: (): Meta => read<Meta>(STORAGE_KEYS.meta, DEFAULT_META, isRecord),
+
+  loadActivity: (): ActivityByDate => read<ActivityByDate>(STORAGE_KEYS.activity, {}, isRecord),
+  saveActivity: (activity: ActivityByDate): void => write(STORAGE_KEYS.activity, activity),
+
+  loadActivityGoals: (): ActivityGoals =>
+    read<ActivityGoals>(STORAGE_KEYS.activityGoals, DEFAULT_ACTIVITY_GOALS, isRecord),
+  saveActivityGoals: (goals: ActivityGoals): void => write(STORAGE_KEYS.activityGoals, goals),
   saveMeta: (meta: Meta): void => write(STORAGE_KEYS.meta, meta),
 
   clearAll: (): void => {

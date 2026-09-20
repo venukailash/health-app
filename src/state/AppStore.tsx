@@ -33,6 +33,8 @@ export function loadInitialState(): AppState {
     recipes: repository.loadRecipes(),
     log: repository.loadLog(),
     goals: repository.loadGoals(),
+    activity: repository.loadActivity(),
+    activityGoals: repository.loadActivityGoals(),
     meta: repository.loadMeta(),
   }
   if (loaded.meta.seedVersion < SEED_VERSION) {
@@ -70,6 +72,11 @@ export function AppStoreProvider({
   useEffect(() => persist(() => repository.saveLog(state.log)), [state.log, persist])
   useEffect(() => persist(() => repository.saveGoals(state.goals)), [state.goals, persist])
   useEffect(() => persist(() => repository.saveMeta(state.meta)), [state.meta, persist])
+  useEffect(() => persist(() => repository.saveActivity(state.activity)), [state.activity, persist])
+  useEffect(
+    () => persist(() => repository.saveActivityGoals(state.activityGoals)),
+    [state.activityGoals, persist],
+  )
 
   const dismissStorageError = useCallback(() => setStorageError(null), [])
 

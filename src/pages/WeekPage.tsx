@@ -5,6 +5,8 @@ import MacroBar from '../components/MacroBar'
 import Page from '../components/Page'
 import PeriodSwitcher from '../components/PeriodSwitcher'
 import StatTile from '../components/StatTile'
+import StepsGoal from '../components/StepsGoal'
+import { summariseSteps } from '../domain/activity'
 import {
   addWeeks,
   endOfWeek,
@@ -30,6 +32,11 @@ export default function WeekPage() {
   const to = endOfWeek(date)
   const stats = rangeStats(state, from, to)
   const progress = goalProgress(stats.averages, state.goals)
+  const steps = summariseSteps(
+    state.activity,
+    stats.days.map((day) => day.date),
+    state.activityGoals.steps,
+  )
 
   return (
     <Page
@@ -118,6 +125,17 @@ export default function WeekPage() {
                 indent
               />
               <MacroBar label="Salt" progress={progress.salt} color="var(--color-salt)" />
+
+              <div className="border-t pt-3.5" style={{ borderColor: 'var(--border)' }}>
+                <StepsGoal
+                  steps={steps.recordedDays > 0 ? steps.averageSteps : null}
+                  target={state.activityGoals.steps}
+                  label="Steps"
+                  caption={`${steps.daysOnTarget} of ${steps.recordedDays} recorded ${
+                    steps.recordedDays === 1 ? 'day' : 'days'
+                  } hit the target`}
+                />
+              </div>
             </div>
           </section>
 

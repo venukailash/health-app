@@ -3,6 +3,8 @@ import CalorieRing from '../components/CalorieRing'
 import MacroBar from '../components/MacroBar'
 import Page from '../components/Page'
 import PeriodSwitcher from '../components/PeriodSwitcher'
+import StepsGoal from '../components/StepsGoal'
+import { stepsOn } from '../domain/activity'
 import { addDays, formatDayLabel, formatFullDate, isValidDateKey, todayKey } from '../domain/date'
 import { round, roundNutrients } from '../domain/nutrition'
 import { MEAL_LABELS, MEAL_TYPES } from '../domain/types'
@@ -68,6 +70,10 @@ export default function TodayPage() {
             indent
           />
           <MacroBar label="Salt" progress={progress.salt} color="var(--color-salt)" />
+        </div>
+
+        <div className="mt-5 border-t pt-4" style={{ borderColor: 'var(--border)' }}>
+          <StepsGoal steps={stepsOn(state.activity, date)} target={state.activityGoals.steps} />
         </div>
 
         {fat.total > 0 && (

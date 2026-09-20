@@ -47,6 +47,10 @@ src/
    any `--color-*` token.
 6. **Nothing secret goes in a backup.** `buildBackup` strips the FoodData Central key; keep it
    that way if you add other credentials.
+7. **Steps are not a macro.** `ActivityGoals` is separate from `Goals` on purpose — `Goals` is
+   exactly `Nutrients` and the nutrition maths iterates its keys.
+8. **An unrecorded day is not a zero day.** Both the food log and the step log distinguish them,
+   and averages divide by recorded days only.
 
 ## Testing
 

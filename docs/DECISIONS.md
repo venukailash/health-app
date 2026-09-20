@@ -104,6 +104,48 @@ the way in regardless, so carrying it would be a leak that buys nothing. The key
 origin in `localStorage`, so it has to be entered once on localhost and once on the deployed
 site.
 
+## Steps come in through a Shortcut, because a PWA cannot read HealthKit
+
+There is no web API for Apple Health, and no workaround. The only route is to push data in from
+outside: an iOS Shortcut reads the step count and opens
+`#/activity/import?days=YYYY-MM-DD:1234`, which the app parses and stores.
+
+Consequences worth knowing before changing any of it:
+
+- **The payload is plain text, not JSON.** Building `2026-09-20:8421` in Shortcuts is one Text
+  action; assembling and URL-encoding JSON is several, and every extra action is somewhere for a
+  non-technical setup to go wrong.
+- **Both forms are accepted** — `?days=` for batches and `?steps=…&date=…` for a single day,
+  since the latter is what someone naturally builds first.
+- **Rejected rows are reported, not dropped.** The likely failure is a Shortcut sending the wrong
+  Health type; silently importing nothing would be impossible to debug. A count above 200,000 is
+  rejected as implausible for exactly that reason.
+- **Running it on a schedule opens the app.** That is how the data gets in, and iOS offers no
+  quieter route. The setup guide says so rather than letting it be a surprise.
+
+## Activity targets are not part of `Goals`
+
+`Goals` is exactly a set of `Nutrients`, and the nutrition maths iterates its keys — a step count
+living there would be treated as a macro by `goalProgress`, `sumNutrients` and everything else.
+`ActivityGoals` is therefore its own type in its own storage key.
+
+## Settings is split by what the setting is about
+
+Targets (what you are aiming for) and App (how the app behaves: search key, backups, reset) are
+different jobs done at different times. They are two routes under `/settings`, with `/settings`
+redirecting to the targets tab.
+
+## Amounts are entered by count when the food has a portion
+
+Logging "2" against a food measured in eggs meant two GRAMS, because the quantity box was grams
+only. So the quantity panel defaults to counting portions whenever the food has one, with a switch
+to weight — and switching units never changes how much food is being logged, only how it is
+written.
+
+Grams remain what gets STORED, in the log and in recipe ingredients alike. A portion is a
+data-entry convenience, so correcting a food's portion size later cannot silently rewrite
+everything ever logged with it.
+
 ## Typing a barcode in is always offered
 
 Camera permission gets declined, lenses get scratched, and a barcode on a crumpled wrapper may

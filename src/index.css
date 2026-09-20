@@ -15,6 +15,12 @@
   --color-satfat: oklch(0.45 0.18 25);
   --color-salt: oklch(0.6 0.16 300);
 
+  /* Steps. Green was picked by checking candidates against the macros it
+     shares a screen with: violet and blue-violet collided with protein and
+     salt (ΔE 0.7 and 5.8), green introduced no new worst pair. Steps also
+     live in their own card, never interleaved with the macro bars. */
+  --color-steps: oklch(0.62 0.15 150);
+
   /* Single-series charts (calories) and the brand accent. */
   --color-kcal: oklch(0.62 0.16 178);
   --color-brand: oklch(0.52 0.11 185);
@@ -62,6 +68,7 @@
     --color-fibre: oklch(0.48 0.15 70);
     --color-fat: oklch(0.64 0.17 25);
     --color-satfat: oklch(0.5 0.19 25);
+    --color-steps: oklch(0.66 0.15 150);
     --color-kcal: oklch(0.72 0.15 178);
     --color-over: oklch(0.65 0.19 25);
   }

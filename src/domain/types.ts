@@ -87,3 +87,29 @@ export type Goals = Nutrients
 
 /** Log entries bucketed by local date key. */
 export type LogByDate = Record<string, LogEntry[]>
+
+/* ------------------------------------------------------------------ */
+/* Activity                                                            */
+/* ------------------------------------------------------------------ */
+
+/** Where a day's step count came from. */
+export type ActivitySource = 'manual' | 'shortcut'
+
+export interface DayActivity {
+  /** Local calendar date, 'YYYY-MM-DD'. */
+  date: string
+  steps: number
+  source: ActivitySource
+  updatedAt: string
+}
+
+export type ActivityByDate = Record<string, DayActivity>
+
+/**
+ * Activity targets. Kept apart from `Goals` on purpose: `Goals` is exactly a
+ * set of Nutrients and the nutrition maths iterates its keys, so a step count
+ * living there would be treated as a macro.
+ */
+export interface ActivityGoals {
+  steps: number
+}

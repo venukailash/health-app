@@ -21,7 +21,10 @@ in `localStorage` on the device you use, and the app works offline once loaded.
   can be duplicated and edited.
 - **Recipes** — combine foods by weight, set how many servings it makes, and see per-serving and
   whole-recipe nutrition update as you build. Log a recipe by the serving.
-- **Settings** — set your daily targets, export a JSON backup, import one back, or reset.
+- **Activity** — daily step count against a target, with weekly and monthly averages. Steps come
+  from Apple Health via an iOS Shortcut (a PWA cannot read HealthKit directly), or by hand.
+- **Settings** — split in two: **Targets** for what you are aiming at each day, **App** for the
+  search API key, backups and resetting.
 
 Tracked so far: calories, carbohydrate, protein, fat (with saturates), and salt in grams.
 
