@@ -141,23 +141,28 @@ export function weekdayInitials(): string[] {
   })
 }
 
-export function weekdayShort(key: DateKey): string {
-  return fromDateKey(key).toLocaleDateString(undefined, { weekday: 'short' })
+export function weekdayShort(key: DateKey, locale?: Intl.LocalesArgument): string {
+  return fromDateKey(key).toLocaleDateString(locale, { weekday: 'short' })
 }
 
-/** e.g. '14 – 20 Sep 2026', collapsing repeated month and year. */
-export function formatWeekRange(key: DateKey): string {
+/**
+ * e.g. '14 – 20 Sep 2026', collapsing repeated month and year.
+ *
+ * `locale` defaults to the device's, which is what the app wants; tests pass
+ * one explicitly so their assertions do not depend on where they run.
+ */
+export function formatWeekRange(key: DateKey, locale?: Intl.LocalesArgument): string {
   const from = fromDateKey(startOfWeek(key))
   const to = fromDateKey(endOfWeek(key))
   const sameMonth = from.getMonth() === to.getMonth() && from.getFullYear() === to.getFullYear()
   const sameYear = from.getFullYear() === to.getFullYear()
 
-  const left = from.toLocaleDateString(undefined, {
+  const left = from.toLocaleDateString(locale, {
     day: 'numeric',
     month: sameMonth ? undefined : 'short',
     year: sameYear ? undefined : 'numeric',
   })
-  const right = to.toLocaleDateString(undefined, {
+  const right = to.toLocaleDateString(locale, {
     day: 'numeric',
     month: 'short',
     year: 'numeric',
@@ -165,22 +170,30 @@ export function formatWeekRange(key: DateKey): string {
   return `${left} – ${right}`
 }
 
-export function formatMonthLabel(key: DateKey): string {
-  return fromDateKey(key).toLocaleDateString(undefined, { month: 'long', year: 'numeric' })
+export function formatMonthLabel(key: DateKey, locale?: Intl.LocalesArgument): string {
+  return fromDateKey(key).toLocaleDateString(locale, { month: 'long', year: 'numeric' })
 }
 
 /** 'This week' / 'Last week' / the date range. */
-export function formatWeekLabel(key: DateKey, today: DateKey = todayKey()): string {
+export function formatWeekLabel(
+  key: DateKey,
+  today: DateKey = todayKey(),
+  locale?: Intl.LocalesArgument,
+): string {
   const weeks = Math.round(diffInDays(startOfWeek(today), startOfWeek(key)) / 7)
   if (weeks === 0) return 'This week'
   if (weeks === -1) return 'Last week'
   if (weeks === 1) return 'Next week'
-  return formatWeekRange(key)
+  return formatWeekRange(key, locale)
 }
 
 /** 'This month' / 'Last month' / the month name. */
-export function formatMonthTitle(key: DateKey, today: DateKey = todayKey()): string {
+export function formatMonthTitle(
+  key: DateKey,
+  today: DateKey = todayKey(),
+  locale?: Intl.LocalesArgument,
+): string {
   if (isSameMonth(key, today)) return 'This month'
   if (isSameMonth(key, addMonths(today, -1))) return 'Last month'
-  return formatMonthLabel(key)
+  return formatMonthLabel(key, locale)
 }

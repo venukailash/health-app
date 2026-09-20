@@ -39,7 +39,14 @@ const renderWeek = (date: string, overrides: Partial<AppState> = {}) =>
 describe('WeekPage', () => {
   it('shows the Monday-to-Sunday week containing the given date', () => {
     renderWeek('2026-09-17')
-    expect(screen.getByText(/14 – 20 Sept? 2026/)).toBeInTheDocument()
+    // Asserted through the day links rather than the formatted range, which
+    // is locale-dependent and so differs between a laptop and CI.
+    const list = screen.getByRole('heading', { name: 'Day by day' })
+      .parentElement as HTMLElement
+    const days = within(list).getAllByRole('link')
+    expect(days).toHaveLength(7)
+    expect(days[0]).toHaveAttribute('href', '/day/2026-09-14')
+    expect(days.at(-1)).toHaveAttribute('href', '/day/2026-09-20')
   })
 
   it('averages over logged days, not all seven', () => {

@@ -129,36 +129,45 @@ describe('weekday labels', () => {
   })
 
   it('names the weekday of a date', () => {
-    expect(weekdayShort('2026-09-14')).toMatch(/mon/i)
+    expect(weekdayShort('2026-09-14', 'en-GB')).toBe('Mon')
+    // 14 September 2026 is a Monday in every locale; only the spelling moves.
+    expect(weekdayShort('2026-09-14', 'de-DE')).toBe('Mo')
   })
 })
 
 describe('formatting', () => {
   it('collapses the month when a week sits inside one', () => {
-    // Month abbreviation is locale-dependent (Sep / Sept), so match loosely.
-    expect(formatWeekRange('2026-09-16')).toMatch(/^14 – 20 Sept? 2026$/)
+    // Pinned locale: the month abbreviation differs between en-GB and en-US,
+    // and CI does not run in the same locale as a developer laptop.
+    expect(formatWeekRange('2026-09-16', 'en-GB')).toBe('14 – 20 Sept 2026')
   })
 
   it('keeps both months when a week spans two', () => {
-    const label = formatWeekRange('2026-10-01')
-    expect(label).toMatch(/Sep/)
-    expect(label).toMatch(/Oct/)
+    expect(formatWeekRange('2026-10-01', 'en-GB')).toBe('28 Sept – 4 Oct 2026')
+  })
+
+  it('keeps both years when a week spans the new year', () => {
+    expect(formatWeekRange('2026-12-31', 'en-GB')).toBe('28 Dec 2026 – 3 Jan 2027')
+  })
+
+  it('formats in whatever locale it is given', () => {
+    expect(formatWeekRange('2026-09-16', 'en-US')).toBe('14 – Sep 20, 2026')
   })
 
   it('names the current and neighbouring weeks', () => {
     expect(formatWeekLabel('2026-09-16', '2026-09-20')).toBe('This week')
     expect(formatWeekLabel('2026-09-09', '2026-09-20')).toBe('Last week')
     expect(formatWeekLabel('2026-09-23', '2026-09-20')).toBe('Next week')
-    expect(formatWeekLabel('2026-07-01', '2026-09-20')).toMatch(/Jun|Jul/)
+    expect(formatWeekLabel('2026-07-01', '2026-09-20', 'en-GB')).toBe('29 Jun – 5 Jul 2026')
   })
 
   it('names the current and previous months', () => {
     expect(formatMonthTitle('2026-09-05', '2026-09-20')).toBe('This month')
     expect(formatMonthTitle('2026-08-05', '2026-09-20')).toBe('Last month')
-    expect(formatMonthTitle('2026-03-05', '2026-09-20')).toMatch(/March 2026/)
+    expect(formatMonthTitle('2026-03-05', '2026-09-20', 'en-GB')).toBe('March 2026')
   })
 
   it('formats a month and year', () => {
-    expect(formatMonthLabel('2026-09-20')).toMatch(/September 2026/)
+    expect(formatMonthLabel('2026-09-20', 'en-GB')).toBe('September 2026')
   })
 })

@@ -41,7 +41,13 @@ const renderMonth = (date: string, overrides: Partial<AppState> = {}) =>
 describe('MonthPage', () => {
   it('shows the month containing the given date', () => {
     renderMonth('2026-09-17')
-    expect(screen.getByText(/September 2026/)).toBeInTheDocument()
+    // Asserted through the day links: the rendered month name is
+    // locale-dependent, so it differs between a laptop and CI.
+    const calendar = screen.getAllByRole('figure')[0]
+    expect(within(calendar).getByRole('link', { name: /^2026-09-01:/ })).toBeInTheDocument()
+    expect(within(calendar).getByRole('link', { name: /^2026-09-30:/ })).toBeInTheDocument()
+    expect(within(calendar).queryByRole('link', { name: /^2026-08-31:/ })).not.toBeInTheDocument()
+    expect(within(calendar).queryByRole('link', { name: /^2026-10-01:/ })).not.toBeInTheDocument()
   })
 
   it('renders a calendar cell for every day of the month', () => {
