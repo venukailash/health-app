@@ -8,11 +8,11 @@ import { DEFAULT_GOALS } from '../storage/repository'
 
 const oats = createFood({
   name: 'Porridge oats',
-  per100g: { kcal: 379, fat: 8, satFat: 1.4, carbs: 60, protein: 11, salt: 0.02 },
+  per100g: { kcal: 379, fat: 8, satFat: 1.4, carbs: 60, fibre: 0, protein: 11, salt: 0.02 },
 })
 const chicken = createFood({
   name: 'Chicken breast',
-  per100g: { kcal: 165, fat: 3.6, satFat: 1, carbs: 0, protein: 31, salt: 0.1 },
+  per100g: { kcal: 165, fat: 3.6, satFat: 1, carbs: 0, fibre: 0, protein: 31, salt: 0.1 },
 })
 
 const state = {

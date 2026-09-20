@@ -63,6 +63,7 @@ function parseFood(value: unknown): Food | null {
   }
   if (typeof value.brand === 'string') food.brand = value.brand
   if (typeof value.category === 'string') food.category = value.category
+  if (typeof value.barcode === 'string') food.barcode = value.barcode
   if (
     isObject(value.defaultServing) &&
     typeof value.defaultServing.label === 'string' &&

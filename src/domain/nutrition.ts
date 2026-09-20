@@ -6,6 +6,7 @@ export const ZERO_NUTRIENTS: Nutrients = {
   fat: 0,
   satFat: 0,
   carbs: 0,
+  fibre: 0,
   protein: 0,
   salt: 0,
 }
@@ -24,6 +25,7 @@ export function roundNutrients(n: Nutrients): Nutrients {
     fat: round(n.fat),
     satFat: round(n.satFat),
     carbs: round(n.carbs),
+    fibre: round(n.fibre),
     protein: round(n.protein),
     salt: round(n.salt, 2),
   }

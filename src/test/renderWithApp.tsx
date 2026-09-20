@@ -2,6 +2,7 @@ import { render } from '@testing-library/react'
 import type { ReactElement } from 'react'
 import { MemoryRouter, Route, Routes } from 'react-router-dom'
 import { AppStoreProvider } from '../state/AppStore'
+import { ToastProvider } from '../state/ToastProvider'
 import { EMPTY_STATE, type AppState } from '../state/reducer'
 
 /**
@@ -18,13 +19,15 @@ export function renderWithApp(
 ) {
   const initialState: AppState = { ...EMPTY_STATE, ...state }
   return render(
-    <AppStoreProvider initialState={initialState}>
-      <MemoryRouter initialEntries={[route]}>
-        <Routes>
-          <Route path={path} element={element} />
-          <Route path="*" element={<div>redirected</div>} />
-        </Routes>
-      </MemoryRouter>
-    </AppStoreProvider>,
+    <ToastProvider>
+      <AppStoreProvider initialState={initialState}>
+        <MemoryRouter initialEntries={[route]}>
+          <Routes>
+            <Route path={path} element={element} />
+            <Route path="*" element={<div>redirected</div>} />
+          </Routes>
+        </MemoryRouter>
+      </AppStoreProvider>
+    </ToastProvider>,
   )
 }

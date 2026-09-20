@@ -1,5 +1,12 @@
 import { useMemo, useState } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
+import BarcodeScanner from '../components/BarcodeScanner'
+import ScanButton from '../components/ScanButton'
+import RemoteFoodResults from '../components/RemoteFoodResults'
+import { useBarcodeLookup } from '../hooks/useBarcodeLookup'
+import { toFood as searchedToFood, type SearchedFood } from '../services/foodDataCentral'
+import { useDispatch } from '../state/AppStore'
+import { newId } from '../state/factories'
 import EmptyState from '../components/EmptyState'
 import Page from '../components/Page'
 import { round } from '../domain/nutrition'
@@ -8,8 +15,33 @@ import { useAppState } from '../state/AppStore'
 
 export default function FoodsPage() {
   const { foods } = useAppState()
+  const dispatch = useDispatch()
+  const navigate = useNavigate()
+  const { lookup } = useBarcodeLookup()
   const [query, setQuery] = useState('')
   const [mineOnly, setMineOnly] = useState(false)
+  const [scanning, setScanning] = useState(false)
+
+  async function handleScan(barcode: string) {
+    setScanning(false)
+    const food = await lookup(barcode)
+    // Straight into the editor so the values can be checked against the packet.
+    if (food) navigate(`/foods/${food.id}`)
+  }
+
+  function adoptProduct(product: SearchedFood) {
+    // Matching on name and brand stops a repeat search creating duplicates.
+    const existing = foods.find(
+      (food) => food.name === product.name && (food.brand ?? '') === (product.brand ?? ''),
+    )
+    if (existing) {
+      navigate(`/foods/${existing.id}`)
+      return
+    }
+    const food = searchedToFood(product, newId(), new Date().toISOString())
+    dispatch({ type: 'food/add', food })
+    navigate(`/foods/${food.id}`)
+  }
 
   const groups = useMemo(() => {
     const filtered = foods
@@ -43,6 +75,7 @@ export default function FoodsPage() {
           value={query}
           onChange={(event) => setQuery(event.target.value)}
         />
+        <ScanButton compact onClick={() => setScanning(true)} />
         <button
           type="button"
           onClick={() => setMineOnly((value) => !value)}
@@ -109,6 +142,11 @@ export default function FoodsPage() {
             </section>
           ))}
         </div>
+      )}
+      {!mineOnly && <RemoteFoodResults query={query} onPick={adoptProduct} />}
+
+      {scanning && (
+        <BarcodeScanner onDetected={(code) => void handleScan(code)} onCancel={() => setScanning(false)} />
       )}
     </Page>
   )

@@ -1,9 +1,16 @@
 import { useMemo, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
+import BarcodeScanner from '../components/BarcodeScanner'
 import Button from '../components/Button'
+import IngredientAmount from '../components/IngredientAmount'
 import NutritionGrid from '../components/NutritionGrid'
 import Page from '../components/Page'
+import RemoteFoodResults from '../components/RemoteFoodResults'
+import ScanButton from '../components/ScanButton'
 import SearchList, { type SearchItem } from '../components/SearchList'
+import { useBarcodeLookup } from '../hooks/useBarcodeLookup'
+import { toFood as searchedToFood, type SearchedFood } from '../services/foodDataCentral'
+import { newId } from '../state/factories'
 import { perServing, recipeTotals, round, roundNutrients, scaleNutrients } from '../domain/nutrition'
 import type { RecipeIngredient } from '../domain/types'
 import { useAppState, useDispatch } from '../state/AppStore'
@@ -25,7 +32,10 @@ export default function RecipeEditPage() {
     () => existing?.ingredients.map((ingredient) => ({ ...ingredient })) ?? [],
   )
   const [picking, setPicking] = useState(false)
+  const [pickerQuery, setPickerQuery] = useState('')
+  const [scanning, setScanning] = useState(false)
   const [confirmingDelete, setConfirmingDelete] = useState(false)
+  const { lookup } = useBarcodeLookup()
 
   const pickerItems = useMemo<SearchItem[]>(
     () =>
@@ -61,6 +71,27 @@ export default function RecipeEditPage() {
       { foodId, grams: food?.defaultServing?.grams ?? 100 },
     ])
     setPicking(false)
+    setPickerQuery('')
+  }
+
+  function adoptProduct(product: SearchedFood) {
+    // Matching on name and brand stops a repeat search creating duplicates.
+    const existing = foods.find(
+      (food) => food.name === product.name && (food.brand ?? '') === (product.brand ?? ''),
+    )
+    if (existing) {
+      addIngredient(existing.id)
+      return
+    }
+    const food = searchedToFood(product, newId(), new Date().toISOString())
+    dispatch({ type: 'food/add', food })
+    addIngredient(food.id)
+  }
+
+  async function handleScan(barcode: string) {
+    setScanning(false)
+    const food = await lookup(barcode)
+    if (food) addIngredient(food.id)
   }
 
   function updateGrams(position: number, value: string) {
@@ -101,18 +132,26 @@ export default function RecipeEditPage() {
 
   if (picking) {
     return (
-      <Page title="Add ingredient" subtitle="Pick a food from your library">
+      <Page title="Add ingredient" subtitle="Your foods, or scan a packet">
         <SearchList
           items={pickerItems}
           onSelect={addIngredient}
+          query={pickerQuery}
+          onQueryChange={setPickerQuery}
           placeholder="Search your foods"
+          action={<ScanButton compact onClick={() => setScanning(true)} />}
           autoFocus
+          footer={<RemoteFoodResults query={pickerQuery} onPick={adoptProduct} />}
         />
         <div className="mt-4">
           <Button variant="ghost" onClick={() => setPicking(false)}>
             Cancel
           </Button>
         </div>
+
+        {scanning && (
+          <BarcodeScanner onDetected={(code) => void handleScan(code)} onCancel={() => setScanning(false)} />
+        )}
       </Page>
     )
   }
@@ -196,22 +235,12 @@ export default function RecipeEditPage() {
                         : 'This food has been deleted and will not be counted.'}
                     </p>
                   </div>
-                  <div className="relative w-24 shrink-0">
-                    <input
-                      className="field"
-                      type="number"
-                      inputMode="decimal"
-                      min={0}
-                      aria-label={`Grams of ${food?.name ?? 'deleted food'}`}
-                      value={String(ingredient.grams)}
-                      onChange={(event) => updateGrams(position, event.target.value)}
-                      onFocus={(event) => event.target.select()}
-                      style={{ paddingRight: '1.75rem' }}
-                    />
-                    <span className="pointer-events-none absolute inset-y-0 right-2.5 flex items-center text-xs muted">
-                      g
-                    </span>
-                  </div>
+                  <IngredientAmount
+                    grams={ingredient.grams}
+                    serving={food?.defaultServing}
+                    label={food?.name ?? 'deleted food'}
+                    onChange={(grams) => updateGrams(position, String(grams))}
+                  />
                   <button
                     type="button"
                     onClick={() => removeIngredient(position)}

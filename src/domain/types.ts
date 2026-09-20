@@ -6,16 +6,18 @@ export interface Nutrients {
   /** Saturated fat, grams. Unsaturated fat is derived: fat - satFat. */
   satFat: number
   carbs: number
+  /** Fibre, grams. UK labels list this separately from carbohydrate. */
+  fibre: number
   protein: number
   /** Salt in grams (UK convention), not sodium in mg. */
   salt: number
 }
 
-export const NUTRIENT_KEYS = ['kcal', 'fat', 'satFat', 'carbs', 'protein', 'salt'] as const
+export const NUTRIENT_KEYS = ['kcal', 'fat', 'satFat', 'carbs', 'fibre', 'protein', 'salt'] as const
 export type NutrientKey = (typeof NUTRIENT_KEYS)[number]
 
 /** Macros shown as progress bars on the dashboard, in display order. */
-export const MACRO_KEYS = ['carbs', 'protein', 'fat', 'satFat', 'salt'] as const
+export const MACRO_KEYS = ['carbs', 'fibre', 'protein', 'fat', 'satFat', 'salt'] as const
 export type MacroKey = (typeof MACRO_KEYS)[number]
 
 export interface Serving {
@@ -33,6 +35,8 @@ export interface Food {
   defaultServing?: Serving
   /** Grouping for the food library list, e.g. 'Dairy & eggs'. */
   category?: string
+  /** Set when the food came from a scanned product, so a re-scan finds it. */
+  barcode?: string
   source: 'seed' | 'user'
   createdAt: string
 }

@@ -12,7 +12,9 @@ export default defineConfig({
     react(),
     tailwindcss(),
     VitePWA({
-      registerType: 'autoUpdate',
+      // 'prompt' keeps the new worker waiting so the app can choose when to
+      // reload; useAppUpdate applies it automatically once the user is idle.
+      registerType: 'prompt',
       includeAssets: ['favicon.svg', 'apple-touch-icon.png'],
       manifest: {
         name: 'Health App — Meal & Macro Tracker',
@@ -32,10 +34,32 @@ export default defineConfig({
       },
       workbox: {
         globPatterns: ['**/*.{js,css,html,svg,png,ico,woff2}'],
+        // The barcode decoder is ~475 KB and only iOS ever loads it, on the
+        // first scan. Precaching it would make every install pay for a
+        // feature most sessions never touch, so it is fetched on demand and
+        // cached once used.
+        globIgnores: ['**/barcode-decoder-*.js'],
+        runtimeCaching: [
+          {
+            urlPattern: /\/assets\/barcode-decoder-.*\.js$/,
+            handler: 'CacheFirst',
+            options: { cacheName: 'barcode-decoder' },
+          },
+        ],
       },
       devOptions: { enabled: false },
     }),
   ],
+  build: {
+    rollupOptions: {
+      output: {
+        manualChunks(id) {
+          // Stable name so the service worker can single it out.
+          if (id.includes('@zxing')) return 'barcode-decoder'
+        },
+      },
+    },
+  },
   test: {
     globals: true,
     environment: 'jsdom',

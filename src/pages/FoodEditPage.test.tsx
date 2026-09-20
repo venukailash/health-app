@@ -8,7 +8,7 @@ import { seedFoods } from '../storage/seed'
 
 const userFood = createFood({
   name: 'My protein shake',
-  per100g: { kcal: 380, fat: 6, satFat: 3, carbs: 8, protein: 75, salt: 0.6 },
+  per100g: { kcal: 380, fat: 6, satFat: 3, carbs: 8, fibre: 0, protein: 75, salt: 0.6 },
 })
 
 const renderNew = () =>

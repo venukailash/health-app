@@ -7,7 +7,7 @@ import { DEFAULT_GOALS, SCHEMA_VERSION } from '../storage/repository'
 const oats = createFood({
   name: 'Porridge oats',
   category: 'Bread, grains & cereals',
-  per100g: { kcal: 379, fat: 8, satFat: 1.4, carbs: 60, protein: 11, salt: 0.02 },
+  per100g: { kcal: 379, fat: 8, satFat: 1.4, carbs: 60, fibre: 0, protein: 11, salt: 0.02 },
   defaultServing: { label: '40 g serving', grams: 40 },
 })
 

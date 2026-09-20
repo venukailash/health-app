@@ -1,6 +1,9 @@
 import { Navigate, Route, Routes } from 'react-router-dom'
 import NavBar from './components/NavBar'
+import { useAppUpdate } from './hooks/useAppUpdate'
+import { useKeyboardOpen } from './hooks/useKeyboardOpen'
 import StorageBanner from './components/StorageBanner'
+import Toaster from './components/Toaster'
 import { todayKey } from './domain/date'
 import AddEntryPage from './pages/AddEntryPage'
 import EditEntryPage from './pages/EditEntryPage'
@@ -14,10 +17,18 @@ import TodayPage from './pages/TodayPage'
 import WeekPage from './pages/WeekPage'
 
 export default function App() {
+  const keyboardOpen = useKeyboardOpen()
+  useAppUpdate()
+
   return (
     <>
       <StorageBanner />
-      <main className="pb-6 pt-1">
+      <main
+        className="pt-1"
+        // The bottom padding exists to clear the fixed nav bar; with the bar
+        // hidden it would just be dead space under the keyboard.
+        style={{ paddingBottom: keyboardOpen ? '1rem' : '1.5rem' }}
+      >
         <Routes>
           {/* The selected day lives in the URL so add/edit flows can return to it. */}
           <Route path="/" element={<Navigate to={`/day/${todayKey()}`} replace />} />
@@ -36,6 +47,7 @@ export default function App() {
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </main>
+      <Toaster />
       <NavBar />
     </>
   )

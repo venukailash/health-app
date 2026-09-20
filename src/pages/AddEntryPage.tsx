@@ -1,8 +1,13 @@
 import { useMemo, useState } from 'react'
 import { Navigate, useNavigate, useParams } from 'react-router-dom'
+import BarcodeScanner from '../components/BarcodeScanner'
 import Page from '../components/Page'
 import QuantityPanel from '../components/QuantityPanel'
+import RemoteFoodResults from '../components/RemoteFoodResults'
+import ScanButton from '../components/ScanButton'
 import SearchList, { type SearchItem } from '../components/SearchList'
+import { useBarcodeLookup } from '../hooks/useBarcodeLookup'
+import { toFood as searchedToFood, type SearchedFood } from '../services/foodDataCentral'
 import { formatDayLabel, isValidDateKey, todayKey } from '../domain/date'
 import { recipePerServing, roundNutrients } from '../domain/nutrition'
 import { MEAL_LABELS, MEAL_TYPES, type MealType } from '../domain/types'
@@ -20,8 +25,32 @@ export default function AddEntryPage() {
 
   const [tab, setTab] = useState<Tab>('foods')
   const [selected, setSelected] = useState<{ kind: Tab; id: string } | null>(null)
+  const [query, setQuery] = useState('')
+  const [scanning, setScanning] = useState(false)
+  const { lookup } = useBarcodeLookup()
 
   const index = useMemo(() => foodsById(foods), [foods])
+
+  /** Save an Open Food Facts product into the library, then pick it. */
+  function adoptProduct(product: SearchedFood) {
+    // Matching on name and brand stops a repeat search creating duplicates.
+    const existing = foods.find(
+      (food) => food.name === product.name && (food.brand ?? '') === (product.brand ?? ''),
+    )
+    if (existing) {
+      setSelected({ kind: 'foods', id: existing.id })
+      return
+    }
+    const food = searchedToFood(product, newId(), new Date().toISOString())
+    dispatch({ type: 'food/add', food })
+    setSelected({ kind: 'foods', id: food.id })
+  }
+
+  async function handleScan(barcode: string) {
+    setScanning(false)
+    const food = await lookup(barcode)
+    if (food) setSelected({ kind: 'foods', id: food.id })
+  }
 
   const foodItems = useMemo<SearchItem[]>(
     () =>
@@ -154,13 +183,23 @@ export default function AddEntryPage() {
         key={tab}
         items={tab === 'foods' ? foodItems : recipeItems}
         onSelect={(id) => setSelected({ kind: tab, id })}
+        query={query}
+        onQueryChange={setQuery}
         placeholder={tab === 'foods' ? 'Search foods' : 'Search recipes'}
+        action={tab === 'foods' ? <ScanButton compact onClick={() => setScanning(true)} /> : undefined}
         emptyMessage={
           tab === 'foods'
-            ? 'No foods match that search. Add it from the Foods tab.'
+            ? 'Nothing in your own foods matches. Check the results below, or add it yourself.'
             : 'No recipes yet. Build one from the Recipes tab.'
         }
+        footer={
+          tab === 'foods' ? <RemoteFoodResults query={query} onPick={adoptProduct} /> : undefined
+        }
       />
+
+      {scanning && (
+        <BarcodeScanner onDetected={(code) => void handleScan(code)} onCancel={() => setScanning(false)} />
+      )}
     </Page>
   )
 }

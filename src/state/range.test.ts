@@ -8,7 +8,7 @@ import { roundNutrients } from '../domain/nutrition'
 const food = createFood({
   name: 'Test food',
   // Exactly 100 kcal per 100 g keeps the arithmetic obvious.
-  per100g: { kcal: 100, fat: 10, satFat: 4, carbs: 20, protein: 5, salt: 1 },
+  per100g: { kcal: 100, fat: 10, satFat: 4, carbs: 20, fibre: 0, protein: 5, salt: 1 },
 })
 
 /** A day logging `kcal` calories, via `kcal` grams of the 100 kcal/100 g food. */
@@ -109,6 +109,7 @@ describe('rangeStats averages', () => {
       fat: 15,
       satFat: 6,
       carbs: 30,
+      fibre: 0,
       protein: 7.5,
       salt: 1.5,
     })

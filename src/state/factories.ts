@@ -96,6 +96,7 @@ export function logRecipe(
       fat: perOne.fat * servings,
       satFat: perOne.satFat * servings,
       carbs: perOne.carbs * servings,
+      fibre: perOne.fibre * servings,
       protein: perOne.protein * servings,
       salt: perOne.salt * servings,
     },

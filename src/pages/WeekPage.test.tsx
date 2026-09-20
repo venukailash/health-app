@@ -8,7 +8,7 @@ import type { AppState } from '../state/reducer'
 
 const food = createFood({
   name: 'Test food',
-  per100g: { kcal: 100, fat: 10, satFat: 4, carbs: 20, protein: 5, salt: 1 },
+  per100g: { kcal: 100, fat: 10, satFat: 4, carbs: 20, fibre: 0, protein: 5, salt: 1 },
 })
 
 const day = (date: string, kcal: number) => logFood(food, kcal, 'breakfast', date)

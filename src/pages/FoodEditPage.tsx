@@ -16,6 +16,7 @@ type Form = {
   fat: string
   satFat: string
   carbs: string
+  fibre: string
   protein: string
   salt: string
   servingLabel: string
@@ -30,6 +31,7 @@ const EMPTY_FORM: Form = {
   fat: '',
   satFat: '',
   carbs: '',
+  fibre: '',
   protein: '',
   salt: '',
   servingLabel: '',
@@ -50,6 +52,7 @@ function toForm(food: Food): Form {
     fat: String(food.per100g.fat),
     satFat: String(food.per100g.satFat),
     carbs: String(food.per100g.carbs),
+    fibre: String(food.per100g.fibre),
     protein: String(food.per100g.protein),
     salt: String(food.per100g.salt),
     servingLabel: food.defaultServing?.label ?? '',
@@ -63,6 +66,7 @@ function toNutrients(form: Form): Nutrients {
     fat: num(form.fat),
     satFat: num(form.satFat),
     carbs: num(form.carbs),
+    fibre: num(form.fibre),
     protein: num(form.protein),
     salt: num(form.salt),
   }
@@ -202,6 +206,7 @@ export default function FoodEditPage() {
           <div className="grid gap-4 sm:grid-cols-2">
             <NumberField label="Energy" value={form.kcal} onChange={set('kcal')} suffix="kcal" />
             <NumberField label="Carbohydrate" value={form.carbs} onChange={set('carbs')} suffix="g" />
+            <NumberField label="Fibre" value={form.fibre} onChange={set('fibre')} suffix="g" />
             <NumberField label="Protein" value={form.protein} onChange={set('protein')} suffix="g" />
             <NumberField label="Fat" value={form.fat} onChange={set('fat')} suffix="g" />
             <NumberField
@@ -262,6 +267,7 @@ export default function FoodEditPage() {
               {[
                 ['kcal', preview.kcal],
                 ['Carbs', `${preview.carbs} g`],
+                ['Fibre', `${preview.fibre} g`],
                 ['Protein', `${preview.protein} g`],
                 ['Fat', `${preview.fat} g`],
                 ['Sat', `${preview.satFat} g`],

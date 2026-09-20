@@ -1,6 +1,6 @@
 import type { Food, Goals, LogByDate, LogEntry, Recipe } from '../domain/types'
 import { DEFAULT_GOALS, DEFAULT_META, type Meta } from '../storage/repository'
-import { missingSeedFoods } from '../storage/seed'
+import { applySeedFoods } from '../storage/seed'
 
 export interface AppState {
   foods: Food[]
@@ -30,6 +30,7 @@ export type Action =
   | { type: 'entry/add'; entry: LogEntry }
   | { type: 'entry/update'; entry: LogEntry }
   | { type: 'entry/delete'; date: string; id: string }
+  | { type: 'meta/set'; meta: Meta }
   | { type: 'seed/apply'; seedVersion: number }
   | { type: 'data/replace'; state: AppState }
   | { type: 'data/clear' }
@@ -59,6 +60,9 @@ export function reducer(state: AppState, action: Action): AppState {
 
     case 'goals/set':
       return { ...state, goals: action.goals }
+
+    case 'meta/set':
+      return { ...state, meta: action.meta }
 
     case 'food/add':
       return { ...state, foods: [...state.foods, action.food] }
@@ -104,14 +108,12 @@ export function reducer(state: AppState, action: Action): AppState {
     case 'entry/delete':
       return { ...state, log: withoutEntry(state.log, action.date, action.id) }
 
-    case 'seed/apply': {
-      const additions = missingSeedFoods(state.foods)
+    case 'seed/apply':
       return {
         ...state,
-        foods: additions.length > 0 ? [...state.foods, ...additions] : state.foods,
+        foods: applySeedFoods(state.foods),
         meta: { ...state.meta, seedVersion: action.seedVersion },
       }
-    }
 
     case 'data/clear':
       return { ...EMPTY_STATE, log: {}, foods: [], recipes: [] }

@@ -1,4 +1,5 @@
 import { NavLink, useLocation } from 'react-router-dom'
+import { useKeyboardOpen } from '../hooks/useKeyboardOpen'
 
 const TABS = [
   { to: '/', label: 'Progress', match: ['/day', '/week', '/month'], icon: 'M3 12h4l3 8 4-16 3 8h4' },
@@ -9,6 +10,11 @@ const TABS = [
 
 export default function NavBar() {
   const { pathname } = useLocation()
+  // On iOS the layout viewport does not shrink for the keyboard, so a fixed
+  // bar would sit on top of it. Hide it while typing.
+  const keyboardOpen = useKeyboardOpen()
+
+  if (keyboardOpen) return null
 
   return (
     <nav

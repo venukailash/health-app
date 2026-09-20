@@ -58,6 +58,7 @@ export default function TodayPage() {
 
         <div className="mt-6 space-y-3.5">
           <MacroBar label="Carbs" progress={progress.carbs} color="var(--color-carbs)" />
+          <MacroBar label="Fibre" progress={progress.fibre} color="var(--color-fibre)" />
           <MacroBar label="Protein" progress={progress.protein} color="var(--color-protein)" />
           <MacroBar label="Fat" progress={progress.fat} color="var(--color-fat)" />
           <MacroBar

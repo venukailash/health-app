@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react'
+import { useMemo, useState, type ReactNode } from 'react'
 
 export interface SearchItem {
   id: string
@@ -26,6 +26,10 @@ export default function SearchList({
   emptyMessage = 'Nothing matches that search.',
   limit = 60,
   autoFocus,
+  query: controlledQuery,
+  onQueryChange,
+  action,
+  footer,
 }: {
   items: SearchItem[]
   onSelect: (id: string) => void
@@ -33,22 +37,37 @@ export default function SearchList({
   emptyMessage?: string
   limit?: number
   autoFocus?: boolean
+  /** Controlled query, when the page needs it too (e.g. to search online). */
+  query?: string
+  onQueryChange?: (query: string) => void
+  /** Rendered beside the search box, e.g. a scan button. */
+  action?: ReactNode
+  /** Rendered under the local results, e.g. online results. */
+  footer?: ReactNode
 }) {
-  const [query, setQuery] = useState('')
+  const [internalQuery, setInternalQuery] = useState('')
+  const query = controlledQuery ?? internalQuery
+  const setQuery = (next: string) => {
+    setInternalQuery(next)
+    onQueryChange?.(next)
+  }
   const matches = useMemo(() => filterItems(items, query), [items, query])
   const shown = matches.slice(0, limit)
 
   return (
     <div>
-      <input
-        className="field mb-3"
-        type="search"
-        placeholder={placeholder}
-        aria-label={placeholder}
-        value={query}
-        autoFocus={autoFocus}
-        onChange={(event) => setQuery(event.target.value)}
-      />
+      <div className="mb-3 flex gap-2">
+        <input
+          className="field"
+          type="search"
+          placeholder={placeholder}
+          aria-label={placeholder}
+          value={query}
+          autoFocus={autoFocus}
+          onChange={(event) => setQuery(event.target.value)}
+        />
+        {action}
+      </div>
 
       {shown.length === 0 ? (
         <p className="card px-4 py-6 text-center text-sm muted">{emptyMessage}</p>
@@ -84,6 +103,8 @@ export default function SearchList({
           Showing {shown.length} of {matches.length} — keep typing to narrow it down.
         </p>
       )}
+
+      {footer}
     </div>
   )
 }

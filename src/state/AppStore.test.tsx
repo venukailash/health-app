@@ -51,7 +51,7 @@ describe('loadInitialState', () => {
   it('tops up a browser left on an older seed revision', () => {
     const mine = createFood({
       name: 'Mine',
-      per100g: { kcal: 1, fat: 0, satFat: 0, carbs: 0, protein: 0, salt: 0 },
+      per100g: { kcal: 1, fat: 0, satFat: 0, carbs: 0, fibre: 0, protein: 0, salt: 0 },
     })
     repository.saveMeta({ seedVersion: 0 })
     repository.saveFoods([mine])

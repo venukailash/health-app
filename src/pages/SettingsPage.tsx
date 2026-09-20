@@ -7,6 +7,7 @@ import type { Goals } from '../domain/types'
 import { useDispatch, useAppState } from '../state/AppStore'
 import { ImportError, backupFilename, buildBackup, parseBackup } from '../state/transfer'
 import { DEFAULT_GOALS } from '../storage/repository'
+import { DEMO_API_KEY } from '../services/foodDataCentral'
 import { SEED_VERSION } from '../storage/seed'
 
 type GoalForm = Record<keyof Goals, string>
@@ -16,6 +17,7 @@ const toForm = (goals: Goals): GoalForm => ({
   fat: String(goals.fat),
   satFat: String(goals.satFat),
   carbs: String(goals.carbs),
+  fibre: String(goals.fibre),
   protein: String(goals.protein),
   salt: String(goals.salt),
 })
@@ -30,6 +32,7 @@ const toGoals = (form: GoalForm): Goals => ({
   fat: toNumber(form.fat),
   satFat: toNumber(form.satFat),
   carbs: toNumber(form.carbs),
+  fibre: toNumber(form.fibre),
   protein: toNumber(form.protein),
   salt: toNumber(form.salt),
 })
@@ -43,6 +46,8 @@ export default function SettingsPage() {
   const [saved, setSaved] = useState(false)
   const [message, setMessage] = useState<{ tone: 'ok' | 'error'; text: string } | null>(null)
   const [confirmingReset, setConfirmingReset] = useState(false)
+  const [apiKey, setApiKey] = useState(state.meta.fdcApiKey ?? '')
+  const [keySaved, setKeySaved] = useState(false)
 
   const goals = toGoals(form)
   const macroKcal = kcalFromMacros(goals)
@@ -114,6 +119,7 @@ export default function SettingsPage() {
         <div className="grid gap-4 sm:grid-cols-2">
           <NumberField label="Calories" value={form.kcal} onChange={set('kcal')} suffix="kcal" step="10" />
           <NumberField label="Carbohydrate" value={form.carbs} onChange={set('carbs')} suffix="g" />
+          <NumberField label="Fibre" value={form.fibre} onChange={set('fibre')} suffix="g" />
           <NumberField label="Protein" value={form.protein} onChange={set('protein')} suffix="g" />
           <NumberField label="Fat" value={form.fat} onChange={set('fat')} suffix="g" />
           <NumberField
@@ -156,6 +162,68 @@ export default function SettingsPage() {
             Use defaults
           </Button>
           {saved && <span className="text-sm text-brand">Saved</span>}
+        </div>
+      </section>
+
+      <section className="card mb-4 p-4">
+        <h2 className="mb-1 font-semibold">Food search</h2>
+        <p className="mb-4 text-sm muted">
+          Searching looks foods up in USDA FoodData Central. Without a key of your own it uses a
+          shared demo key limited to about ten searches an hour, so searches will often come back
+          busy. A personal key is free and instant from{' '}
+          <a
+            href="https://fdc.nal.usda.gov/api-key-signup.html"
+            target="_blank"
+            rel="noreferrer"
+            className="font-medium text-brand underline"
+          >
+            fdc.nal.usda.gov
+          </a>{' '}
+          and raises that to 1,000 an hour. Barcode scanning uses Open Food Facts and needs no key.
+        </p>
+
+        <label htmlFor="fdc-key" className="mb-1 block text-sm font-medium">
+          FoodData Central API key <span className="muted">(optional)</span>
+        </label>
+        <input
+          id="fdc-key"
+          className="field"
+          type="text"
+          autoComplete="off"
+          spellCheck={false}
+          placeholder={DEMO_API_KEY}
+          value={apiKey}
+          onChange={(event) => {
+            setApiKey(event.target.value)
+            setKeySaved(false)
+          }}
+        />
+
+        <div className="mt-3 flex flex-wrap items-center gap-2">
+          <Button
+            onClick={() => {
+              dispatch({
+                type: 'meta/set',
+                meta: { ...state.meta, fdcApiKey: apiKey.trim() || undefined },
+              })
+              setKeySaved(true)
+            }}
+          >
+            Save key
+          </Button>
+          {state.meta.fdcApiKey && (
+            <Button
+              variant="ghost"
+              onClick={() => {
+                setApiKey('')
+                dispatch({ type: 'meta/set', meta: { ...state.meta, fdcApiKey: undefined } })
+                setKeySaved(true)
+              }}
+            >
+              Remove
+            </Button>
+          )}
+          {keySaved && <span className="text-sm text-brand">Saved</span>}
         </div>
       </section>
 

@@ -16,11 +16,11 @@ import { roundNutrients } from '../domain/nutrition'
 
 const oats = createFood({
   name: 'Porridge oats',
-  per100g: { kcal: 379, fat: 8, satFat: 1.4, carbs: 60, protein: 11, salt: 0.02 },
+  per100g: { kcal: 379, fat: 8, satFat: 1.4, carbs: 60, fibre: 0, protein: 11, salt: 0.02 },
 })
 const chicken = createFood({
   name: 'Chicken breast',
-  per100g: { kcal: 165, fat: 3.6, satFat: 1, carbs: 0, protein: 31, salt: 0.1 },
+  per100g: { kcal: 165, fat: 3.6, satFat: 1, carbs: 0, fibre: 0, protein: 31, salt: 0.1 },
 })
 
 const state: AppState = {
@@ -66,6 +66,7 @@ describe('totals', () => {
       fat: 15.2,
       satFat: 3.4,
       carbs: 60,
+      fibre: 0,
       protein: 73,
       salt: 0.22,
     })
@@ -77,6 +78,7 @@ describe('totals', () => {
       fat: 0,
       satFat: 0,
       carbs: 0,
+      fibre: 0,
       protein: 0,
       salt: 0,
     })
@@ -101,7 +103,7 @@ describe('goalProgress', () => {
 
   it('flags nutrients over target without capping the percentage', () => {
     const progress = goalProgress(
-      { kcal: 2500, fat: 90, satFat: 30, carbs: 300, protein: 60, salt: 9 },
+      { kcal: 2500, fat: 90, satFat: 30, carbs: 300, fibre: 0, protein: 60, salt: 9 },
       DEFAULT_GOALS,
     )
     expect(progress.kcal.over).toBe(true)
@@ -112,7 +114,7 @@ describe('goalProgress', () => {
 
   it('handles a zero target without dividing by zero', () => {
     const progress = goalProgress(
-      { kcal: 500, fat: 0, satFat: 0, carbs: 0, protein: 0, salt: 0 },
+      { kcal: 500, fat: 0, satFat: 0, carbs: 0, fibre: 0, protein: 0, salt: 0 },
       { ...DEFAULT_GOALS, kcal: 0 },
     )
     expect(progress.kcal.percent).toBe(0)
@@ -122,16 +124,16 @@ describe('goalProgress', () => {
 
 describe('fatBreakdown', () => {
   it('splits total fat into saturated and derived unsaturated', () => {
-    const result = fatBreakdown({ kcal: 0, fat: 20, satFat: 5, carbs: 0, protein: 0, salt: 0 })
+    const result = fatBreakdown({ kcal: 0, fat: 20, satFat: 5, carbs: 0, fibre: 0, protein: 0, salt: 0 })
     expect(result).toEqual({ total: 20, saturated: 5, unsaturated: 15, saturatedShare: 25 })
   })
 
   it('never reports more saturated than total, or a NaN share', () => {
-    const odd = fatBreakdown({ kcal: 0, fat: 2, satFat: 5, carbs: 0, protein: 0, salt: 0 })
+    const odd = fatBreakdown({ kcal: 0, fat: 2, satFat: 5, carbs: 0, fibre: 0, protein: 0, salt: 0 })
     expect(odd.saturated).toBe(2)
     expect(odd.unsaturated).toBe(0)
 
-    const none = fatBreakdown({ kcal: 0, fat: 0, satFat: 0, carbs: 0, protein: 0, salt: 0 })
+    const none = fatBreakdown({ kcal: 0, fat: 0, satFat: 0, carbs: 0, fibre: 0, protein: 0, salt: 0 })
     expect(none.saturatedShare).toBe(0)
   })
 })

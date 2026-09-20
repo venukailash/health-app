@@ -5,7 +5,7 @@ import type { Food } from './types'
 const food = (overrides: Partial<Food>): Food => ({
   id: 'f1',
   name: 'Porridge oats',
-  per100g: { kcal: 379, fat: 8, satFat: 1.4, carbs: 60, protein: 11, salt: 0.02 },
+  per100g: { kcal: 379, fat: 8, satFat: 1.4, carbs: 60, fibre: 0, protein: 11, salt: 0.02 },
   source: 'seed',
   createdAt: '2026-01-01T00:00:00.000Z',
   ...overrides,

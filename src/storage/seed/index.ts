@@ -35,3 +35,21 @@ export function missingSeedFoods(existing: Food[]): Food[] {
   const known = new Set(existing.map((food) => food.id))
   return seedFoods.filter((food) => !known.has(food.id))
 }
+
+/**
+ * Apply the current starter data to a library: refresh the foods that came
+ * from a previous seed revision and append any new ones.
+ *
+ * Starter foods are read-only, so replacing them is safe and is the only way
+ * an existing install picks up corrections — when fibre was added, every
+ * already-seeded food would otherwise have been stuck reporting zero.
+ * User-created foods are never touched, and a starter food the user deleted
+ * stays deleted.
+ */
+export function applySeedFoods(existing: Food[]): Food[] {
+  const current = new Map(seedFoods.map((food) => [food.id, food]))
+  const refreshed = existing.map((food) =>
+    food.source === 'seed' && current.has(food.id) ? (current.get(food.id) as Food) : food,
+  )
+  return [...refreshed, ...missingSeedFoods(existing)]
+}

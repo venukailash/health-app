@@ -14,7 +14,7 @@ import type { Food, Goals, LogByDate } from '../domain/types'
 const food: Food = {
   id: 'f1',
   name: 'Porridge oats',
-  per100g: { kcal: 379, fat: 6.5, satFat: 1.1, carbs: 67.7, protein: 13.2, salt: 0.02 },
+  per100g: { kcal: 379, fat: 6.5, satFat: 1.1, carbs: 67.7, fibre: 0, protein: 13.2, salt: 0.02 },
   source: 'user',
   createdAt: '2026-09-20T08:00:00.000Z',
 }
@@ -131,7 +131,7 @@ describe('repository helpers', () => {
           meal: 'breakfast',
           ref: { kind: 'food', id: 'f1', grams: 40 },
           label: 'Porridge oats',
-          nutrients: { kcal: 152, fat: 2.6, satFat: 0.4, carbs: 27.1, protein: 5.3, salt: 0.01 },
+          nutrients: { kcal: 152, fat: 2.6, satFat: 0.4, carbs: 27.1, fibre: 0, protein: 5.3, salt: 0.01 },
           loggedAt: '2026-09-20T08:05:00.000Z',
         },
       ],

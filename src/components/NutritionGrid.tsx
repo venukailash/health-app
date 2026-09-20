@@ -13,6 +13,7 @@ export default function NutritionGrid({
   const cells: [string, string | number][] = [
     ['kcal', value.kcal],
     ['Carbs', `${value.carbs} g`],
+    ['Fibre', `${value.fibre} g`],
     ['Protein', `${value.protein} g`],
     ['Fat', `${value.fat} g`],
     ['Sat fat', `${value.satFat} g`],
@@ -22,7 +23,7 @@ export default function NutritionGrid({
   return (
     <div>
       {caption && <p className="mb-2 text-sm font-medium muted">{caption}</p>}
-      <dl className="grid grid-cols-3 gap-2 text-center text-sm sm:grid-cols-6">
+      <dl className="grid grid-cols-3 gap-2 text-center text-sm sm:grid-cols-7">
         {cells.map(([label, cell]) => (
           <div key={label} className="rounded-xl px-2 py-2" style={{ background: 'var(--track)' }}>
             <dt className="text-xs muted">{label}</dt>

@@ -109,3 +109,9 @@ the menu on Android Chrome). It then launches full-screen and works offline.
 Nothing leaves the device. That also means clearing your browser data deletes it, and each
 browser or device has its own copy — use **Settings → Export backup** before clearing, or to move
 between devices.
+
+## Documentation
+
+- [`CLAUDE.md`](CLAUDE.md) — orientation for agents and new contributors
+- [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md) — layers, data model, storage and migrations
+- [`docs/DECISIONS.md`](docs/DECISIONS.md) — why things are the way they are

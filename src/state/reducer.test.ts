@@ -8,7 +8,7 @@ import type { Food, LogEntry } from '../domain/types'
 
 const oats = createFood({
   name: 'Porridge oats',
-  per100g: { kcal: 379, fat: 8, satFat: 1.4, carbs: 60, protein: 11, salt: 0.02 },
+  per100g: { kcal: 379, fat: 8, satFat: 1.4, carbs: 60, fibre: 0, protein: 11, salt: 0.02 },
 })
 
 const stateWith = (patch: Partial<AppState>): AppState => ({ ...EMPTY_STATE, ...patch })
@@ -28,7 +28,7 @@ describe('foods', () => {
   it('updates a food in place, preserving order', () => {
     const other = createFood({
       name: 'Banana',
-      per100g: { kcal: 89, fat: 0.3, satFat: 0.1, carbs: 20.3, protein: 1.1, salt: 0 },
+      per100g: { kcal: 89, fat: 0.3, satFat: 0.1, carbs: 20.3, fibre: 0, protein: 1.1, salt: 0 },
     })
     const state = stateWith({ foods: [oats, other] })
     const corrected: Food = { ...oats, name: 'Porridge oats, dry' }

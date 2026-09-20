@@ -7,7 +7,7 @@ import type { Food, Goals, LogByDate, Recipe } from '../domain/types'
  * throwing — a corrupt key must never white-screen the app.
  */
 
-export const SCHEMA_VERSION = 1
+export const SCHEMA_VERSION = 2
 
 export const STORAGE_KEYS = {
   foods: 'healthapp.foods.v1',
@@ -22,6 +22,12 @@ export type StorageKey = (typeof STORAGE_KEYS)[keyof typeof STORAGE_KEYS]
 export interface Meta {
   /** Which revision of the bundled starter foods has been imported. */
   seedVersion: number
+  /**
+   * Personal USDA FoodData Central key. Optional: without one the app uses
+   * USDA's shared demo key, which is rate limited to roughly ten searches an
+   * hour across everyone using it.
+   */
+  fdcApiKey?: string
 }
 
 export interface Envelope<T> {
@@ -34,6 +40,8 @@ export const DEFAULT_GOALS: Goals = {
   fat: 70,
   satFat: 20,
   carbs: 260,
+  // 30 g is the UK recommendation for adults.
+  fibre: 30,
   protein: 50,
   salt: 6,
 }
@@ -62,15 +70,41 @@ export class StorageWriteError extends Error {
   }
 }
 
+/**
+ * v2 added fibre. Anything stored under v1 predates it, so every set of
+ * nutrients gains `fibre: 0` — unknown, not zero-by-measurement, but the only
+ * honest default and it keeps totals correct.
+ */
+function addFibreToNutrients(value: unknown): unknown {
+  if (Array.isArray(value)) return value.map(addFibreToNutrients)
+  if (typeof value !== 'object' || value === null) return value
+
+  const record = value as Record<string, unknown>
+  const next: Record<string, unknown> = {}
+  for (const [key, item] of Object.entries(record)) next[key] = addFibreToNutrients(item)
+
+  // A nutrients object is anything carrying carbs and protein numbers.
+  if (typeof record.carbs === 'number' && typeof record.protein === 'number' && !('fibre' in record)) {
+    next.fibre = 0
+  }
+  return next
+}
+
 function migrate<T>(envelope: Envelope<unknown>, fallback: T): T {
-  // v1 is the first schema; nothing older exists to upgrade from. Anything
-  // claiming a newer version was written by a later build of the app, so we
-  // leave it untouched on disk and run with defaults in memory.
   if (envelope.version === SCHEMA_VERSION) return envelope.data as T
+  // Anything claiming a NEWER version was written by a later build of the app;
+  // leave it untouched on disk and run with defaults in memory.
+  if (envelope.version === 1) return addFibreToNutrients(envelope.data) as T
   return fallback
 }
 
-export function read<T>(key: StorageKey, fallback: T, validate?: (value: unknown) => boolean): T {
+export function read<T>(
+  key: StorageKey,
+  fallback: T,
+  validate?: (value: unknown) => boolean,
+  /** Runs after a schema upgrade, with the version the data came from. */
+  onMigrated?: (data: T, fromVersion: number) => T,
+): T {
   const store = storage()
   if (!store) return fallback
 
@@ -96,7 +130,10 @@ export function read<T>(key: StorageKey, fallback: T, validate?: (value: unknown
   const envelope = parsed as Envelope<unknown>
   if (typeof envelope.version !== 'number') return fallback
 
-  const data = migrate(envelope, fallback)
+  let data = migrate<T>(envelope, fallback)
+  if (onMigrated && envelope.version !== SCHEMA_VERSION && data !== fallback) {
+    data = onMigrated(data, envelope.version)
+  }
   if (validate && !validate(data)) return fallback
   return data
 }
@@ -133,7 +170,15 @@ export const repository = {
   loadLog: (): LogByDate => read<LogByDate>(STORAGE_KEYS.log, {}, isRecord),
   saveLog: (log: LogByDate): void => write(STORAGE_KEYS.log, log),
 
-  loadGoals: (): Goals => read<Goals>(STORAGE_KEYS.goals, DEFAULT_GOALS, isRecord),
+  /**
+   * A target of zero is not the same as an unmeasured value: a 0 g fibre goal
+   * would leave the bar stuck at 0% forever. Anything upgraded from before
+   * fibre existed therefore adopts the recommended target rather than zero.
+   */
+  loadGoals: (): Goals =>
+    read<Goals>(STORAGE_KEYS.goals, DEFAULT_GOALS, isRecord, (goals, fromVersion) =>
+      fromVersion < 2 ? { ...goals, fibre: DEFAULT_GOALS.fibre } : goals,
+    ),
   saveGoals: (goals: Goals): void => write(STORAGE_KEYS.goals, goals),
 
   loadMeta: (): Meta => read<Meta>(STORAGE_KEYS.meta, DEFAULT_META, isRecord),

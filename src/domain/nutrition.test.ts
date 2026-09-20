@@ -15,7 +15,7 @@ import {
 } from './nutrition'
 import type { Food, Nutrients } from './types'
 
-const oats: Nutrients = { kcal: 379, fat: 6.5, satFat: 1.1, carbs: 67.7, protein: 13.2, salt: 0.02 }
+const oats: Nutrients = { kcal: 379, fat: 6.5, satFat: 1.1, carbs: 67.7, fibre: 0, protein: 13.2, salt: 0.02 }
 
 const makeFood = (id: string, name: string, per100g: Nutrients): Food => ({
   id,
@@ -44,7 +44,7 @@ describe('round', () => {
 describe('scaleNutrients', () => {
   it('scales per-100g values to a gram weight', () => {
     const result = roundNutrients(scaleNutrients(oats, 40))
-    expect(result).toEqual({ kcal: 152, fat: 2.6, satFat: 0.4, carbs: 27.1, protein: 5.3, salt: 0.01 })
+    expect(result).toEqual({ kcal: 152, fat: 2.6, satFat: 0.4, carbs: 27.1, fibre: 0, protein: 5.3, salt: 0.01 })
   })
 
   it('returns the same values at exactly 100 g', () => {
@@ -65,13 +65,14 @@ describe('scaleNutrients', () => {
 
 describe('addNutrients / sumNutrients', () => {
   it('adds every nutrient key', () => {
-    const a: Nutrients = { kcal: 100, fat: 1, satFat: 0.5, carbs: 10, protein: 5, salt: 0.1 }
-    const b: Nutrients = { kcal: 50, fat: 2, satFat: 0.25, carbs: 3, protein: 1, salt: 0.4 }
+    const a: Nutrients = { kcal: 100, fat: 1, satFat: 0.5, carbs: 10, fibre: 0, protein: 5, salt: 0.1 }
+    const b: Nutrients = { kcal: 50, fat: 2, satFat: 0.25, carbs: 3, fibre: 0, protein: 1, salt: 0.4 }
     expect(addNutrients(a, b)).toEqual({
       kcal: 150,
       fat: 3,
       satFat: 0.75,
       carbs: 13,
+      fibre: 0,
       protein: 6,
       salt: 0.5,
     })
@@ -107,6 +108,7 @@ describe('recipeTotals and perServing', () => {
     fat: 3.6,
     satFat: 1,
     carbs: 0,
+    fibre: 0,
     protein: 31,
     salt: 0.1,
   })
@@ -115,6 +117,7 @@ describe('recipeTotals and perServing', () => {
     fat: 0.3,
     satFat: 0.1,
     carbs: 28,
+    fibre: 0,
     protein: 2.7,
     salt: 0,
   })
@@ -136,6 +139,7 @@ describe('recipeTotals and perServing', () => {
       fat: 8.1,
       satFat: 2.3,
       carbs: 84,
+      fibre: 0,
       protein: 70.1,
       salt: 0.2,
     })
@@ -158,19 +162,20 @@ describe('recipeTotals and perServing', () => {
   })
 
   it('divides totals across servings', () => {
-    const totals: Nutrients = { kcal: 800, fat: 40, satFat: 12, carbs: 80, protein: 60, salt: 4 }
+    const totals: Nutrients = { kcal: 800, fat: 40, satFat: 12, carbs: 80, fibre: 0, protein: 60, salt: 4 }
     expect(perServing(totals, 4)).toEqual({
       kcal: 200,
       fat: 10,
       satFat: 3,
       carbs: 20,
+      fibre: 0,
       protein: 15,
       salt: 1,
     })
   })
 
   it('returns zeros rather than Infinity for a zero or negative yield', () => {
-    const totals: Nutrients = { kcal: 800, fat: 40, satFat: 12, carbs: 80, protein: 60, salt: 4 }
+    const totals: Nutrients = { kcal: 800, fat: 40, satFat: 12, carbs: 80, fibre: 0, protein: 60, salt: 4 }
     expect(perServing(totals, 0)).toEqual(ZERO_NUTRIENTS)
     expect(perServing(totals, -2)).toEqual(ZERO_NUTRIENTS)
   })
@@ -182,7 +187,7 @@ describe('recipeTotals and perServing', () => {
         foods,
       ),
     )
-    expect(result).toEqual({ kcal: 165, fat: 3.6, satFat: 1, carbs: 0, protein: 31, salt: 0.1 })
+    expect(result).toEqual({ kcal: 165, fat: 3.6, satFat: 1, carbs: 0, fibre: 0, protein: 31, salt: 0.1 })
   })
 })
 
