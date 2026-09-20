@@ -7,9 +7,11 @@ import EditEntryPage from './pages/EditEntryPage'
 import FoodEditPage from './pages/FoodEditPage'
 import FoodsPage from './pages/FoodsPage'
 import RecipeEditPage from './pages/RecipeEditPage'
+import MonthPage from './pages/MonthPage'
 import RecipesPage from './pages/RecipesPage'
 import SettingsPage from './pages/SettingsPage'
 import TodayPage from './pages/TodayPage'
+import WeekPage from './pages/WeekPage'
 
 export default function App() {
   return (
@@ -22,6 +24,8 @@ export default function App() {
           <Route path="/day/:date" element={<TodayPage />} />
           <Route path="/day/:date/add/:meal" element={<AddEntryPage />} />
           <Route path="/day/:date/entry/:entryId" element={<EditEntryPage />} />
+          <Route path="/week/:date" element={<WeekPage />} />
+          <Route path="/month/:date" element={<MonthPage />} />
           <Route path="/foods" element={<FoodsPage />} />
           <Route path="/foods/new" element={<FoodEditPage />} />
           <Route path="/foods/:id" element={<FoodEditPage />} />

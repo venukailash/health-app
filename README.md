@@ -8,10 +8,14 @@ in `localStorage` on the device you use, and the app works offline once loaded.
 
 ## What it does
 
-- **Today** — a calorie ring plus a bar per macro showing grams consumed, your target and the
+- **Day** — a calorie ring plus a bar per macro showing grams consumed, your target and the
   percentage of goal. Fat is broken down into saturated and unsaturated. Entries are grouped into
   breakfast, lunch, dinner and snacks, with a subtotal each, and you can step back and forward
   through days.
+- **Week** — calories per day as columns against a goal reference line, your average day as macro
+  bars, and a day-by-day list. Averages are over the days you actually logged, not all seven.
+- **Month** — a calendar heat map shaded by how much of your calorie goal you ate, with days over
+  goal ringed, plus the same averages and an optional table of every logged day.
 - **Foods** — a searchable library, pre-loaded with 128 common UK foods. Add your own from the
   per-100 g column of a label, with an optional typical portion. Starter foods are read-only but
   can be duplicated and edited.
@@ -19,9 +23,7 @@ in `localStorage` on the device you use, and the app works offline once loaded.
   whole-recipe nutrition update as you build. Log a recipe by the serving.
 - **Settings** — set your daily targets, export a JSON backup, import one back, or reset.
 
-Tracked in this first slice: calories, carbohydrate, protein, fat (with saturates), and salt in
-grams. Weekly and monthly views are next; the log is already stored per calendar day so they are
-additive.
+Tracked so far: calories, carbohydrate, protein, fat (with saturates), and salt in grams.
 
 ## Running it locally
 
@@ -49,9 +51,13 @@ src/
   domain/     pure nutrition and date maths — no React, no storage
   storage/    the only code that touches localStorage, plus the seed food data
   state/      reducer, selectors, store provider, backup import/export
-  components/ shared UI
+  components/ shared UI, including the hand-rolled charts
   pages/      one file per screen
 ```
+
+Charts are hand-rolled HTML and CSS rather than a charting library: the two forms needed here are
+a column chart and a calendar grid, and a library would have roughly doubled the bundle of an
+app whose whole point is loading instantly offline on a phone.
 
 Three decisions worth knowing about:
 
@@ -60,7 +66,22 @@ Three decisions worth knowing about:
 - **Log entries hold a snapshot of their nutrition.** Correcting or deleting a food does not
   rewrite meals you have already logged.
 - **Dates are local calendar dates**, never derived from `toISOString()` — otherwise a 9pm entry
-  would file itself under tomorrow for anyone east of UTC.
+  would file itself under tomorrow for anyone east of UTC. Weeks run Monday to Sunday.
+- **Weekly and monthly averages divide by logged days, not calendar days.** Averaging four
+  tracked days across a whole week would quietly report you as eating far less than you did.
+
+### Chart colours
+
+The macro palette is checked with a validator rather than by eye, in both light and dark mode:
+the categorical slots have to clear colour-blindness and normal-vision separation floors, and the
+heat-map ramp has to be a single hue with monotone lightness whose lightest step still stands off
+the surface. Two consequences worth knowing:
+
+- Saturated fat is a **darker step of the fat hue**, not a fifth category — as a part of fat it
+  was always going to sit too close to it to be a rival slot.
+- The status red is **reserved**. A macro bar keeps its own hue when it goes over goal and says so
+  with an icon and red text instead, so identity and status never share a channel. Neither chart
+  uses colour for "over goal" either: the week chart uses the goal line, the heat map a ring.
 
 ## Deploying to GitHub Pages
 

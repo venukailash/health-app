@@ -2,6 +2,7 @@ import { Link, Navigate, useParams } from 'react-router-dom'
 import CalorieRing from '../components/CalorieRing'
 import MacroBar from '../components/MacroBar'
 import Page from '../components/Page'
+import PeriodSwitcher from '../components/PeriodSwitcher'
 import { addDays, formatDayLabel, formatFullDate, isValidDateKey, todayKey } from '../domain/date'
 import { round, roundNutrients } from '../domain/nutrition'
 import { MEAL_LABELS, MEAL_TYPES } from '../domain/types'
@@ -35,6 +36,8 @@ export default function TodayPage() {
         )
       }
     >
+      <PeriodSwitcher active="day" date={date} />
+
       <nav aria-label="Change day" className="mb-4 flex items-center justify-between gap-2">
         <Link
           to={`/day/${addDays(date, -1)}`}

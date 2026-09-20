@@ -1,17 +1,25 @@
 @import 'tailwindcss';
 
 @theme {
-  /* Macro colours — one hue per nutrient, reused by every bar, ring and dot. */
-  --color-kcal: oklch(0.62 0.16 178);
+  /* Macro hues. Validated with the dataviz palette checker against both
+     surfaces: categorical slots clear the CVD and normal-vision floors, and
+     saturated fat is an ordinal step of the fat hue (it is part of fat, not a
+     rival category) rather than a fifth slot that sat too close to it. */
   --color-carbs: oklch(0.72 0.16 70);
   --color-protein: oklch(0.6 0.16 255);
   --color-fat: oklch(0.68 0.17 25);
-  --color-satfat: oklch(0.58 0.2 15);
+  --color-satfat: oklch(0.45 0.18 25);
   --color-salt: oklch(0.6 0.16 300);
 
+  /* Single-series charts (calories) and the brand accent. */
+  --color-kcal: oklch(0.62 0.16 178);
   --color-brand: oklch(0.52 0.11 185);
+
+  /* Reserved status hue: only ever text, icons and the calorie ring — never a
+     macro mark, so it can't be mistaken for a series. */
   --color-over: oklch(0.58 0.2 25);
 }
+
 
 :root {
   color-scheme: light dark;
@@ -21,6 +29,13 @@
   --text: oklch(0.24 0.02 250);
   --text-muted: oklch(0.52 0.02 250);
   --track: oklch(0.93 0.006 220);
+
+  /* Sequential ramp for the month heat map: one hue, monotone lightness,
+     lightest step clears the surface at 2:1. */
+  --heat-1: oklch(0.74 0.09 178);
+  --heat-2: oklch(0.65 0.13 178);
+  --heat-3: oklch(0.56 0.14 178);
+  --heat-4: oklch(0.47 0.12 178);
 }
 
 @media (prefers-color-scheme: dark) {
@@ -31,6 +46,19 @@
     --text: oklch(0.95 0.005 250);
     --text-muted: oklch(0.68 0.015 250);
     --track: oklch(0.31 0.02 250);
+
+    /* Dark mode is stepped for the dark surface, not flipped: the light
+       values fall outside the dark lightness band. */
+    --heat-1: oklch(0.42 0.08 178);
+    --heat-2: oklch(0.52 0.11 178);
+    --heat-3: oklch(0.62 0.14 178);
+    --heat-4: oklch(0.72 0.15 178);
+
+    --color-carbs: oklch(0.66 0.16 70);
+    --color-fat: oklch(0.64 0.17 25);
+    --color-satfat: oklch(0.5 0.19 25);
+    --color-kcal: oklch(0.72 0.15 178);
+    --color-over: oklch(0.65 0.19 25);
   }
 }
 
