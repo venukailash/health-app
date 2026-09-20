@@ -45,6 +45,8 @@ src/
    `Recipe`, `LogEntry` or `Goals`. See `storage/repository.ts` — v1→v2 added fibre.
 5. **Chart colours are validated, not chosen by eye.** See `docs/DECISIONS.md` before touching
    any `--color-*` token.
+6. **Nothing secret goes in a backup.** `buildBackup` strips the FoodData Central key; keep it
+   that way if you add other credentials.
 
 ## Testing
 

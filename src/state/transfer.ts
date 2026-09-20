@@ -18,11 +18,17 @@ export interface BackupFile {
 }
 
 export function buildBackup(state: AppState): BackupFile {
+  // The FoodData Central key is deliberately left out. A backup gets emailed
+  // to yourself and parked in cloud storage, so it is the wrong place for a
+  // credential — and the import side ignores it anyway, so carrying it would
+  // be a leak that buys nothing. It is one field to re-enter in Settings.
+  const { fdcApiKey: _omitted, ...meta } = state.meta
+
   return {
     app: 'health-app',
     schemaVersion: SCHEMA_VERSION,
     exportedAt: new Date().toISOString(),
-    state,
+    state: { ...state, meta },
   }
 }
 

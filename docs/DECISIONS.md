@@ -85,6 +85,14 @@ dynamically imported only where it is needed, given a stable chunk name, exclude
 service worker precache, and runtime-cached on first scan. Precaching it would make every
 install pay for a feature most sessions never touch.
 
+## The API key is not in the backup export
+
+`buildBackup` strips `meta.fdcApiKey`. A backup is a file people email to themselves and leave in
+cloud storage, which is the wrong home for a credential — and `parseBackup` ignores the field on
+the way in regardless, so carrying it would be a leak that buys nothing. The key is stored per
+origin in `localStorage`, so it has to be entered once on localhost and once on the deployed
+site.
+
 ## Typing a barcode in is always offered
 
 Camera permission gets declined, lenses get scratched, and a barcode on a crumpled wrapper may

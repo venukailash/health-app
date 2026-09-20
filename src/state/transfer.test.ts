@@ -32,6 +32,36 @@ describe('buildBackup', () => {
   })
 })
 
+describe('API key handling', () => {
+  it('never writes the food database key into a backup', () => {
+    const withKey: AppState = { ...state, meta: { seedVersion: 1, fdcApiKey: 'SECRET-KEY' } }
+    const serialised = JSON.stringify(buildBackup(withKey))
+
+    expect(serialised).not.toContain('SECRET-KEY')
+    expect(serialised).not.toContain('fdcApiKey')
+  })
+
+  it('still carries the rest of meta', () => {
+    const withKey: AppState = { ...state, meta: { seedVersion: 3, fdcApiKey: 'SECRET-KEY' } }
+    expect(buildBackup(withKey).state.meta.seedVersion).toBe(3)
+  })
+
+  it('leaves the key in place on the live state it was built from', () => {
+    const withKey: AppState = { ...state, meta: { seedVersion: 1, fdcApiKey: 'SECRET-KEY' } }
+    buildBackup(withKey)
+    expect(withKey.meta.fdcApiKey).toBe('SECRET-KEY')
+  })
+
+  it('ignores any key present in a file being imported', () => {
+    const doctored = JSON.stringify({
+      app: 'health-app',
+      schemaVersion: 2,
+      state: { meta: { seedVersion: 1, fdcApiKey: 'FROM-SOMEONE-ELSE' } },
+    })
+    expect(parseBackup(doctored).meta.fdcApiKey).toBeUndefined()
+  })
+})
+
 describe('backupFilename', () => {
   it('uses the local date', () => {
     expect(backupFilename(new Date(2026, 8, 20))).toBe('health-app-backup-2026-09-20.json')
