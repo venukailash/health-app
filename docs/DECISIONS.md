@@ -121,15 +121,39 @@ only permits a clipboard read from a user gesture and can still refuse. The URL 
 documented for anyone using the app in Safari rather than installed, and the import page warns
 when it is running in the browser copy.
 
+## The Shortcut is shared through iCloud, with the manual build kept as a fallback
+
+`https://www.icloud.com/shortcuts/cee4b743f4b3428a9677421fb3a642cc` is a signed shortcut named
+**Copy to Clipboard**. Tapping it on an iPhone installs it in one step, so it is offered first and
+the five-action build is collapsed behind "Link not working? Build it by hand".
+
+The manual steps stay because an iCloud link can be revoked, expire, or simply fail to open, and
+without them there would be no way back. The name is also what the Run button needs, so the
+settings field is pre-filled with it.
+
+Installing it shares nothing: the Shortcut reads the Health data of whichever device runs it.
+
 ## The app can run the Shortcut, but cannot create it
 
 - **Creating one: no.** There is no iOS API for constructing a Shortcut, `.shortcut` files are
   Apple property lists that iOS refuses to import unsigned, and the sanctioned sharing route is an
   iCloud link that only a person on an Apple device can generate.
 - **Pre-filling one: no**, for the same reason.
-- **Running an existing one: yes.** `shortcuts://run-shortcut?name=<name>` launches it, so once
-  the Shortcut has been built the app stores its name and offers a Run button. That is the whole
-  of what can be automated from this side.
+- **Running an existing one: yes.** `shortcuts://run-shortcut?name=<name>` launches it, so the
+  app stores the name and offers a Run button.
+- **Importing on return: attempted, not guaranteed.** Coming back from Shortcuts is not a user
+  gesture, and Safari normally refuses a clipboard read without one — so the automatic attempt is
+  best-effort and falls back to a single prompt. Where a browser permits it, the whole thing is
+  one tap.
+
+The pending-run flag is kept in `localStorage`, not React state: iOS discards a backgrounded web
+app, so the fact that an import is expected has to survive the page being thrown away. It carries
+a timestamp and is ignored after five minutes, so an abandoned run does not ambush the next visit.
+
+A subtle trap worth remembering: the callbacks are held in refs. Depending on them directly gave
+the effect a new identity on every render, and because the effect calls setState, its own cleanup
+cancelled the import it had just started — every time. The read waits over a second for Shortcuts
+to finish writing, which is plenty of renders to be torn down in.
 
 ## Steps come in through a Shortcut, because a PWA cannot read HealthKit
 

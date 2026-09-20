@@ -2,10 +2,20 @@ import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import Button from '../components/Button'
 import Page from '../components/Page'
-import RunShortcutButton from '../components/RunShortcutButton'
 import { useStandalone } from '../hooks/useStandalone'
 import { useAppState, useDispatch } from '../state/AppStore'
 import { useToast } from '../state/ToastProvider'
+
+/**
+ * The shared Shortcut, published to iCloud. Importing it is one tap and skips
+ * the five-action build entirely, so it is offered first — with the manual
+ * steps kept as a fallback, since an iCloud link can be revoked or expire and
+ * there would otherwise be no way back.
+ */
+const SHORTCUT_ICLOUD_LINK = 'https://www.icloud.com/shortcuts/cee4b743f4b3428a9677421fb3a642cc'
+
+/** The name the shared Shortcut arrives with; used to pre-fill the Run button. */
+const DEFAULT_SHORTCUT_NAME = 'Copy to Clipboard'
 
 /**
  * How to get Apple Health steps into the app, and why it takes two steps.
@@ -23,9 +33,11 @@ export default function ActivitySetupPage() {
   const dispatch = useDispatch()
   const standalone = useStandalone()
   const [copied, setCopied] = useState(false)
-  const [shortcutName, setShortcutName] = useState(meta.shortcutName ?? '')
+  const [shortcutName, setShortcutName] = useState(meta.shortcutName ?? DEFAULT_SHORTCUT_NAME)
 
   const linkBase = `${window.location.origin}${window.location.pathname}#/activity/import?days=`
+
+  const [showManual, setShowManual] = useState(false)
 
   async function copyLink() {
     try {
@@ -54,7 +66,39 @@ export default function ActivitySetupPage() {
       </section>
 
       <section className="card mb-4 p-4">
-        <h2 className="mb-3 font-semibold">Build the Shortcut</h2>
+        <h2 className="mb-1 font-semibold">Get the Shortcut</h2>
+        <p className="mb-4 text-sm muted">
+          Open this on your iPhone and Shortcuts will offer to add it. It reads{' '}
+          <em>your</em> Health data on <em>your</em> device — nothing is shared by installing it.
+        </p>
+
+        <a
+          href={SHORTCUT_ICLOUD_LINK}
+          target="_blank"
+          rel="noreferrer"
+          className="inline-flex items-center justify-center gap-2 rounded-xl bg-brand px-4 py-2.5 text-sm font-semibold text-white hover:opacity-90"
+        >
+          Add the Shortcut
+        </a>
+
+        <p className="mt-3 text-sm muted">
+          It arrives named <strong>{DEFAULT_SHORTCUT_NAME}</strong>. Keep that name, or if you
+          rename it, put the new name in the box below so the Run button can find it.
+        </p>
+
+        <button
+          type="button"
+          onClick={() => setShowManual((value) => !value)}
+          aria-expanded={showManual}
+          className="mt-3 text-sm font-semibold text-brand"
+        >
+          {showManual ? 'Hide the manual steps' : 'Link not working? Build it by hand'}
+        </button>
+      </section>
+
+      {showManual && (
+      <section className="card mb-4 p-4">
+        <h2 className="mb-3 font-semibold">Build the Shortcut by hand</h2>
         <p className="mb-3 text-sm muted">
           In the Shortcuts app, tap <strong>+</strong> and add these actions in order.
         </p>
@@ -106,6 +150,7 @@ export default function ActivitySetupPage() {
           The first run asks permission to read Health data. Allow it, or the sum comes back empty.
         </p>
       </section>
+      )}
 
       <section className="card mb-4 p-4">
         <h2 className="mb-1 font-semibold">Let the app run it for you</h2>
@@ -125,7 +170,7 @@ export default function ActivitySetupPage() {
           type="text"
           autoCapitalize="off"
           autoCorrect="off"
-          placeholder="Steps to Health App"
+          placeholder={DEFAULT_SHORTCUT_NAME}
           value={shortcutName}
           onChange={(event) => setShortcutName(event.target.value)}
         />
@@ -144,23 +189,24 @@ export default function ActivitySetupPage() {
           >
             Save name
           </Button>
-          {meta.shortcutName && <RunShortcutButton name={meta.shortcutName} />}
         </div>
         <p className="mt-2 text-xs muted">
-          If the button does nothing, the name does not match. Shortcuts is fussy about it —
-          copy it from the Shortcuts app exactly, including capitals.
+          Once saved, the Activity screen gets a single <strong>Run and import</strong> button. If
+          it does nothing, the name does not match — Shortcuts is fussy about it, so copy it
+          exactly, including capitals.
         </p>
       </section>
 
       <section className="card mb-4 p-4">
         <h2 className="mb-2 font-semibold">Then import it</h2>
         <p className="text-sm muted">
-          Run the Shortcut, open this app, and on the{' '}
+          With the name saved above, the{' '}
           <Link to="/activity" className="font-medium text-brand">
             Activity
           </Link>{' '}
-          screen tap <strong>Paste from clipboard</strong>. One tap, and the clipboard already has
-          the numbers.
+          screen shows one <strong>Run and import</strong> button: it opens Shortcuts and pulls the
+          counts in when you come back. Safari will usually not let a page read the clipboard
+          without a tap, so expect it to ask once — that is the platform, not a fault.
         </p>
         <p className="mt-2 text-sm muted">
           Add the Shortcut to your Home Screen or the Share Sheet to make running it quicker. A

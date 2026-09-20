@@ -5,7 +5,7 @@ import EmptyState from '../components/EmptyState'
 import NumberField from '../components/NumberField'
 import Page from '../components/Page'
 import PasteSteps from '../components/PasteSteps'
-import RunShortcutButton from '../components/RunShortcutButton'
+import ShortcutImport from '../components/ShortcutImport'
 import StepsGoal from '../components/StepsGoal'
 import { summariseSteps } from '../domain/activity'
 import {
@@ -101,21 +101,23 @@ export default function ActivityPage() {
       <section className="card mb-4 p-4">
         <h2 className="mb-1 font-semibold">Import from the Shortcut</h2>
         <p className="mb-4 text-sm muted">
-          Run your Shortcut, then paste here. The clipboard is used rather than a link because an
-          installed app has its own storage, separate from Safari&apos;s — a link from Shortcuts
-          opens Safari and the numbers never reach this copy.{' '}
+          The clipboard is used rather than a link because an installed app has its own storage,
+          separate from Safari&apos;s — a link from Shortcuts opens Safari and the numbers never
+          reach this copy.{' '}
           <Link to="/activity/setup" className="font-medium text-brand">
             Set-up details
           </Link>
         </p>
-        {meta.shortcutName && (
-          <div className="mb-3">
-            <RunShortcutButton name={meta.shortcutName} />
-            <p className="mt-2 text-xs muted">
-              Runs your Shortcut, which copies the counts. Come back and paste.
-            </p>
-          </div>
-        )}
+        <ShortcutImport
+          shortcutName={meta.shortcutName}
+          onImport={(days) => {
+            dispatch({ type: 'activity/import', days, source: 'shortcut' })
+            showToast(`Imported ${days.length} ${days.length === 1 ? 'day' : 'days'} of steps.`, {
+              tone: 'success',
+            })
+          }}
+          onMessage={(message, tone) => showToast(message, { tone })}
+        />
 
         <PasteSteps
           onImport={(days) => {
