@@ -104,6 +104,33 @@ the way in regardless, so carrying it would be a leak that buys nothing. The key
 origin in `localStorage`, so it has to be entered once on localhost and once on the deployed
 site.
 
+## Steps arrive via the clipboard, not a URL
+
+The first version of this used a deep link, `#/activity/import?days=…`, which the Shortcut
+opened. **That does not work for an installed app**, and the failure is silent in the worst way:
+
+- iOS gives a Home Screen web app its own storage partition, entirely separate from Safari's.
+- iOS will not route a URL into an installed web app; Safari supports none of the manifest
+  link-capturing members, and Universal Links need a native app.
+- So `Open URLs` opens *Safari*, the import succeeds there, and the numbers land in a copy of the
+  app the user never looks at. Everything appears to work and nothing shows up.
+
+The clipboard crosses the partition; a URL does not. So the Shortcut ends with **Copy to
+Clipboard** and the app offers **Paste from clipboard**, with a textarea fallback because Safari
+only permits a clipboard read from a user gesture and can still refuse. The URL route is kept and
+documented for anyone using the app in Safari rather than installed, and the import page warns
+when it is running in the browser copy.
+
+## The app can run the Shortcut, but cannot create it
+
+- **Creating one: no.** There is no iOS API for constructing a Shortcut, `.shortcut` files are
+  Apple property lists that iOS refuses to import unsigned, and the sanctioned sharing route is an
+  iCloud link that only a person on an Apple device can generate.
+- **Pre-filling one: no**, for the same reason.
+- **Running an existing one: yes.** `shortcuts://run-shortcut?name=<name>` launches it, so once
+  the Shortcut has been built the app stores its name and offers a Run button. That is the whole
+  of what can be automated from this side.
+
 ## Steps come in through a Shortcut, because a PWA cannot read HealthKit
 
 There is no web API for Apple Health, and no workaround. The only route is to push data in from
@@ -120,8 +147,8 @@ Consequences worth knowing before changing any of it:
 - **Rejected rows are reported, not dropped.** The likely failure is a Shortcut sending the wrong
   Health type; silently importing nothing would be impossible to debug. A count above 200,000 is
   rejected as implausible for exactly that reason.
-- **Running it on a schedule opens the app.** That is how the data gets in, and iOS offers no
-  quieter route. The setup guide says so rather than letting it be a surprise.
+- **A scheduled run leaves the counts on the clipboard**, where anything copied afterwards will
+  overwrite them. The guide says to re-run rather than trust a stale clipboard.
 
 ## Activity targets are not part of `Goals`
 

@@ -3,6 +3,7 @@ import { Link, useNavigate, useSearchParams } from 'react-router-dom'
 import Page from '../components/Page'
 import { parseStepsPayload, type ParseResult } from '../domain/activity'
 import { useDispatch } from '../state/AppStore'
+import { useStandalone } from '../hooks/useStandalone'
 import { useToast } from '../state/ToastProvider'
 
 /**
@@ -21,6 +22,7 @@ export default function ActivityImportPage() {
   const navigate = useNavigate()
   const { showToast } = useToast()
   const [result, setResult] = useState<ParseResult | null>(null)
+  const standalone = useStandalone()
   const done = useRef(false)
 
   const payload = params.get('days') ?? params.get('steps')
@@ -64,6 +66,21 @@ export default function ActivityImportPage() {
 
   return (
     <Page title="Importing steps" backTo="/activity">
+      {!standalone && (
+        <section
+          className="card mb-4 p-4"
+          style={{ borderLeft: '3px solid var(--color-over)' }}
+        >
+          <h2 className="mb-1 font-semibold">This is the browser copy of the app</h2>
+          <p className="text-sm muted">
+            If you normally use the app from your Home Screen, these steps have gone into Safari
+            instead, and the installed app will not show them — iOS keeps the two entirely
+            separate. Open the installed app and use{' '}
+            <strong>Import from the Shortcut</strong> there, pasting the link or the counts.
+          </p>
+        </section>
+      )}
+
       {result === null ? (
         <p className="card p-4 text-sm muted">Reading the data…</p>
       ) : nothingUsable ? (

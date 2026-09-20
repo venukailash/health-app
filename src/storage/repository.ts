@@ -30,6 +30,12 @@ export interface Meta {
    * hour across everyone using it.
    */
   fdcApiKey?: string
+  /**
+   * Name of the user's Shortcut, so the app can run it on demand via the
+   * `shortcuts://run-shortcut` URL scheme. The app cannot create the Shortcut
+   * — iOS has no API for that — but it can trigger one that already exists.
+   */
+  shortcutName?: string
 }
 
 export interface Envelope<T> {

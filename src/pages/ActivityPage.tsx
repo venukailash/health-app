@@ -4,6 +4,8 @@ import Button from '../components/Button'
 import EmptyState from '../components/EmptyState'
 import NumberField from '../components/NumberField'
 import Page from '../components/Page'
+import PasteSteps from '../components/PasteSteps'
+import RunShortcutButton from '../components/RunShortcutButton'
 import StepsGoal from '../components/StepsGoal'
 import { summariseSteps } from '../domain/activity'
 import {
@@ -21,7 +23,7 @@ import { useAppState, useDispatch } from '../state/AppStore'
 import { useToast } from '../state/ToastProvider'
 
 export default function ActivityPage() {
-  const { activity, activityGoals } = useAppState()
+  const { activity, activityGoals, meta } = useAppState()
   const dispatch = useDispatch()
   const { showToast } = useToast()
 
@@ -94,6 +96,35 @@ export default function ActivityPage() {
         <p className="mt-3 text-xs muted">
           Averaged over days with a recorded count, not every day in the period.
         </p>
+      </section>
+
+      <section className="card mb-4 p-4">
+        <h2 className="mb-1 font-semibold">Import from the Shortcut</h2>
+        <p className="mb-4 text-sm muted">
+          Run your Shortcut, then paste here. The clipboard is used rather than a link because an
+          installed app has its own storage, separate from Safari&apos;s — a link from Shortcuts
+          opens Safari and the numbers never reach this copy.{' '}
+          <Link to="/activity/setup" className="font-medium text-brand">
+            Set-up details
+          </Link>
+        </p>
+        {meta.shortcutName && (
+          <div className="mb-3">
+            <RunShortcutButton name={meta.shortcutName} />
+            <p className="mt-2 text-xs muted">
+              Runs your Shortcut, which copies the counts. Come back and paste.
+            </p>
+          </div>
+        )}
+
+        <PasteSteps
+          onImport={(days) => {
+            dispatch({ type: 'activity/import', days, source: 'shortcut' })
+            showToast(`Imported ${days.length} ${days.length === 1 ? 'day' : 'days'} of steps.`, {
+              tone: 'success',
+            })
+          }}
+        />
       </section>
 
       <section className="card mb-4 p-4">
