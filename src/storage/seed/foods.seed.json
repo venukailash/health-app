@@ -1,0 +1,2181 @@
+{
+  "seedVersion": 1,
+  "foods": [
+    {
+      "id": "seed-porridge-oats-dry",
+      "name": "Porridge oats, dry",
+      "category": "Bread, grains & cereals",
+      "per100g": {
+        "kcal": 379,
+        "fat": 8,
+        "satFat": 1.4,
+        "carbs": 60,
+        "protein": 11,
+        "salt": 0.02
+      },
+      "defaultServing": {
+        "label": "40 g serving",
+        "grams": 40
+      }
+    },
+    {
+      "id": "seed-white-bread",
+      "name": "White bread",
+      "category": "Bread, grains & cereals",
+      "per100g": {
+        "kcal": 265,
+        "fat": 3.2,
+        "satFat": 0.7,
+        "carbs": 49,
+        "protein": 9,
+        "salt": 1
+      },
+      "defaultServing": {
+        "label": "1 medium slice",
+        "grams": 36
+      }
+    },
+    {
+      "id": "seed-wholemeal-bread",
+      "name": "Wholemeal bread",
+      "category": "Bread, grains & cereals",
+      "per100g": {
+        "kcal": 247,
+        "fat": 2.9,
+        "satFat": 0.6,
+        "carbs": 41.5,
+        "protein": 9.4,
+        "salt": 0.9
+      },
+      "defaultServing": {
+        "label": "1 medium slice",
+        "grams": 38
+      }
+    },
+    {
+      "id": "seed-sourdough-bread",
+      "name": "Sourdough bread",
+      "category": "Bread, grains & cereals",
+      "per100g": {
+        "kcal": 255,
+        "fat": 1.5,
+        "satFat": 0.3,
+        "carbs": 51,
+        "protein": 9,
+        "salt": 1.1
+      },
+      "defaultServing": {
+        "label": "1 slice",
+        "grams": 50
+      }
+    },
+    {
+      "id": "seed-white-rice-cooked",
+      "name": "White rice, cooked",
+      "category": "Bread, grains & cereals",
+      "per100g": {
+        "kcal": 130,
+        "fat": 0.3,
+        "satFat": 0.1,
+        "carbs": 28,
+        "protein": 2.7,
+        "salt": 0
+      },
+      "defaultServing": {
+        "label": "1 portion",
+        "grams": 180
+      }
+    },
+    {
+      "id": "seed-brown-rice-cooked",
+      "name": "Brown rice, cooked",
+      "category": "Bread, grains & cereals",
+      "per100g": {
+        "kcal": 123,
+        "fat": 1,
+        "satFat": 0.2,
+        "carbs": 25.6,
+        "protein": 2.7,
+        "salt": 0
+      },
+      "defaultServing": {
+        "label": "1 portion",
+        "grams": 180
+      }
+    },
+    {
+      "id": "seed-pasta-dried",
+      "name": "Pasta, dried",
+      "category": "Bread, grains & cereals",
+      "per100g": {
+        "kcal": 355,
+        "fat": 1.8,
+        "satFat": 0.4,
+        "carbs": 71,
+        "protein": 12,
+        "salt": 0.02
+      },
+      "defaultServing": {
+        "label": "1 portion dry",
+        "grams": 75
+      }
+    },
+    {
+      "id": "seed-pasta-cooked",
+      "name": "Pasta, cooked",
+      "category": "Bread, grains & cereals",
+      "per100g": {
+        "kcal": 158,
+        "fat": 0.9,
+        "satFat": 0.2,
+        "carbs": 31,
+        "protein": 5.8,
+        "salt": 0
+      },
+      "defaultServing": {
+        "label": "1 portion",
+        "grams": 200
+      }
+    },
+    {
+      "id": "seed-wholewheat-pasta-cooked",
+      "name": "Wholewheat pasta, cooked",
+      "category": "Bread, grains & cereals",
+      "per100g": {
+        "kcal": 149,
+        "fat": 1.4,
+        "satFat": 0.3,
+        "carbs": 30,
+        "protein": 6,
+        "salt": 0
+      },
+      "defaultServing": {
+        "label": "1 portion",
+        "grams": 200
+      }
+    },
+    {
+      "id": "seed-couscous-cooked",
+      "name": "Couscous, cooked",
+      "category": "Bread, grains & cereals",
+      "per100g": {
+        "kcal": 112,
+        "fat": 0.2,
+        "satFat": 0,
+        "carbs": 23.2,
+        "protein": 3.8,
+        "salt": 0.01
+      },
+      "defaultServing": {
+        "label": "1 portion",
+        "grams": 150
+      }
+    },
+    {
+      "id": "seed-quinoa-cooked",
+      "name": "Quinoa, cooked",
+      "category": "Bread, grains & cereals",
+      "per100g": {
+        "kcal": 120,
+        "fat": 1.9,
+        "satFat": 0.2,
+        "carbs": 21.3,
+        "protein": 4.4,
+        "salt": 0.01
+      },
+      "defaultServing": {
+        "label": "1 portion",
+        "grams": 150
+      }
+    },
+    {
+      "id": "seed-cornflakes",
+      "name": "Cornflakes",
+      "category": "Bread, grains & cereals",
+      "per100g": {
+        "kcal": 378,
+        "fat": 0.9,
+        "satFat": 0.2,
+        "carbs": 84,
+        "protein": 7.5,
+        "salt": 1.1
+      },
+      "defaultServing": {
+        "label": "1 bowl",
+        "grams": 30
+      }
+    },
+    {
+      "id": "seed-wheat-biscuit-cereal",
+      "name": "Wheat biscuit cereal",
+      "category": "Bread, grains & cereals",
+      "per100g": {
+        "kcal": 362,
+        "fat": 2,
+        "satFat": 0.5,
+        "carbs": 69,
+        "protein": 12,
+        "salt": 0.3
+      },
+      "defaultServing": {
+        "label": "2 biscuits",
+        "grams": 38
+      }
+    },
+    {
+      "id": "seed-granola",
+      "name": "Granola",
+      "category": "Bread, grains & cereals",
+      "per100g": {
+        "kcal": 432,
+        "fat": 13,
+        "satFat": 2.5,
+        "carbs": 64,
+        "protein": 9,
+        "salt": 0.1
+      },
+      "defaultServing": {
+        "label": "1 bowl",
+        "grams": 45
+      }
+    },
+    {
+      "id": "seed-bagel-plain",
+      "name": "Bagel, plain",
+      "category": "Bread, grains & cereals",
+      "per100g": {
+        "kcal": 274,
+        "fat": 1.5,
+        "satFat": 0.3,
+        "carbs": 53,
+        "protein": 10.5,
+        "salt": 1.1
+      },
+      "defaultServing": {
+        "label": "1 bagel",
+        "grams": 85
+      }
+    },
+    {
+      "id": "seed-tortilla-wrap-white",
+      "name": "Tortilla wrap, white",
+      "category": "Bread, grains & cereals",
+      "per100g": {
+        "kcal": 300,
+        "fat": 7,
+        "satFat": 2.8,
+        "carbs": 49,
+        "protein": 8,
+        "salt": 1.2
+      },
+      "defaultServing": {
+        "label": "1 wrap",
+        "grams": 62
+      }
+    },
+    {
+      "id": "seed-pitta-bread-white",
+      "name": "Pitta bread, white",
+      "category": "Bread, grains & cereals",
+      "per100g": {
+        "kcal": 275,
+        "fat": 1.2,
+        "satFat": 0.3,
+        "carbs": 55,
+        "protein": 9.2,
+        "salt": 1.1
+      },
+      "defaultServing": {
+        "label": "1 pitta",
+        "grams": 60
+      }
+    },
+    {
+      "id": "seed-oatcake",
+      "name": "Oatcake",
+      "category": "Bread, grains & cereals",
+      "per100g": {
+        "kcal": 430,
+        "fat": 17,
+        "satFat": 2.5,
+        "carbs": 58,
+        "protein": 10,
+        "salt": 1.5
+      },
+      "defaultServing": {
+        "label": "1 oatcake",
+        "grams": 10
+      }
+    },
+    {
+      "id": "seed-rice-cake-plain",
+      "name": "Rice cake, plain",
+      "category": "Bread, grains & cereals",
+      "per100g": {
+        "kcal": 387,
+        "fat": 3,
+        "satFat": 0.6,
+        "carbs": 81,
+        "protein": 8,
+        "salt": 0.1
+      },
+      "defaultServing": {
+        "label": "1 cake",
+        "grams": 9
+      }
+    },
+    {
+      "id": "seed-potato-boiled",
+      "name": "Potato, boiled",
+      "category": "Potatoes",
+      "per100g": {
+        "kcal": 77,
+        "fat": 0.2,
+        "satFat": 0,
+        "carbs": 17,
+        "protein": 1.8,
+        "salt": 0.01
+      },
+      "defaultServing": {
+        "label": "1 portion",
+        "grams": 180
+      }
+    },
+    {
+      "id": "seed-jacket-potato-baked",
+      "name": "Jacket potato, baked",
+      "category": "Potatoes",
+      "per100g": {
+        "kcal": 93,
+        "fat": 0.2,
+        "satFat": 0,
+        "carbs": 20,
+        "protein": 2.6,
+        "salt": 0.02
+      },
+      "defaultServing": {
+        "label": "1 medium potato",
+        "grams": 180
+      }
+    },
+    {
+      "id": "seed-oven-chips-baked",
+      "name": "Oven chips, baked",
+      "category": "Potatoes",
+      "per100g": {
+        "kcal": 162,
+        "fat": 4.5,
+        "satFat": 0.5,
+        "carbs": 26,
+        "protein": 2.8,
+        "salt": 0.3
+      },
+      "defaultServing": {
+        "label": "1 portion",
+        "grams": 150
+      }
+    },
+    {
+      "id": "seed-sweet-potato-baked",
+      "name": "Sweet potato, baked",
+      "category": "Potatoes",
+      "per100g": {
+        "kcal": 90,
+        "fat": 0.1,
+        "satFat": 0,
+        "carbs": 21,
+        "protein": 2,
+        "salt": 0.03
+      },
+      "defaultServing": {
+        "label": "1 medium",
+        "grams": 150
+      }
+    },
+    {
+      "id": "seed-mashed-potato-with-butter",
+      "name": "Mashed potato with butter",
+      "category": "Potatoes",
+      "per100g": {
+        "kcal": 104,
+        "fat": 4.3,
+        "satFat": 2.7,
+        "carbs": 15,
+        "protein": 1.8,
+        "salt": 0.3
+      },
+      "defaultServing": {
+        "label": "1 portion",
+        "grams": 180
+      }
+    },
+    {
+      "id": "seed-chicken-breast-skinless-cooked",
+      "name": "Chicken breast, skinless, cooked",
+      "category": "Meat & poultry",
+      "per100g": {
+        "kcal": 165,
+        "fat": 3.6,
+        "satFat": 1,
+        "carbs": 0,
+        "protein": 31,
+        "salt": 0.1
+      },
+      "defaultServing": {
+        "label": "1 breast",
+        "grams": 170
+      }
+    },
+    {
+      "id": "seed-chicken-thigh-skinless-cooked",
+      "name": "Chicken thigh, skinless, cooked",
+      "category": "Meat & poultry",
+      "per100g": {
+        "kcal": 179,
+        "fat": 8.2,
+        "satFat": 2.3,
+        "carbs": 0,
+        "protein": 24.8,
+        "salt": 0.1
+      },
+      "defaultServing": {
+        "label": "1 thigh",
+        "grams": 90
+      }
+    },
+    {
+      "id": "seed-turkey-breast-cooked",
+      "name": "Turkey breast, cooked",
+      "category": "Meat & poultry",
+      "per100g": {
+        "kcal": 147,
+        "fat": 2,
+        "satFat": 0.6,
+        "carbs": 0,
+        "protein": 30,
+        "salt": 0.1
+      },
+      "defaultServing": {
+        "label": "1 portion",
+        "grams": 120
+      }
+    },
+    {
+      "id": "seed-beef-mince-5-fat-cooked",
+      "name": "Beef mince, 5% fat, cooked",
+      "category": "Meat & poultry",
+      "per100g": {
+        "kcal": 174,
+        "fat": 6,
+        "satFat": 2.7,
+        "carbs": 0,
+        "protein": 29,
+        "salt": 0.15
+      },
+      "defaultServing": {
+        "label": "1 portion",
+        "grams": 125
+      }
+    },
+    {
+      "id": "seed-beef-mince-20-fat-cooked",
+      "name": "Beef mince, 20% fat, cooked",
+      "category": "Meat & poultry",
+      "per100g": {
+        "kcal": 272,
+        "fat": 20,
+        "satFat": 8,
+        "carbs": 0,
+        "protein": 23,
+        "salt": 0.15
+      },
+      "defaultServing": {
+        "label": "1 portion",
+        "grams": 125
+      }
+    },
+    {
+      "id": "seed-sirloin-steak-grilled",
+      "name": "Sirloin steak, grilled",
+      "category": "Meat & poultry",
+      "per100g": {
+        "kcal": 214,
+        "fat": 9.1,
+        "satFat": 3.8,
+        "carbs": 0,
+        "protein": 33,
+        "salt": 0.15
+      },
+      "defaultServing": {
+        "label": "1 steak",
+        "grams": 200
+      }
+    },
+    {
+      "id": "seed-pork-loin-chop-grilled",
+      "name": "Pork loin chop, grilled",
+      "category": "Meat & poultry",
+      "per100g": {
+        "kcal": 231,
+        "fat": 11,
+        "satFat": 4,
+        "carbs": 0,
+        "protein": 32,
+        "salt": 0.12
+      },
+      "defaultServing": {
+        "label": "1 chop",
+        "grams": 150
+      }
+    },
+    {
+      "id": "seed-lamb-mince-cooked",
+      "name": "Lamb mince, cooked",
+      "category": "Meat & poultry",
+      "per100g": {
+        "kcal": 282,
+        "fat": 20,
+        "satFat": 9,
+        "carbs": 0,
+        "protein": 24,
+        "salt": 0.15
+      },
+      "defaultServing": {
+        "label": "1 portion",
+        "grams": 125
+      }
+    },
+    {
+      "id": "seed-back-bacon-grilled",
+      "name": "Back bacon, grilled",
+      "category": "Meat & poultry",
+      "per100g": {
+        "kcal": 287,
+        "fat": 18,
+        "satFat": 6.5,
+        "carbs": 0.5,
+        "protein": 31,
+        "salt": 3
+      },
+      "defaultServing": {
+        "label": "1 rasher",
+        "grams": 25
+      }
+    },
+    {
+      "id": "seed-pork-sausage-grilled",
+      "name": "Pork sausage, grilled",
+      "category": "Meat & poultry",
+      "per100g": {
+        "kcal": 294,
+        "fat": 22,
+        "satFat": 8,
+        "carbs": 9,
+        "protein": 15,
+        "salt": 1.6
+      },
+      "defaultServing": {
+        "label": "1 sausage",
+        "grams": 57
+      }
+    },
+    {
+      "id": "seed-ham-sliced",
+      "name": "Ham, sliced",
+      "category": "Meat & poultry",
+      "per100g": {
+        "kcal": 107,
+        "fat": 3,
+        "satFat": 1,
+        "carbs": 1,
+        "protein": 18,
+        "salt": 2.3
+      },
+      "defaultServing": {
+        "label": "1 slice",
+        "grams": 20
+      }
+    },
+    {
+      "id": "seed-salmon-fillet-baked",
+      "name": "Salmon fillet, baked",
+      "category": "Fish & seafood",
+      "per100g": {
+        "kcal": 206,
+        "fat": 12,
+        "satFat": 2.5,
+        "carbs": 0,
+        "protein": 23,
+        "salt": 0.12
+      },
+      "defaultServing": {
+        "label": "1 fillet",
+        "grams": 130
+      }
+    },
+    {
+      "id": "seed-tuna-canned-in-spring-water",
+      "name": "Tuna, canned in spring water",
+      "category": "Fish & seafood",
+      "per100g": {
+        "kcal": 109,
+        "fat": 0.6,
+        "satFat": 0.2,
+        "carbs": 0,
+        "protein": 25,
+        "salt": 0.8
+      },
+      "defaultServing": {
+        "label": "1 can, drained",
+        "grams": 110
+      }
+    },
+    {
+      "id": "seed-cod-fillet-baked",
+      "name": "Cod fillet, baked",
+      "category": "Fish & seafood",
+      "per100g": {
+        "kcal": 94,
+        "fat": 0.9,
+        "satFat": 0.2,
+        "carbs": 0,
+        "protein": 21,
+        "salt": 0.2
+      },
+      "defaultServing": {
+        "label": "1 fillet",
+        "grams": 140
+      }
+    },
+    {
+      "id": "seed-prawns-cooked",
+      "name": "Prawns, cooked",
+      "category": "Fish & seafood",
+      "per100g": {
+        "kcal": 99,
+        "fat": 0.9,
+        "satFat": 0.2,
+        "carbs": 0.2,
+        "protein": 21,
+        "salt": 1.2
+      },
+      "defaultServing": {
+        "label": "1 portion",
+        "grams": 90
+      }
+    },
+    {
+      "id": "seed-smoked-mackerel",
+      "name": "Smoked mackerel",
+      "category": "Fish & seafood",
+      "per100g": {
+        "kcal": 354,
+        "fat": 31,
+        "satFat": 6.9,
+        "carbs": 0,
+        "protein": 18.9,
+        "salt": 1.6
+      },
+      "defaultServing": {
+        "label": "1 fillet",
+        "grams": 80
+      }
+    },
+    {
+      "id": "seed-fish-fingers-grilled",
+      "name": "Fish fingers, grilled",
+      "category": "Fish & seafood",
+      "per100g": {
+        "kcal": 200,
+        "fat": 8,
+        "satFat": 1,
+        "carbs": 19,
+        "protein": 13,
+        "salt": 0.9
+      },
+      "defaultServing": {
+        "label": "1 finger",
+        "grams": 28
+      }
+    },
+    {
+      "id": "seed-egg-whole",
+      "name": "Egg, whole",
+      "category": "Dairy & eggs",
+      "per100g": {
+        "kcal": 143,
+        "fat": 9.5,
+        "satFat": 2.9,
+        "carbs": 0.7,
+        "protein": 12.6,
+        "salt": 0.4
+      },
+      "defaultServing": {
+        "label": "1 medium egg",
+        "grams": 58
+      }
+    },
+    {
+      "id": "seed-egg-white",
+      "name": "Egg white",
+      "category": "Dairy & eggs",
+      "per100g": {
+        "kcal": 52,
+        "fat": 0.2,
+        "satFat": 0,
+        "carbs": 0.7,
+        "protein": 10.9,
+        "salt": 0.4
+      },
+      "defaultServing": {
+        "label": "1 egg white",
+        "grams": 33
+      }
+    },
+    {
+      "id": "seed-whole-milk",
+      "name": "Whole milk",
+      "category": "Dairy & eggs",
+      "per100g": {
+        "kcal": 64,
+        "fat": 3.6,
+        "satFat": 2.3,
+        "carbs": 4.7,
+        "protein": 3.4,
+        "salt": 0.1
+      },
+      "defaultServing": {
+        "label": "200 ml glass",
+        "grams": 200
+      }
+    },
+    {
+      "id": "seed-semi-skimmed-milk",
+      "name": "Semi-skimmed milk",
+      "category": "Dairy & eggs",
+      "per100g": {
+        "kcal": 50,
+        "fat": 1.8,
+        "satFat": 1.1,
+        "carbs": 4.8,
+        "protein": 3.6,
+        "salt": 0.1
+      },
+      "defaultServing": {
+        "label": "200 ml glass",
+        "grams": 200
+      }
+    },
+    {
+      "id": "seed-skimmed-milk",
+      "name": "Skimmed milk",
+      "category": "Dairy & eggs",
+      "per100g": {
+        "kcal": 35,
+        "fat": 0.3,
+        "satFat": 0.1,
+        "carbs": 5,
+        "protein": 3.5,
+        "salt": 0.1
+      },
+      "defaultServing": {
+        "label": "200 ml glass",
+        "grams": 200
+      }
+    },
+    {
+      "id": "seed-oat-milk-unsweetened",
+      "name": "Oat milk, unsweetened",
+      "category": "Dairy & eggs",
+      "per100g": {
+        "kcal": 45,
+        "fat": 1.5,
+        "satFat": 0.2,
+        "carbs": 6.6,
+        "protein": 1,
+        "salt": 0.1
+      },
+      "defaultServing": {
+        "label": "200 ml glass",
+        "grams": 200
+      }
+    },
+    {
+      "id": "seed-almond-milk-unsweetened",
+      "name": "Almond milk, unsweetened",
+      "category": "Dairy & eggs",
+      "per100g": {
+        "kcal": 13,
+        "fat": 1.1,
+        "satFat": 0.1,
+        "carbs": 0.1,
+        "protein": 0.4,
+        "salt": 0.1
+      },
+      "defaultServing": {
+        "label": "200 ml glass",
+        "grams": 200
+      }
+    },
+    {
+      "id": "seed-greek-yogurt-0-fat",
+      "name": "Greek yogurt, 0% fat",
+      "category": "Dairy & eggs",
+      "per100g": {
+        "kcal": 57,
+        "fat": 0.2,
+        "satFat": 0.1,
+        "carbs": 4,
+        "protein": 10,
+        "salt": 0.1
+      },
+      "defaultServing": {
+        "label": "1 pot",
+        "grams": 150
+      }
+    },
+    {
+      "id": "seed-greek-yogurt-full-fat",
+      "name": "Greek yogurt, full fat",
+      "category": "Dairy & eggs",
+      "per100g": {
+        "kcal": 133,
+        "fat": 10,
+        "satFat": 6.5,
+        "carbs": 4,
+        "protein": 5.7,
+        "salt": 0.1
+      },
+      "defaultServing": {
+        "label": "1 pot",
+        "grams": 150
+      }
+    },
+    {
+      "id": "seed-natural-yogurt",
+      "name": "Natural yogurt",
+      "category": "Dairy & eggs",
+      "per100g": {
+        "kcal": 79,
+        "fat": 3,
+        "satFat": 1.9,
+        "carbs": 7.8,
+        "protein": 5.7,
+        "salt": 0.2
+      },
+      "defaultServing": {
+        "label": "1 pot",
+        "grams": 150
+      }
+    },
+    {
+      "id": "seed-cheddar-cheese",
+      "name": "Cheddar cheese",
+      "category": "Dairy & eggs",
+      "per100g": {
+        "kcal": 416,
+        "fat": 35,
+        "satFat": 22,
+        "carbs": 0.1,
+        "protein": 25,
+        "salt": 1.8
+      },
+      "defaultServing": {
+        "label": "1 matchbox portion",
+        "grams": 30
+      }
+    },
+    {
+      "id": "seed-mozzarella",
+      "name": "Mozzarella",
+      "category": "Dairy & eggs",
+      "per100g": {
+        "kcal": 254,
+        "fat": 18,
+        "satFat": 11,
+        "carbs": 1,
+        "protein": 22,
+        "salt": 1.4
+      },
+      "defaultServing": {
+        "label": "1 ball",
+        "grams": 125
+      }
+    },
+    {
+      "id": "seed-feta",
+      "name": "Feta",
+      "category": "Dairy & eggs",
+      "per100g": {
+        "kcal": 264,
+        "fat": 21,
+        "satFat": 14,
+        "carbs": 1.5,
+        "protein": 14,
+        "salt": 2.5
+      },
+      "defaultServing": {
+        "label": "1 portion",
+        "grams": 30
+      }
+    },
+    {
+      "id": "seed-cottage-cheese",
+      "name": "Cottage cheese",
+      "category": "Dairy & eggs",
+      "per100g": {
+        "kcal": 98,
+        "fat": 4.3,
+        "satFat": 2.7,
+        "carbs": 3.4,
+        "protein": 11,
+        "salt": 0.9
+      },
+      "defaultServing": {
+        "label": "1 pot",
+        "grams": 150
+      }
+    },
+    {
+      "id": "seed-cream-cheese",
+      "name": "Cream cheese",
+      "category": "Dairy & eggs",
+      "per100g": {
+        "kcal": 253,
+        "fat": 24,
+        "satFat": 15,
+        "carbs": 4,
+        "protein": 5.5,
+        "salt": 0.9
+      },
+      "defaultServing": {
+        "label": "1 tbsp",
+        "grams": 30
+      }
+    },
+    {
+      "id": "seed-parmesan",
+      "name": "Parmesan",
+      "category": "Dairy & eggs",
+      "per100g": {
+        "kcal": 402,
+        "fat": 29,
+        "satFat": 19,
+        "carbs": 0.1,
+        "protein": 36,
+        "salt": 1.6
+      },
+      "defaultServing": {
+        "label": "1 tbsp grated",
+        "grams": 10
+      }
+    },
+    {
+      "id": "seed-butter",
+      "name": "Butter",
+      "category": "Dairy & eggs",
+      "per100g": {
+        "kcal": 744,
+        "fat": 82,
+        "satFat": 52,
+        "carbs": 0.6,
+        "protein": 0.5,
+        "salt": 1.7
+      },
+      "defaultServing": {
+        "label": "1 thin spread",
+        "grams": 10
+      }
+    },
+    {
+      "id": "seed-double-cream",
+      "name": "Double cream",
+      "category": "Dairy & eggs",
+      "per100g": {
+        "kcal": 449,
+        "fat": 48,
+        "satFat": 30,
+        "carbs": 2.7,
+        "protein": 1.7,
+        "salt": 0.1
+      },
+      "defaultServing": {
+        "label": "1 tbsp",
+        "grams": 15
+      }
+    },
+    {
+      "id": "seed-apple",
+      "name": "Apple",
+      "category": "Fruit",
+      "per100g": {
+        "kcal": 52,
+        "fat": 0.2,
+        "satFat": 0,
+        "carbs": 11.4,
+        "protein": 0.4,
+        "salt": 0
+      },
+      "defaultServing": {
+        "label": "1 medium apple",
+        "grams": 150
+      }
+    },
+    {
+      "id": "seed-banana",
+      "name": "Banana",
+      "category": "Fruit",
+      "per100g": {
+        "kcal": 89,
+        "fat": 0.3,
+        "satFat": 0.1,
+        "carbs": 20.3,
+        "protein": 1.1,
+        "salt": 0
+      },
+      "defaultServing": {
+        "label": "1 medium banana",
+        "grams": 118
+      }
+    },
+    {
+      "id": "seed-orange",
+      "name": "Orange",
+      "category": "Fruit",
+      "per100g": {
+        "kcal": 47,
+        "fat": 0.1,
+        "satFat": 0,
+        "carbs": 8.5,
+        "protein": 0.9,
+        "salt": 0
+      },
+      "defaultServing": {
+        "label": "1 medium orange",
+        "grams": 140
+      }
+    },
+    {
+      "id": "seed-strawberries",
+      "name": "Strawberries",
+      "category": "Fruit",
+      "per100g": {
+        "kcal": 32,
+        "fat": 0.3,
+        "satFat": 0,
+        "carbs": 6,
+        "protein": 0.7,
+        "salt": 0
+      },
+      "defaultServing": {
+        "label": "1 handful",
+        "grams": 80
+      }
+    },
+    {
+      "id": "seed-blueberries",
+      "name": "Blueberries",
+      "category": "Fruit",
+      "per100g": {
+        "kcal": 57,
+        "fat": 0.3,
+        "satFat": 0,
+        "carbs": 12.1,
+        "protein": 0.7,
+        "salt": 0
+      },
+      "defaultServing": {
+        "label": "1 handful",
+        "grams": 80
+      }
+    },
+    {
+      "id": "seed-raspberries",
+      "name": "Raspberries",
+      "category": "Fruit",
+      "per100g": {
+        "kcal": 52,
+        "fat": 0.7,
+        "satFat": 0,
+        "carbs": 4.6,
+        "protein": 1.2,
+        "salt": 0
+      },
+      "defaultServing": {
+        "label": "1 handful",
+        "grams": 80
+      }
+    },
+    {
+      "id": "seed-grapes",
+      "name": "Grapes",
+      "category": "Fruit",
+      "per100g": {
+        "kcal": 67,
+        "fat": 0.2,
+        "satFat": 0.1,
+        "carbs": 15.4,
+        "protein": 0.6,
+        "salt": 0
+      },
+      "defaultServing": {
+        "label": "1 handful",
+        "grams": 80
+      }
+    },
+    {
+      "id": "seed-avocado",
+      "name": "Avocado",
+      "category": "Fruit",
+      "per100g": {
+        "kcal": 160,
+        "fat": 15,
+        "satFat": 2.1,
+        "carbs": 1.8,
+        "protein": 2,
+        "salt": 0.02
+      },
+      "defaultServing": {
+        "label": "half an avocado",
+        "grams": 68
+      }
+    },
+    {
+      "id": "seed-pear",
+      "name": "Pear",
+      "category": "Fruit",
+      "per100g": {
+        "kcal": 57,
+        "fat": 0.1,
+        "satFat": 0,
+        "carbs": 12.2,
+        "protein": 0.4,
+        "salt": 0
+      },
+      "defaultServing": {
+        "label": "1 medium pear",
+        "grams": 170
+      }
+    },
+    {
+      "id": "seed-mango",
+      "name": "Mango",
+      "category": "Fruit",
+      "per100g": {
+        "kcal": 60,
+        "fat": 0.4,
+        "satFat": 0.1,
+        "carbs": 13.4,
+        "protein": 0.8,
+        "salt": 0
+      },
+      "defaultServing": {
+        "label": "half a mango",
+        "grams": 100
+      }
+    },
+    {
+      "id": "seed-broccoli-steamed",
+      "name": "Broccoli, steamed",
+      "category": "Vegetables",
+      "per100g": {
+        "kcal": 35,
+        "fat": 0.4,
+        "satFat": 0.1,
+        "carbs": 4,
+        "protein": 3,
+        "salt": 0.03
+      },
+      "defaultServing": {
+        "label": "1 portion",
+        "grams": 80
+      }
+    },
+    {
+      "id": "seed-carrot-raw",
+      "name": "Carrot, raw",
+      "category": "Vegetables",
+      "per100g": {
+        "kcal": 41,
+        "fat": 0.2,
+        "satFat": 0,
+        "carbs": 7.9,
+        "protein": 0.9,
+        "salt": 0.07
+      },
+      "defaultServing": {
+        "label": "1 medium carrot",
+        "grams": 60
+      }
+    },
+    {
+      "id": "seed-spinach-raw",
+      "name": "Spinach, raw",
+      "category": "Vegetables",
+      "per100g": {
+        "kcal": 23,
+        "fat": 0.4,
+        "satFat": 0.1,
+        "carbs": 1.4,
+        "protein": 2.9,
+        "salt": 0.2
+      },
+      "defaultServing": {
+        "label": "1 handful",
+        "grams": 30
+      }
+    },
+    {
+      "id": "seed-tomato",
+      "name": "Tomato",
+      "category": "Vegetables",
+      "per100g": {
+        "kcal": 18,
+        "fat": 0.2,
+        "satFat": 0,
+        "carbs": 3.1,
+        "protein": 0.9,
+        "salt": 0.01
+      },
+      "defaultServing": {
+        "label": "1 medium tomato",
+        "grams": 85
+      }
+    },
+    {
+      "id": "seed-cucumber",
+      "name": "Cucumber",
+      "category": "Vegetables",
+      "per100g": {
+        "kcal": 15,
+        "fat": 0.1,
+        "satFat": 0,
+        "carbs": 1.9,
+        "protein": 0.7,
+        "salt": 0
+      },
+      "defaultServing": {
+        "label": "5 cm piece",
+        "grams": 60
+      }
+    },
+    {
+      "id": "seed-onion",
+      "name": "Onion",
+      "category": "Vegetables",
+      "per100g": {
+        "kcal": 40,
+        "fat": 0.1,
+        "satFat": 0,
+        "carbs": 7.9,
+        "protein": 1.2,
+        "salt": 0.01
+      },
+      "defaultServing": {
+        "label": "1 medium onion",
+        "grams": 110
+      }
+    },
+    {
+      "id": "seed-red-pepper",
+      "name": "Red pepper",
+      "category": "Vegetables",
+      "per100g": {
+        "kcal": 31,
+        "fat": 0.3,
+        "satFat": 0.1,
+        "carbs": 4.7,
+        "protein": 1,
+        "salt": 0.01
+      },
+      "defaultServing": {
+        "label": "1 pepper",
+        "grams": 120
+      }
+    },
+    {
+      "id": "seed-peas-frozen-boiled",
+      "name": "Peas, frozen, boiled",
+      "category": "Vegetables",
+      "per100g": {
+        "kcal": 79,
+        "fat": 0.9,
+        "satFat": 0.2,
+        "carbs": 9,
+        "protein": 5.4,
+        "salt": 0.01
+      },
+      "defaultServing": {
+        "label": "1 portion",
+        "grams": 80
+      }
+    },
+    {
+      "id": "seed-sweetcorn-canned",
+      "name": "Sweetcorn, canned",
+      "category": "Vegetables",
+      "per100g": {
+        "kcal": 86,
+        "fat": 1.2,
+        "satFat": 0.2,
+        "carbs": 16,
+        "protein": 3.2,
+        "salt": 0.3
+      },
+      "defaultServing": {
+        "label": "1 portion",
+        "grams": 80
+      }
+    },
+    {
+      "id": "seed-mushrooms",
+      "name": "Mushrooms",
+      "category": "Vegetables",
+      "per100g": {
+        "kcal": 22,
+        "fat": 0.3,
+        "satFat": 0.1,
+        "carbs": 0.4,
+        "protein": 3.1,
+        "salt": 0.01
+      },
+      "defaultServing": {
+        "label": "1 portion",
+        "grams": 80
+      }
+    },
+    {
+      "id": "seed-green-beans",
+      "name": "Green beans",
+      "category": "Vegetables",
+      "per100g": {
+        "kcal": 31,
+        "fat": 0.1,
+        "satFat": 0,
+        "carbs": 4.3,
+        "protein": 1.8,
+        "salt": 0.01
+      },
+      "defaultServing": {
+        "label": "1 portion",
+        "grams": 80
+      }
+    },
+    {
+      "id": "seed-courgette",
+      "name": "Courgette",
+      "category": "Vegetables",
+      "per100g": {
+        "kcal": 17,
+        "fat": 0.3,
+        "satFat": 0.1,
+        "carbs": 2,
+        "protein": 1.2,
+        "salt": 0.02
+      },
+      "defaultServing": {
+        "label": "1 courgette",
+        "grams": 150
+      }
+    },
+    {
+      "id": "seed-cauliflower",
+      "name": "Cauliflower",
+      "category": "Vegetables",
+      "per100g": {
+        "kcal": 25,
+        "fat": 0.3,
+        "satFat": 0.1,
+        "carbs": 2.3,
+        "protein": 1.9,
+        "salt": 0.08
+      },
+      "defaultServing": {
+        "label": "1 portion",
+        "grams": 80
+      }
+    },
+    {
+      "id": "seed-mixed-salad-leaves",
+      "name": "Mixed salad leaves",
+      "category": "Vegetables",
+      "per100g": {
+        "kcal": 18,
+        "fat": 0.3,
+        "satFat": 0.1,
+        "carbs": 2,
+        "protein": 1.5,
+        "salt": 0.03
+      },
+      "defaultServing": {
+        "label": "1 bowl",
+        "grams": 50
+      }
+    },
+    {
+      "id": "seed-kale",
+      "name": "Kale",
+      "category": "Vegetables",
+      "per100g": {
+        "kcal": 49,
+        "fat": 0.9,
+        "satFat": 0.1,
+        "carbs": 4.4,
+        "protein": 4.3,
+        "salt": 0.1
+      },
+      "defaultServing": {
+        "label": "1 portion",
+        "grams": 80
+      }
+    },
+    {
+      "id": "seed-baked-beans-in-tomato-sauce",
+      "name": "Baked beans in tomato sauce",
+      "category": "Pulses, nuts & seeds",
+      "per100g": {
+        "kcal": 78,
+        "fat": 0.2,
+        "satFat": 0.1,
+        "carbs": 12.9,
+        "protein": 4.7,
+        "salt": 0.6
+      },
+      "defaultServing": {
+        "label": "half a tin",
+        "grams": 200
+      }
+    },
+    {
+      "id": "seed-chickpeas-canned-drained",
+      "name": "Chickpeas, canned, drained",
+      "category": "Pulses, nuts & seeds",
+      "per100g": {
+        "kcal": 139,
+        "fat": 2.6,
+        "satFat": 0.3,
+        "carbs": 17.8,
+        "protein": 7.2,
+        "salt": 0.5
+      },
+      "defaultServing": {
+        "label": "1 portion",
+        "grams": 120
+      }
+    },
+    {
+      "id": "seed-red-kidney-beans-canned",
+      "name": "Red kidney beans, canned",
+      "category": "Pulses, nuts & seeds",
+      "per100g": {
+        "kcal": 100,
+        "fat": 0.5,
+        "satFat": 0.1,
+        "carbs": 13.8,
+        "protein": 6.9,
+        "salt": 0.5
+      },
+      "defaultServing": {
+        "label": "1 portion",
+        "grams": 120
+      }
+    },
+    {
+      "id": "seed-lentils-cooked",
+      "name": "Lentils, cooked",
+      "category": "Pulses, nuts & seeds",
+      "per100g": {
+        "kcal": 116,
+        "fat": 0.4,
+        "satFat": 0.1,
+        "carbs": 16,
+        "protein": 9,
+        "salt": 0.01
+      },
+      "defaultServing": {
+        "label": "1 portion",
+        "grams": 150
+      }
+    },
+    {
+      "id": "seed-peanut-butter",
+      "name": "Peanut butter",
+      "category": "Pulses, nuts & seeds",
+      "per100g": {
+        "kcal": 588,
+        "fat": 50,
+        "satFat": 10,
+        "carbs": 13,
+        "protein": 25,
+        "salt": 0.5
+      },
+      "defaultServing": {
+        "label": "1 tbsp",
+        "grams": 20
+      }
+    },
+    {
+      "id": "seed-almonds",
+      "name": "Almonds",
+      "category": "Pulses, nuts & seeds",
+      "per100g": {
+        "kcal": 579,
+        "fat": 50,
+        "satFat": 3.8,
+        "carbs": 9,
+        "protein": 21,
+        "salt": 0
+      },
+      "defaultServing": {
+        "label": "1 small handful",
+        "grams": 25
+      }
+    },
+    {
+      "id": "seed-walnuts",
+      "name": "Walnuts",
+      "category": "Pulses, nuts & seeds",
+      "per100g": {
+        "kcal": 654,
+        "fat": 65,
+        "satFat": 6.1,
+        "carbs": 7,
+        "protein": 15,
+        "salt": 0
+      },
+      "defaultServing": {
+        "label": "1 small handful",
+        "grams": 25
+      }
+    },
+    {
+      "id": "seed-cashews",
+      "name": "Cashews",
+      "category": "Pulses, nuts & seeds",
+      "per100g": {
+        "kcal": 553,
+        "fat": 44,
+        "satFat": 7.8,
+        "carbs": 27,
+        "protein": 18,
+        "salt": 0.03
+      },
+      "defaultServing": {
+        "label": "1 small handful",
+        "grams": 25
+      }
+    },
+    {
+      "id": "seed-peanuts-salted",
+      "name": "Peanuts, salted",
+      "category": "Pulses, nuts & seeds",
+      "per100g": {
+        "kcal": 587,
+        "fat": 49,
+        "satFat": 7,
+        "carbs": 12,
+        "protein": 26,
+        "salt": 1.2
+      },
+      "defaultServing": {
+        "label": "1 small handful",
+        "grams": 25
+      }
+    },
+    {
+      "id": "seed-chia-seeds",
+      "name": "Chia seeds",
+      "category": "Pulses, nuts & seeds",
+      "per100g": {
+        "kcal": 486,
+        "fat": 31,
+        "satFat": 3.3,
+        "carbs": 7.7,
+        "protein": 17,
+        "salt": 0.04
+      },
+      "defaultServing": {
+        "label": "1 tbsp",
+        "grams": 15
+      }
+    },
+    {
+      "id": "seed-pumpkin-seeds",
+      "name": "Pumpkin seeds",
+      "category": "Pulses, nuts & seeds",
+      "per100g": {
+        "kcal": 559,
+        "fat": 49,
+        "satFat": 8.7,
+        "carbs": 11,
+        "protein": 30,
+        "salt": 0.02
+      },
+      "defaultServing": {
+        "label": "1 tbsp",
+        "grams": 15
+      }
+    },
+    {
+      "id": "seed-tofu-firm",
+      "name": "Tofu, firm",
+      "category": "Pulses, nuts & seeds",
+      "per100g": {
+        "kcal": 144,
+        "fat": 8.7,
+        "satFat": 1.3,
+        "carbs": 2.8,
+        "protein": 15.8,
+        "salt": 0.02
+      },
+      "defaultServing": {
+        "label": "1 portion",
+        "grams": 100
+      }
+    },
+    {
+      "id": "seed-hummus",
+      "name": "Hummus",
+      "category": "Pulses, nuts & seeds",
+      "per100g": {
+        "kcal": 306,
+        "fat": 25,
+        "satFat": 2.6,
+        "carbs": 10,
+        "protein": 7.4,
+        "salt": 1.2
+      },
+      "defaultServing": {
+        "label": "2 tbsp",
+        "grams": 50
+      }
+    },
+    {
+      "id": "seed-olive-oil",
+      "name": "Olive oil",
+      "category": "Oils, sauces & spreads",
+      "per100g": {
+        "kcal": 884,
+        "fat": 100,
+        "satFat": 14,
+        "carbs": 0,
+        "protein": 0,
+        "salt": 0
+      },
+      "defaultServing": {
+        "label": "1 tbsp",
+        "grams": 14
+      }
+    },
+    {
+      "id": "seed-vegetable-oil",
+      "name": "Vegetable oil",
+      "category": "Oils, sauces & spreads",
+      "per100g": {
+        "kcal": 884,
+        "fat": 100,
+        "satFat": 8,
+        "carbs": 0,
+        "protein": 0,
+        "salt": 0
+      },
+      "defaultServing": {
+        "label": "1 tbsp",
+        "grams": 14
+      }
+    },
+    {
+      "id": "seed-mayonnaise",
+      "name": "Mayonnaise",
+      "category": "Oils, sauces & spreads",
+      "per100g": {
+        "kcal": 680,
+        "fat": 75,
+        "satFat": 6,
+        "carbs": 1.3,
+        "protein": 1.1,
+        "salt": 1.2
+      },
+      "defaultServing": {
+        "label": "1 tbsp",
+        "grams": 15
+      }
+    },
+    {
+      "id": "seed-tomato-ketchup",
+      "name": "Tomato ketchup",
+      "category": "Oils, sauces & spreads",
+      "per100g": {
+        "kcal": 102,
+        "fat": 0.1,
+        "satFat": 0,
+        "carbs": 23,
+        "protein": 1.2,
+        "salt": 1.8
+      },
+      "defaultServing": {
+        "label": "1 tbsp",
+        "grams": 15
+      }
+    },
+    {
+      "id": "seed-soy-sauce",
+      "name": "Soy sauce",
+      "category": "Oils, sauces & spreads",
+      "per100g": {
+        "kcal": 53,
+        "fat": 0,
+        "satFat": 0,
+        "carbs": 4.9,
+        "protein": 8.1,
+        "salt": 16
+      },
+      "defaultServing": {
+        "label": "1 tbsp",
+        "grams": 15
+      }
+    },
+    {
+      "id": "seed-tomato-pasta-sauce",
+      "name": "Tomato pasta sauce",
+      "category": "Oils, sauces & spreads",
+      "per100g": {
+        "kcal": 60,
+        "fat": 2,
+        "satFat": 0.3,
+        "carbs": 8,
+        "protein": 1.5,
+        "salt": 0.9
+      },
+      "defaultServing": {
+        "label": "half a jar",
+        "grams": 250
+      }
+    },
+    {
+      "id": "seed-mustard",
+      "name": "Mustard",
+      "category": "Oils, sauces & spreads",
+      "per100g": {
+        "kcal": 66,
+        "fat": 3.3,
+        "satFat": 0.2,
+        "carbs": 5.8,
+        "protein": 4.4,
+        "salt": 5.5
+      },
+      "defaultServing": {
+        "label": "1 tsp",
+        "grams": 5
+      }
+    },
+    {
+      "id": "seed-honey",
+      "name": "Honey",
+      "category": "Oils, sauces & spreads",
+      "per100g": {
+        "kcal": 304,
+        "fat": 0,
+        "satFat": 0,
+        "carbs": 82,
+        "protein": 0.3,
+        "salt": 0
+      },
+      "defaultServing": {
+        "label": "1 tsp",
+        "grams": 7
+      }
+    },
+    {
+      "id": "seed-sugar-white",
+      "name": "Sugar, white",
+      "category": "Oils, sauces & spreads",
+      "per100g": {
+        "kcal": 400,
+        "fat": 0,
+        "satFat": 0,
+        "carbs": 100,
+        "protein": 0,
+        "salt": 0
+      },
+      "defaultServing": {
+        "label": "1 tsp",
+        "grams": 4
+      }
+    },
+    {
+      "id": "seed-milk-chocolate",
+      "name": "Milk chocolate",
+      "category": "Snacks & treats",
+      "per100g": {
+        "kcal": 535,
+        "fat": 30,
+        "satFat": 18,
+        "carbs": 59,
+        "protein": 7.3,
+        "salt": 0.24
+      },
+      "defaultServing": {
+        "label": "4 squares",
+        "grams": 25
+      }
+    },
+    {
+      "id": "seed-dark-chocolate-70",
+      "name": "Dark chocolate, 70%",
+      "category": "Snacks & treats",
+      "per100g": {
+        "kcal": 598,
+        "fat": 43,
+        "satFat": 25,
+        "carbs": 46,
+        "protein": 7.8,
+        "salt": 0.02
+      },
+      "defaultServing": {
+        "label": "4 squares",
+        "grams": 25
+      }
+    },
+    {
+      "id": "seed-crisps-ready-salted",
+      "name": "Crisps, ready salted",
+      "category": "Snacks & treats",
+      "per100g": {
+        "kcal": 532,
+        "fat": 34,
+        "satFat": 2.8,
+        "carbs": 50,
+        "protein": 6,
+        "salt": 1.3
+      },
+      "defaultServing": {
+        "label": "1 small bag",
+        "grams": 25
+      }
+    },
+    {
+      "id": "seed-digestive-biscuit",
+      "name": "Digestive biscuit",
+      "category": "Snacks & treats",
+      "per100g": {
+        "kcal": 471,
+        "fat": 21,
+        "satFat": 10,
+        "carbs": 64,
+        "protein": 6.4,
+        "salt": 1
+      },
+      "defaultServing": {
+        "label": "1 biscuit",
+        "grams": 15
+      }
+    },
+    {
+      "id": "seed-chocolate-chip-cookie",
+      "name": "Chocolate chip cookie",
+      "category": "Snacks & treats",
+      "per100g": {
+        "kcal": 490,
+        "fat": 24,
+        "satFat": 12,
+        "carbs": 62,
+        "protein": 5.5,
+        "salt": 0.8
+      },
+      "defaultServing": {
+        "label": "1 cookie",
+        "grams": 25
+      }
+    },
+    {
+      "id": "seed-croissant",
+      "name": "Croissant",
+      "category": "Snacks & treats",
+      "per100g": {
+        "kcal": 406,
+        "fat": 21,
+        "satFat": 12,
+        "carbs": 45,
+        "protein": 8.2,
+        "salt": 1
+      },
+      "defaultServing": {
+        "label": "1 croissant",
+        "grams": 60
+      }
+    },
+    {
+      "id": "seed-flapjack",
+      "name": "Flapjack",
+      "category": "Snacks & treats",
+      "per100g": {
+        "kcal": 460,
+        "fat": 22,
+        "satFat": 9,
+        "carbs": 58,
+        "protein": 5,
+        "salt": 0.3
+      },
+      "defaultServing": {
+        "label": "1 flapjack",
+        "grams": 70
+      }
+    },
+    {
+      "id": "seed-protein-bar",
+      "name": "Protein bar",
+      "category": "Snacks & treats",
+      "per100g": {
+        "kcal": 350,
+        "fat": 11,
+        "satFat": 5,
+        "carbs": 38,
+        "protein": 30,
+        "salt": 0.6
+      },
+      "defaultServing": {
+        "label": "1 bar",
+        "grams": 60
+      }
+    },
+    {
+      "id": "seed-vanilla-ice-cream",
+      "name": "Vanilla ice cream",
+      "category": "Snacks & treats",
+      "per100g": {
+        "kcal": 207,
+        "fat": 11,
+        "satFat": 7,
+        "carbs": 24,
+        "protein": 3.5,
+        "salt": 0.2
+      },
+      "defaultServing": {
+        "label": "2 scoops",
+        "grams": 100
+      }
+    },
+    {
+      "id": "seed-orange-juice",
+      "name": "Orange juice",
+      "category": "Drinks",
+      "per100g": {
+        "kcal": 45,
+        "fat": 0.1,
+        "satFat": 0,
+        "carbs": 10.4,
+        "protein": 0.7,
+        "salt": 0
+      },
+      "defaultServing": {
+        "label": "1 glass",
+        "grams": 250
+      }
+    },
+    {
+      "id": "seed-cola",
+      "name": "Cola",
+      "category": "Drinks",
+      "per100g": {
+        "kcal": 42,
+        "fat": 0,
+        "satFat": 0,
+        "carbs": 10.6,
+        "protein": 0,
+        "salt": 0.01
+      },
+      "defaultServing": {
+        "label": "1 can",
+        "grams": 330
+      }
+    },
+    {
+      "id": "seed-lager-4",
+      "name": "Lager, 4%",
+      "category": "Drinks",
+      "per100g": {
+        "kcal": 43,
+        "fat": 0,
+        "satFat": 0,
+        "carbs": 3.6,
+        "protein": 0.3,
+        "salt": 0
+      },
+      "defaultServing": {
+        "label": "1 pint",
+        "grams": 568
+      }
+    },
+    {
+      "id": "seed-red-wine",
+      "name": "Red wine",
+      "category": "Drinks",
+      "per100g": {
+        "kcal": 85,
+        "fat": 0,
+        "satFat": 0,
+        "carbs": 2.6,
+        "protein": 0.1,
+        "salt": 0.01
+      },
+      "defaultServing": {
+        "label": "175 ml glass",
+        "grams": 175
+      }
+    },
+    {
+      "id": "seed-latte-with-semi-skimmed-milk",
+      "name": "Latte with semi-skimmed milk",
+      "category": "Drinks",
+      "per100g": {
+        "kcal": 55,
+        "fat": 2,
+        "satFat": 1.2,
+        "carbs": 5.3,
+        "protein": 3.4,
+        "salt": 0.1
+      },
+      "defaultServing": {
+        "label": "1 regular",
+        "grams": 340
+      }
+    },
+    {
+      "id": "seed-black-coffee",
+      "name": "Black coffee",
+      "category": "Drinks",
+      "per100g": {
+        "kcal": 2,
+        "fat": 0,
+        "satFat": 0,
+        "carbs": 0.3,
+        "protein": 0.1,
+        "salt": 0
+      },
+      "defaultServing": {
+        "label": "1 mug",
+        "grams": 250
+      }
+    },
+    {
+      "id": "seed-tea-with-semi-skimmed-milk",
+      "name": "Tea with semi-skimmed milk",
+      "category": "Drinks",
+      "per100g": {
+        "kcal": 7,
+        "fat": 0.2,
+        "satFat": 0.1,
+        "carbs": 0.7,
+        "protein": 0.4,
+        "salt": 0.01
+      },
+      "defaultServing": {
+        "label": "1 mug",
+        "grams": 250
+      }
+    },
+    {
+      "id": "seed-whey-protein-powder",
+      "name": "Whey protein powder",
+      "category": "Drinks",
+      "per100g": {
+        "kcal": 380,
+        "fat": 6,
+        "satFat": 3,
+        "carbs": 8,
+        "protein": 75,
+        "salt": 0.6
+      },
+      "defaultServing": {
+        "label": "1 scoop",
+        "grams": 30
+      }
+    },
+    {
+      "id": "seed-pizza-margherita",
+      "name": "Pizza, margherita",
+      "category": "Meals & takeaway",
+      "per100g": {
+        "kcal": 266,
+        "fat": 10,
+        "satFat": 4.5,
+        "carbs": 33,
+        "protein": 11,
+        "salt": 1.2
+      },
+      "defaultServing": {
+        "label": "half a pizza",
+        "grams": 150
+      }
+    },
+    {
+      "id": "seed-chicken-tikka-masala",
+      "name": "Chicken tikka masala",
+      "category": "Meals & takeaway",
+      "per100g": {
+        "kcal": 152,
+        "fat": 8.9,
+        "satFat": 3.4,
+        "carbs": 5.6,
+        "protein": 12,
+        "salt": 0.7
+      },
+      "defaultServing": {
+        "label": "1 portion",
+        "grams": 350
+      }
+    },
+    {
+      "id": "seed-beef-lasagne",
+      "name": "Beef lasagne",
+      "category": "Meals & takeaway",
+      "per100g": {
+        "kcal": 132,
+        "fat": 5.8,
+        "satFat": 2.6,
+        "carbs": 12,
+        "protein": 7.6,
+        "salt": 0.6
+      },
+      "defaultServing": {
+        "label": "1 portion",
+        "grams": 400
+      }
+    },
+    {
+      "id": "seed-chicken-and-bacon-sandwich",
+      "name": "Chicken and bacon sandwich",
+      "category": "Meals & takeaway",
+      "per100g": {
+        "kcal": 220,
+        "fat": 9.5,
+        "satFat": 2.5,
+        "carbs": 20,
+        "protein": 13,
+        "salt": 1.1
+      },
+      "defaultServing": {
+        "label": "1 sandwich",
+        "grams": 190
+      }
+    },
+    {
+      "id": "seed-vegetable-soup",
+      "name": "Vegetable soup",
+      "category": "Meals & takeaway",
+      "per100g": {
+        "kcal": 45,
+        "fat": 1.5,
+        "satFat": 0.3,
+        "carbs": 6.2,
+        "protein": 1.3,
+        "salt": 0.5
+      },
+      "defaultServing": {
+        "label": "1 bowl",
+        "grams": 300
+      }
+    }
+  ]
+}
