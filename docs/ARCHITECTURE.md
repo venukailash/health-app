@@ -73,12 +73,14 @@ Both are free, keyless-or-nearly, and CORS-open — the app stays a pure static 
 
 | Job | Service | Why |
 |---|---|---|
-| Free-text search | USDA FoodData Central | Open Food Facts' search endpoints refuse browser requests — see `docs/DECISIONS.md` |
-| Barcode lookup | Open Food Facts | Best UK supermarket coverage, and its product endpoint *does* send CORS headers |
+| Free-text search | **Both**, in parallel | Neither covers what people type — see `docs/DECISIONS.md` |
+| Branded / UK products | Open Food Facts | The only source with real UK supermarket coverage |
+| Generic and cooked foods | USDA FoodData Central | Foundation, SR Legacy and FNDDS (prepared dishes) |
+| Barcode lookup | Open Food Facts | Best barcode coverage; its product endpoint is reliable |
 
-Both share the rate-limit handling shape: a 429/403 sets a shared cooldown, the UI raises a
-toast, and the next search after the cooldown simply works again. No retry queue, no manual
-reset.
+`services/foodSearch.ts` fans out to both and merges, branded first. One source failing yields
+partial results, not none. Both share the rate-limit shape: a 429/403 sets a shared cooldown, the
+UI raises a toast, and the next search after the cooldown simply works again.
 
 ## Charts
 

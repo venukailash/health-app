@@ -3,23 +3,34 @@
 Things that look arbitrary but are not. Each of these cost something to find out, so changing
 one without reading the reason will probably reintroduce the problem.
 
-## Open Food Facts cannot be used for free-text search from a browser
+## Search queries two databases, because neither alone is enough
 
-Every OFF *search* endpoint refuses cross-origin browser requests:
+| Source | Good at | Weak at | Reliability |
+|---|---|---|---|
+| Open Food Facts | UK supermarket brands (Hovis, Warburtons), barcodes | prepared dishes, generic ingredients | flaky — see below |
+| USDA FoodData Central | generic ingredients, cooked dishes (FNDDS) | UK brands (almost none) | reliable, needs a key |
 
-| Endpoint | From a browser |
-|---|---|
-| `cgi/search.pl` | **503**, with no CORS headers, as soon as an `Origin` header is present |
-| `search.openfoodfacts.org` | 200, but sends no `access-control-allow-origin` |
-| `api/v2/search` | Blocked |
-| `api/v2/product/{barcode}` | **Works** — full CORS headers |
+They are queried **in parallel** and the results merged, branded first. If one fails the other
+still answers, and the UI says the list may be short — a failure shortens the results rather
+than emptying them.
 
-`curl` succeeds against the first two only because it sends no `Origin`. Verifying with curl
-alone is misleading; test from the page.
+### Open Food Facts search needs app identification, and is still flaky
 
-So search uses **USDA FoodData Central** (CORS-open) and barcodes use **Open Food Facts** (best
-UK coverage). A proxy would let OFF serve both, but that means running infrastructure, which the
-app deliberately does not have.
+An earlier version of this file claimed OFF search was CORS-blocked from browsers. **That was
+wrong.** What actually happens:
+
+- `cgi/search.pl` works from a browser, but is throttled hard.
+- Measured success rate over repeated calls: **~1 in 3 unidentified, ~2 in 3** when the request
+  carries `app_name` / `app_version` / `app_uuid`. A browser cannot set `User-Agent`, and these
+  query parameters are OFF's documented substitute.
+- Failures present as `TypeError: Failed to fetch`, which is indistinguishable from a CORS
+  rejection — which is how the wrong conclusion got drawn in the first place.
+
+Hence: app identification on every call, one retry, and a second source as backup.
+
+**Testing this with `curl` alone is misleading.** `curl` sends no `Origin`, and the endpoint
+behaves differently with one. A single request proves nothing either way — the behaviour is
+probabilistic, so test from the page and repeat it.
 
 ## USDA carbohydrate includes fibre; UK labels do not
 

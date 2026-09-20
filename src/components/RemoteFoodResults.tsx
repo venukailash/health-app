@@ -1,6 +1,6 @@
 import { round } from '../domain/nutrition'
 import { useRemoteFoodSearch } from '../hooks/useRemoteFoodSearch'
-import type { SearchedFood } from '../services/foodDataCentral'
+import type { FoundFood } from '../services/foodSearch'
 
 /**
  * Open Food Facts matches, shown under the user's own library.
@@ -15,10 +15,10 @@ export default function RemoteFoodResults({
   enabled = true,
 }: {
   query: string
-  onPick: (product: SearchedFood) => void
+  onPick: (product: FoundFood) => void
   enabled?: boolean
 }) {
-  const { results, loading, error } = useRemoteFoodSearch(query, enabled)
+  const { results, loading, error, partial } = useRemoteFoodSearch(query, enabled)
 
   if (!enabled || query.trim().length < 2) return null
 
@@ -34,11 +34,18 @@ export default function RemoteFoodResults({
         )}
       </h3>
 
+      {partial && results.length > 0 && (
+        <p className="mb-2 text-xs muted">
+          One of the two databases did not answer, so this list may be short. Searching again
+          usually fills it in.
+        </p>
+      )}
+
       {error && results.length === 0 ? (
         <p className="card px-4 py-4 text-center text-sm muted">
           {error === 'rate-limited'
-            ? 'The food database is busy. Try that search again shortly.'
-            : 'Could not reach the food database. Your own foods are unaffected.'}
+            ? 'The food databases are busy. Try that search again shortly.'
+            : 'Could not reach the food databases. Your own foods are unaffected.'}
         </p>
       ) : results.length === 0 && !loading ? (
         <p className="card px-4 py-4 text-center text-sm muted">
@@ -47,7 +54,7 @@ export default function RemoteFoodResults({
       ) : (
         <ul className="card divide-y overflow-hidden" style={{ borderColor: 'var(--border)' }}>
           {results.map((product) => (
-            <li key={product.id} style={{ borderColor: 'var(--border)' }}>
+            <li key={product.key} style={{ borderColor: 'var(--border)' }}>
               <button
                 type="button"
                 onClick={() => onPick(product)}

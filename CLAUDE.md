@@ -25,7 +25,7 @@ npm run lint       # oxlint (warnings only; zero errors expected)
 src/
   domain/      pure maths — nutrition, dates, food search filters. No React, no storage, no fetch.
   storage/     the ONLY module that touches localStorage, plus the bundled starter foods
-  services/    outside world: USDA FoodData Central (search), Open Food Facts (barcodes)
+  services/    outside world: Open Food Facts + USDA FoodData Central, fanned out by foodSearch.ts
   state/       reducer, selectors, store provider, toast provider, backup import/export
   hooks/       cross-cutting browser behaviour (keyboard, service-worker updates, lookups)
   components/  shared UI, including the hand-rolled charts

@@ -7,7 +7,7 @@ import RemoteFoodResults from '../components/RemoteFoodResults'
 import ScanButton from '../components/ScanButton'
 import SearchList, { type SearchItem } from '../components/SearchList'
 import { useBarcodeLookup } from '../hooks/useBarcodeLookup'
-import { toFood as searchedToFood, type SearchedFood } from '../services/foodDataCentral'
+import { toFood as searchedToFood, type FoundFood } from '../services/foodSearch'
 import { formatDayLabel, isValidDateKey, todayKey } from '../domain/date'
 import { recipePerServing, roundNutrients } from '../domain/nutrition'
 import { MEAL_LABELS, MEAL_TYPES, type MealType } from '../domain/types'
@@ -32,10 +32,13 @@ export default function AddEntryPage() {
   const index = useMemo(() => foodsById(foods), [foods])
 
   /** Save an Open Food Facts product into the library, then pick it. */
-  function adoptProduct(product: SearchedFood) {
-    // Matching on name and brand stops a repeat search creating duplicates.
-    const existing = foods.find(
-      (food) => food.name === product.name && (food.brand ?? '') === (product.brand ?? ''),
+  function adoptProduct(product: FoundFood) {
+    // Barcode is the strongest match; fall back to name and brand so a repeat
+    // search does not create duplicates.
+    const existing = foods.find((food) =>
+      product.barcode
+        ? food.barcode === product.barcode
+        : food.name === product.name && (food.brand ?? '') === (product.brand ?? ''),
     )
     if (existing) {
       setSelected({ kind: 'foods', id: existing.id })

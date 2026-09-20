@@ -161,7 +161,10 @@ export async function searchFoods(
   const url =
     `${SEARCH_URL}?api_key=${encodeURIComponent(apiKey || DEMO_API_KEY)}` +
     `&query=${encodeURIComponent(terms)}&pageSize=${limit}` +
-    `&dataType=${encodeURIComponent('Foundation,SR Legacy,Branded')}`
+    // Survey (FNDDS) is what carries prepared dishes — "egg omelet or
+    // scrambled egg" rather than just "egg, raw" — so searches for something
+    // cooked return something useful.
+    `&dataType=${encodeURIComponent('Foundation,SR Legacy,Survey (FNDDS),Branded')}`
 
   let response: Response
   try {

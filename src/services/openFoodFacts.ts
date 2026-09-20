@@ -7,15 +7,26 @@ import { ZERO_NUTRIENTS, round } from '../domain/nutrition'
  * Free, no API key, CORS-open, and the best coverage of UK supermarket
  * barcodes — which keeps the app's "no infrastructure" promise intact.
  *
- * Barcode lookup only. Every Open Food Facts SEARCH endpoint refuses
- * cross-origin browser requests — `cgi/search.pl` answers 503 as soon as an
- * `Origin` header is present, and the newer search service sends no
- * `access-control-allow-origin` header — so free-text search lives in
- * `foodDataCentral.ts` instead. The product endpoint does send proper CORS
- * headers, and has the best coverage of UK supermarket barcodes.
+ * Used for both barcode lookup and branded search — it is the only source
+ * with real UK supermarket coverage (Hovis, Warburtons and the like).
+ *
+ * Its search endpoint is usable from a browser but UNRELIABLE: measured at
+ * roughly a third of requests succeeding unidentified, two thirds when the app
+ * identifies itself with `app_name`/`app_version`/`app_uuid`. The failures are
+ * throttling, not a CORS policy — which is why one retry is worth it and why
+ * search also queries FoodData Central, so a failure here degrades the results
+ * rather than emptying them.
  */
 
 const PRODUCT_URL = 'https://world.openfoodfacts.org/api/v2/product'
+const SEARCH_URL = 'https://world.openfoodfacts.org/cgi/search.pl'
+
+/**
+ * Open Food Facts asks browser apps to identify themselves, and throttles
+ * anonymous callers much harder. A browser cannot set User-Agent, so these
+ * query parameters are the supported substitute.
+ */
+const APP_ID = 'app_name=health-app&app_version=1.0&app_uuid=health-app-pwa'
 
 const FIELDS = 'code,product_name,brands,nutriments,serving_size,serving_quantity,quantity'
 
@@ -199,6 +210,40 @@ async function request(url: string, signal?: AbortSignal): Promise<unknown> {
   } catch {
     throw new LookupFailedError()
   }
+}
+
+/**
+ * Branded product search. Retries once, because the endpoint fails roughly a
+ * third of the time under throttling and a single extra attempt takes the
+ * success rate from about two thirds to about nine in ten.
+ */
+export async function searchProducts(
+  query: string,
+  { signal, limit = 15 }: { signal?: AbortSignal; limit?: number } = {},
+): Promise<RemoteProduct[]> {
+  const terms = query.trim()
+  if (terms.length < 2) return []
+
+  const url =
+    `${SEARCH_URL}?search_terms=${encodeURIComponent(terms)}` +
+    `&search_simple=1&action=process&json=1&page_size=${limit}&${APP_ID}&fields=${FIELDS}`
+
+  let lastError: unknown
+  for (let attempt = 0; attempt < 2; attempt += 1) {
+    try {
+      const data = (await request(url, signal)) as { products?: unknown }
+      const products = Array.isArray(data.products) ? data.products : []
+      return products
+        .map(toRemoteProduct)
+        .filter((product): product is RemoteProduct => product !== null)
+    } catch (error) {
+      if (error instanceof DOMException && error.name === 'AbortError') throw error
+      lastError = error
+      // A rate-limit response is a considered "no", not a blip: do not retry.
+      if (error instanceof RateLimitedError) throw error
+    }
+  }
+  throw lastError instanceof Error ? lastError : new LookupFailedError()
 }
 
 export async function getProductByBarcode(

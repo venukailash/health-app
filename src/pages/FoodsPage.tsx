@@ -4,7 +4,7 @@ import BarcodeScanner from '../components/BarcodeScanner'
 import ScanButton from '../components/ScanButton'
 import RemoteFoodResults from '../components/RemoteFoodResults'
 import { useBarcodeLookup } from '../hooks/useBarcodeLookup'
-import { toFood as searchedToFood, type SearchedFood } from '../services/foodDataCentral'
+import { toFood as searchedToFood, type FoundFood } from '../services/foodSearch'
 import { useDispatch } from '../state/AppStore'
 import { newId } from '../state/factories'
 import EmptyState from '../components/EmptyState'
@@ -29,10 +29,13 @@ export default function FoodsPage() {
     if (food) navigate(`/foods/${food.id}`)
   }
 
-  function adoptProduct(product: SearchedFood) {
-    // Matching on name and brand stops a repeat search creating duplicates.
-    const existing = foods.find(
-      (food) => food.name === product.name && (food.brand ?? '') === (product.brand ?? ''),
+  function adoptProduct(product: FoundFood) {
+    // Barcode is the strongest match; fall back to name and brand so a repeat
+    // search does not create duplicates.
+    const existing = foods.find((food) =>
+      product.barcode
+        ? food.barcode === product.barcode
+        : food.name === product.name && (food.brand ?? '') === (product.brand ?? ''),
     )
     if (existing) {
       navigate(`/foods/${existing.id}`)
