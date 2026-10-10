@@ -23,7 +23,9 @@ in `localStorage` on the device you use, and the app works offline once loaded.
   whole-recipe nutrition update as you build. Log a recipe by the serving.
 - **Photo estimates** — with a Google Gemini key, point the camera at a meal or a label and the
   food editor is filled in with an estimate for you to check. It is never saved without review.
-  The floating camera button on the main screens goes straight there.
+  The floating camera button on the main screens goes straight there. Recipes can also be
+  described in words — "28g coffee beans in a moka pot + 200g whole milk, serves 2" — and the
+  ingredients are worked out for you, reusing foods already in your library where they match.
 - **Settings** — split in two: **Targets** for what you are aiming at each day, **App** for API
   keys, backups and resetting.
 

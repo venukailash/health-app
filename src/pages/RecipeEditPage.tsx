@@ -7,6 +7,8 @@ import NutritionGrid from '../components/NutritionGrid'
 import Page from '../components/Page'
 import RemoteFoodResults from '../components/RemoteFoodResults'
 import PhotoEstimator from '../components/PhotoEstimator'
+import RecipePrompt from '../components/RecipePrompt'
+import { findMatchingFood } from '../domain/matchFood'
 import ScanButton from '../components/ScanButton'
 import SearchList, { type SearchItem } from '../components/SearchList'
 import { useBarcodeLookup } from '../hooks/useBarcodeLookup'
@@ -36,6 +38,7 @@ export default function RecipeEditPage() {
   const [pickerQuery, setPickerQuery] = useState('')
   const [scanning, setScanning] = useState(false)
   const [estimating, setEstimating] = useState(false)
+  const [describing, setDescribing] = useState(false)
   const [confirmingDelete, setConfirmingDelete] = useState(false)
   const { lookup } = useBarcodeLookup()
 
@@ -135,6 +138,41 @@ export default function RecipeEditPage() {
     navigate('/recipes')
   }
 
+  if (describing) {
+    return (
+      <Page
+        title="Describe a recipe"
+        subtitle="Gemini works out the ingredients"
+        onBack={() => setDescribing(false)}
+      >
+        <RecipePrompt
+          onCancel={() => setDescribing(false)}
+          onAccept={(estimate) => {
+            // Reuse a food already in the library where the name matches: its
+            // figures are curated, the model's are a guess.
+            const added: RecipeIngredient[] = estimate.ingredients.map((item) => {
+              const existing = findMatchingFood(item.name, foods)
+              if (existing) return { foodId: existing.id, grams: item.grams }
+
+              const created = createFood({
+                name: item.name,
+                category: 'From a description',
+                per100g: item.per100g,
+              })
+              dispatch({ type: 'food/add', food: created })
+              return { foodId: created.id, grams: item.grams }
+            })
+
+            setName((current) => current || estimate.name)
+            setServings(String(estimate.servings))
+            setIngredients((current) => [...current, ...added])
+            setDescribing(false)
+          }}
+        />
+      </Page>
+    )
+  }
+
   if (estimating) {
     return (
       <Page
@@ -214,6 +252,19 @@ export default function RecipeEditPage() {
       subtitle="Totals update as you go"
       backTo="/recipes"
     >
+      {!existing && ingredients.length === 0 && (
+        <section className="card mb-4 p-4">
+          <h2 className="mb-1 font-semibold">Describe it instead</h2>
+          <p className="mb-3 text-sm muted">
+            Something like &ldquo;28g coffee beans in a moka pot + 200g whole milk, serves
+            2&rdquo; — Gemini turns it into ingredients for you to check.
+          </p>
+          <Button variant="secondary" onClick={() => setDescribing(true)}>
+            Describe a recipe
+          </Button>
+        </section>
+      )}
+
       <section className="card mb-4 p-4">
         <div className="grid gap-4 sm:grid-cols-[1fr_8rem]">
           <div>

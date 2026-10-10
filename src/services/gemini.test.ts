@@ -4,8 +4,10 @@ import {
   MissingKeyError,
   ModelError,
   estimateFromPhoto,
+  estimateRecipeFromText,
   extractJson,
   toEstimate,
+  toRecipeEstimate,
 } from './gemini'
 import { LookupFailedError, RateLimitedError } from './openFoodFacts'
 
@@ -191,5 +193,112 @@ describe('estimateFromPhoto', () => {
   it('handles a reply with no candidates', async () => {
     vi.spyOn(globalThis, 'fetch').mockResolvedValue(new Response(JSON.stringify({}), { status: 200 }))
     await expect(estimateFromPhoto(photo(), { apiKey: 'k' })).rejects.toThrow(/did not return/)
+  })
+})
+
+describe('toRecipeEstimate', () => {
+  const RECIPE = {
+    name: 'Moka pot latte',
+    servings: 2,
+    ingredients: [
+      { name: 'brewed coffee', grams: 120, per100g: { kcal: 2, fat: 0, satFat: 0, carbs: 0.3, fibre: 0, protein: 0.1, salt: 0 } },
+      { name: 'whole milk', grams: 200, per100g: { kcal: 64, fat: 3.6, satFat: 2.3, carbs: 4.7, fibre: 0, protein: 3.4, salt: 0.1 } },
+    ],
+    confidence: 'medium',
+    caveat: null,
+  }
+
+  it('maps a described recipe', () => {
+    const estimate = toRecipeEstimate(RECIPE)
+    expect(estimate?.name).toBe('Moka pot latte')
+    expect(estimate?.servings).toBe(2)
+    expect(estimate?.ingredients).toHaveLength(2)
+    expect(estimate?.ingredients[1]).toMatchObject({ name: 'whole milk', grams: 200 })
+    expect(estimate?.ingredients[1].per100g.kcal).toBe(64)
+  })
+
+  it('defaults servings to 1 when absent or nonsensical', () => {
+    expect(toRecipeEstimate({ ...RECIPE, servings: 0 })?.servings).toBe(1)
+    expect(toRecipeEstimate({ ...RECIPE, servings: undefined })?.servings).toBe(1)
+    expect(toRecipeEstimate({ ...RECIPE, servings: 2.6 })?.servings).toBe(3)
+  })
+
+  it('drops ingredients with no name or no weight', () => {
+    const estimate = toRecipeEstimate({
+      ...RECIPE,
+      ingredients: [
+        ...RECIPE.ingredients,
+        { name: '', grams: 50, per100g: {} },
+        { name: 'a pinch of salt', grams: 0, per100g: {} },
+        null,
+      ],
+    })
+    expect(estimate?.ingredients).toHaveLength(2)
+  })
+
+  it('returns null when nothing usable came back', () => {
+    expect(toRecipeEstimate({ ...RECIPE, ingredients: [] })).toBeNull()
+    expect(toRecipeEstimate(null)).toBeNull()
+  })
+
+  it('falls back to a generic name', () => {
+    expect(toRecipeEstimate({ ...RECIPE, name: '  ' })?.name).toBe('Recipe')
+  })
+
+  it('clamps saturated fat and defaults missing nutrients', () => {
+    const estimate = toRecipeEstimate({
+      ...RECIPE,
+      ingredients: [{ name: 'butter', grams: 10, per100g: { fat: 2, satFat: 9 } }],
+    })
+    expect(estimate?.ingredients[0].per100g.satFat).toBe(2)
+    expect(estimate?.ingredients[0].per100g.kcal).toBe(0)
+  })
+
+  it('treats an unknown confidence as low', () => {
+    expect(toRecipeEstimate({ ...RECIPE, confidence: 'certain' })?.confidence).toBe('low')
+  })
+})
+
+describe('estimateRecipeFromText', () => {
+  const RECIPE_REPLY = JSON.stringify({
+    name: 'Moka pot latte',
+    servings: 2,
+    ingredients: [{ name: 'whole milk', grams: 200, per100g: { kcal: 64 } }],
+    confidence: 'medium',
+  })
+
+  it('parses a described recipe', async () => {
+    vi.spyOn(globalThis, 'fetch').mockResolvedValue(reply(RECIPE_REPLY))
+    const estimate = await estimateRecipeFromText('200g whole milk, serves 2', { apiKey: 'k' })
+    expect(estimate.servings).toBe(2)
+    expect(estimate.ingredients[0].grams).toBe(200)
+  })
+
+  it('sends the description to the model', async () => {
+    const fetchSpy = vi.spyOn(globalThis, 'fetch').mockResolvedValue(reply(RECIPE_REPLY))
+    await estimateRecipeFromText('28g coffee beans in a moka pot', { apiKey: 'k' })
+    const body = JSON.parse(String(fetchSpy.mock.calls[0][1]?.body))
+    expect(JSON.stringify(body)).toContain('28g coffee beans in a moka pot')
+  })
+
+  it('refuses an empty description without calling out', async () => {
+    const fetchSpy = vi.spyOn(globalThis, 'fetch')
+    await expect(estimateRecipeFromText('   ', { apiKey: 'k' })).rejects.toBeInstanceOf(ModelError)
+    expect(fetchSpy).not.toHaveBeenCalled()
+  })
+
+  it('refuses without a key', async () => {
+    await expect(
+      estimateRecipeFromText('200g milk', { apiKey: undefined }),
+    ).rejects.toBeInstanceOf(MissingKeyError)
+  })
+
+  it('reports text that describes no food', async () => {
+    vi.spyOn(globalThis, 'fetch').mockResolvedValue(
+      reply(JSON.stringify({ name: 'x', servings: 1, ingredients: [] })),
+    )
+    await expect(estimateRecipeFromText('the weather today', { apiKey: 'k' })).rejects.toThrow(
+      /No ingredients could be read/,
+    )
   })
 })

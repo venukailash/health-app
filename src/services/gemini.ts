@@ -163,6 +163,162 @@ export function toEstimate(value: unknown): PhotoEstimate | null {
   }
 }
 
+/* ------------------------------------------------------------------ */
+/* Recipes described in words                                           */
+/* ------------------------------------------------------------------ */
+
+export interface EstimatedIngredient {
+  name: string
+  grams: number
+  per100g: Nutrients
+}
+
+export interface RecipeEstimate {
+  name: string
+  servings: number
+  ingredients: EstimatedIngredient[]
+  confidence: 'low' | 'medium' | 'high'
+  caveat?: string
+}
+
+const RECIPE_PROMPT = `You convert a described recipe into ingredients for a nutrition tracker that follows UK food labelling.
+
+The user writes something like "28g coffee beans in a moka pot + 200g whole milk, serves 2".
+
+Rules:
+- List what actually ENDS UP IN the finished dish, with the weight consumed. Brewed coffee, not the spent grounds; cooked weight where the description implies cooking.
+- Give each ingredient's nutrition PER 100 GRAMS, not for the amount used.
+- Carbohydrate EXCLUDES fibre (UK convention). Report fibre separately. Salt in grams, not sodium. Energy in kilocalories.
+- "serves N" or "makes N" sets servings. Default to 1 if not stated.
+- Use plain, generic ingredient names ("whole milk", "chicken breast"), not brand names, so they match a food library.
+- Keep weights as stated by the user. Only estimate a weight when none is given.
+- Be honest in "confidence", and put anything genuinely ambiguous in "caveat" (null if nothing).
+- If the text does not describe food at all, return an empty ingredients array.
+
+Reply with ONLY a JSON object, no markdown fence:
+{"name":string,"servings":number,"ingredients":[{"name":string,"grams":number,"per100g":{"kcal":number,"fat":number,"satFat":number,"carbs":number,"fibre":number,"protein":number,"salt":number}}],"confidence":"low"|"medium"|"high","caveat":string|null}`
+
+function toNutrientsBlock(value: unknown): Nutrients {
+  const raw = (value ?? {}) as Record<string, unknown>
+  const per100g: Nutrients = {
+    ...ZERO_NUTRIENTS,
+    kcal: Math.round(asNumber(raw.kcal)),
+    fat: round(asNumber(raw.fat), 1),
+    satFat: round(asNumber(raw.satFat), 1),
+    carbs: round(asNumber(raw.carbs), 1),
+    fibre: round(asNumber(raw.fibre), 1),
+    protein: round(asNumber(raw.protein), 1),
+    salt: round(asNumber(raw.salt), 2),
+  }
+  if (per100g.satFat > per100g.fat) per100g.satFat = per100g.fat
+  return per100g
+}
+
+export function toRecipeEstimate(value: unknown): RecipeEstimate | null {
+  if (typeof value !== 'object' || value === null) return null
+  const raw = value as Record<string, unknown>
+
+  const rawIngredients = Array.isArray(raw.ingredients) ? raw.ingredients : []
+  const ingredients = rawIngredients.flatMap((entry): EstimatedIngredient[] => {
+    if (typeof entry !== 'object' || entry === null) return []
+    const item = entry as Record<string, unknown>
+    const name = typeof item.name === 'string' ? item.name.trim() : ''
+    const grams = asNumber(item.grams)
+    // A zero-weight ingredient contributes nothing and only clutters the list.
+    if (name === '' || grams <= 0) return []
+    return [{ name, grams: round(grams, 1), per100g: toNutrientsBlock(item.per100g) }]
+  })
+
+  if (ingredients.length === 0) return null
+
+  const servings = asNumber(raw.servings)
+
+  return {
+    name: typeof raw.name === 'string' && raw.name.trim() !== '' ? raw.name.trim() : 'Recipe',
+    servings: servings >= 1 ? Math.round(servings) : 1,
+    ingredients,
+    confidence: raw.confidence === 'high' || raw.confidence === 'medium' ? raw.confidence : 'low',
+    caveat:
+      typeof raw.caveat === 'string' && raw.caveat.trim() !== '' ? raw.caveat.trim() : undefined,
+  }
+}
+
+/** Shared request plumbing for both estimators. */
+async function callGemini(
+  parts: unknown[],
+  { apiKey, model, signal }: { apiKey: string | undefined; model: string; signal?: AbortSignal },
+): Promise<string> {
+  if (!apiKey || apiKey.trim() === '') throw new MissingKeyError()
+
+  let response: Response
+  try {
+    response = await fetch(
+      `${ENDPOINT}/${encodeURIComponent(model)}:generateContent?key=${encodeURIComponent(apiKey.trim())}`,
+      {
+        method: 'POST',
+        signal,
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          contents: [{ parts }],
+          generationConfig: { temperature: 0, responseMimeType: 'application/json' },
+        }),
+      },
+    )
+  } catch (error) {
+    if (error instanceof DOMException && error.name === 'AbortError') throw error
+    throw new LookupFailedError('Could not reach Gemini. Check your connection.')
+  }
+
+  if (response.status === 429) throw new RateLimitedError(Date.now() + 60_000)
+  if (response.status === 400 || response.status === 403) {
+    throw new ModelError('Gemini rejected the key. Check it in Settings.')
+  }
+  if (response.status === 404) {
+    throw new ModelError(
+      `Gemini has no model called "${model}" — it may have been retired. Change it in Settings.`,
+    )
+  }
+  if (!response.ok) throw new LookupFailedError('Gemini returned an error.')
+
+  let payload: unknown
+  try {
+    payload = await response.json()
+  } catch {
+    throw new LookupFailedError('Gemini returned something unreadable.')
+  }
+
+  const text = (payload as {
+    candidates?: { content?: { parts?: { text?: string }[] } }[]
+  }).candidates?.[0]?.content?.parts?.[0]?.text
+
+  if (typeof text !== 'string') {
+    throw new ModelError('Gemini did not return an answer. Try rewording it.')
+  }
+  return text
+}
+
+export async function estimateRecipeFromText(
+  description: string,
+  {
+    apiKey,
+    model = DEFAULT_GEMINI_MODEL,
+    signal,
+  }: { apiKey: string | undefined; model?: string; signal?: AbortSignal },
+): Promise<RecipeEstimate> {
+  const text = description.trim()
+  if (text === '') throw new ModelError('Describe the recipe first.')
+
+  const reply = await callGemini([{ text: RECIPE_PROMPT }, { text: `Recipe: ${text}` }], {
+    apiKey,
+    model,
+    signal,
+  })
+
+  const estimate = toRecipeEstimate(extractJson(reply))
+  if (!estimate) throw new ModelError('No ingredients could be read from that description.')
+  return estimate
+}
+
 export async function estimateFromPhoto(
   file: File,
   {

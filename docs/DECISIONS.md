@@ -124,6 +124,19 @@ Other choices worth keeping:
   markdown fence and surrounding prose, because models add them anyway.
 - Saturated fat above total fat is clamped, as with the other sources.
 
+## A described recipe reuses library foods where it can
+
+"28g coffee beans in a moka pot + 200g whole milk, serves 2" becomes a recipe. Before creating
+anything, each ingredient name is matched against the food library — a described "whole milk"
+should use the curated starter food, whose figures are known, rather than add a near-duplicate
+carrying a model's guess. The review screen says which were matched and which are new, because
+that is the difference between a trusted figure and an estimated one.
+
+`domain/matchFood.ts` is deliberately conservative: a wrong match silently logs the wrong food,
+which is worse than a duplicate the user can see. Every word of one name must appear in the
+other, so "milk" matches "Whole milk" but not "Milk chocolate", and "coffee" does not match
+"coffee cake".
+
 ## The Gemini key lives on the device, which is a real trade-off
 
 The API is called straight from the browser, which Google's CORS headers allow and which keeps
