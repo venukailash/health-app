@@ -121,6 +121,18 @@ away on the switch. The camera nested inside the ingredient picker is gone: the 
 covers it, and a camera two levels deep was the thing people got lost in. Barcode scanning stays
 in the picker, because it is a different capability rather than a duplicate.
 
+## Camera and photo library are two inputs, because one cannot be both
+
+A file input's `capture="environment"` opens the camera on iOS and Android and is **silently
+ignored on desktop**, where it falls back to a file dialog. An input without it opens the photo
+library. There is no single input that offers both, so the assist has two, behind two buttons —
+camera first, since that is what someone standing over their lunch wants.
+
+Where `enumerateDevices` reports no `videoinput`, the camera button is hidden rather than left to
+open a file dialog identical to the button beside it: two identical-looking buttons doing the same
+thing is worse than one. If the device list cannot be read at all the camera IS offered, because
+hiding it from someone who has one is the worse failure.
+
 ## Nutrition from a photo is always an estimate, and always reviewed
 
 Gemini can suggest a food's nutrition from a picture. It cannot know how a dish was cooked or how

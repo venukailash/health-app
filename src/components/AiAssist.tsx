@@ -12,6 +12,7 @@ import {
 } from '../services/gemini'
 import { LookupFailedError, RateLimitedError } from '../services/openFoodFacts'
 import { useAppState } from '../state/AppStore'
+import { useHasCamera } from '../hooks/useHasCamera'
 import { findMatchingFood } from '../domain/matchFood'
 import { perServing, round, scaleNutrients, sumNutrients } from '../domain/nutrition'
 
@@ -58,7 +59,12 @@ export default function AiAssist({
   onCancel: () => void
 }) {
   const { meta, foods } = useAppState()
-  const fileInput = useRef<HTMLInputElement>(null)
+  // Two inputs, because one cannot do both: `capture` opens the camera on a
+  // phone and is ignored on desktop, and an input without it opens the photo
+  // library rather than the camera.
+  const cameraInput = useRef<HTMLInputElement>(null)
+  const libraryInput = useRef<HTMLInputElement>(null)
+  const hasCamera = useHasCamera()
 
   const [mode, setMode] = useState<AiMode>(initialMode)
   const [text, setText] = useState('')
@@ -124,10 +130,21 @@ export default function AiAssist({
   return (
     <div className="space-y-4">
       <input
-        ref={fileInput}
+        ref={cameraInput}
         type="file"
         accept="image/*"
         capture="environment"
+        className="hidden"
+        onChange={(event) => {
+          const file = event.target.files?.[0]
+          if (file) choosePhoto(file)
+          event.target.value = ''
+        }}
+      />
+      <input
+        ref={libraryInput}
+        type="file"
+        accept="image/*"
         className="hidden"
         onChange={(event) => {
           const file = event.target.files?.[0]
@@ -183,9 +200,21 @@ export default function AiAssist({
                 className="mb-3 max-h-56 w-full rounded-xl object-cover"
               />
             )}
-            <Button onClick={() => fileInput.current?.click()} disabled={busy}>
-              {busy ? 'Working it out…' : preview ? 'Try another photo' : 'Take a photo'}
-            </Button>
+            <div className="flex flex-wrap gap-2">
+              {/* Camera first, deliberately: it is what people want on a phone. */}
+              {hasCamera && (
+                <Button onClick={() => cameraInput.current?.click()} disabled={busy}>
+                  {busy ? 'Working it out…' : preview ? 'Retake' : 'Take a photo'}
+                </Button>
+              )}
+              <Button
+                variant={hasCamera ? 'secondary' : 'primary'}
+                onClick={() => libraryInput.current?.click()}
+                disabled={busy}
+              >
+                {hasCamera ? 'Choose a photo' : busy ? 'Working it out…' : 'Choose a photo'}
+              </Button>
+            </div>
           </>
         ) : (
           <>
