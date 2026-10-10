@@ -1,11 +1,13 @@
+import { useState } from 'react'
 import { Link, Navigate, useParams } from 'react-router-dom'
 import CalorieRing from '../components/CalorieRing'
 import MacroBar from '../components/MacroBar'
 import Page from '../components/Page'
+import MealBreakdown from '../components/MealBreakdown'
 import PeriodSwitcher from '../components/PeriodSwitcher'
 import { addDays, formatDayLabel, formatFullDate, isValidDateKey, todayKey } from '../domain/date'
-import { round, roundNutrients } from '../domain/nutrition'
-import { MEAL_LABELS, MEAL_TYPES } from '../domain/types'
+import { percentOfGoal, round, roundNutrients } from '../domain/nutrition'
+import { MEAL_LABELS, MEAL_TYPES, type MealType } from '../domain/types'
 import { useAppState, useDispatch } from '../state/AppStore'
 import { dayTotals, entriesForDate, fatBreakdown, goalProgress, totalsFor } from '../state/selectors'
 
@@ -13,6 +15,9 @@ export default function TodayPage() {
   const { date } = useParams()
   const state = useAppState()
   const dispatch = useDispatch()
+  // Collapsed by default: the breakdown is for when a number looks wrong, not
+  // something to scroll past four times on the way to adding lunch.
+  const [expanded, setExpanded] = useState<MealType[]>([])
 
   if (!date || !isValidDateKey(date)) {
     return <Navigate to={`/day/${todayKey()}`} replace />
@@ -81,19 +86,61 @@ export default function TodayPage() {
       <div className="space-y-4">
         {MEAL_TYPES.map((meal) => {
           const mealEntries = entries.filter((entry) => entry.meal === meal)
-          const mealTotal = roundNutrients(totalsFor(mealEntries))
+          const rawTotal = totalsFor(mealEntries)
+          const mealTotal = roundNutrients(rawTotal)
+          const isOpen = expanded.includes(meal)
+          const hasEntries = mealEntries.length > 0
+          const sharePercent = percentOfGoal(rawTotal.kcal, state.goals.kcal)
 
           return (
             <section key={meal} className="card overflow-hidden">
-              <header
-                className="flex items-baseline justify-between gap-3 border-b px-4 py-3"
-                style={{ borderColor: 'var(--border)' }}
-              >
-                <h2 className="font-semibold">{MEAL_LABELS[meal]}</h2>
-                <p className="text-sm tabular-nums muted">
-                  {mealEntries.length === 0 ? '—' : `${mealTotal.kcal} kcal`}
-                </p>
-              </header>
+              {hasEntries ? (
+                <h2>
+                  <button
+                    type="button"
+                    aria-expanded={isOpen}
+                    onClick={() =>
+                      setExpanded((current) =>
+                        current.includes(meal)
+                          ? current.filter((value) => value !== meal)
+                          : [...current, meal],
+                      )
+                    }
+                    className="flex w-full items-baseline justify-between gap-3 border-b px-4 py-3 text-left hover:bg-[var(--track)]"
+                    style={{ borderColor: 'var(--border)' }}
+                  >
+                    <span className="font-semibold">{MEAL_LABELS[meal]}</span>
+                    <span className="flex items-baseline gap-2 text-sm tabular-nums muted">
+                      <span>{mealTotal.kcal} kcal</span>
+                      <span className="font-medium text-[var(--text)]">{sharePercent}%</span>
+                      <svg
+                        viewBox="0 0 24 24"
+                        aria-hidden="true"
+                        className={`h-4 w-4 self-center transition-transform ${
+                          isOpen ? 'rotate-180' : ''
+                        }`}
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="2"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                      >
+                        <path d="M6 9l6 6 6-6" />
+                      </svg>
+                    </span>
+                  </button>
+                </h2>
+              ) : (
+                <header
+                  className="flex items-baseline justify-between gap-3 border-b px-4 py-3"
+                  style={{ borderColor: 'var(--border)' }}
+                >
+                  <h2 className="font-semibold">{MEAL_LABELS[meal]}</h2>
+                  <p className="text-sm tabular-nums muted">—</p>
+                </header>
+              )}
+
+              {hasEntries && isOpen && <MealBreakdown totals={rawTotal} goals={state.goals} />}
 
               {mealEntries.length > 0 && (
                 <ul className="divide-y" style={{ borderColor: 'var(--border)' }}>

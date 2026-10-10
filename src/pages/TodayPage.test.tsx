@@ -1,4 +1,4 @@
-import { screen } from '@testing-library/react'
+import { screen, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import TodayPage from './TodayPage'
@@ -55,7 +55,8 @@ describe('TodayPage', () => {
 
   it('groups entries under their meal with a subtotal', () => {
     renderDay('2026-09-20')
-    expect(screen.getByRole('heading', { name: 'Breakfast' })).toBeInTheDocument()
+    // The heading now carries the meal's totals as well as its name.
+    expect(screen.getByRole('heading', { name: /^Breakfast/ })).toBeInTheDocument()
     expect(screen.getByText('Porridge oats')).toBeInTheDocument()
     expect(screen.getByText('Chicken breast')).toBeInTheDocument()
     // Appears twice: the meal subtotal in the header and the entry itself.
@@ -111,5 +112,92 @@ describe('TodayPage', () => {
 
     expect(screen.getByRole('heading', { name: 'Today' })).toBeInTheDocument()
     expect(screen.getByText('709')).toBeInTheDocument()
+  })
+})
+
+describe('TodayPage — per-meal breakdown', () => {
+  it("shows each meal's calories and its share of the day", () => {
+    renderDay('2026-09-20')
+    // Breakfast is 379 kcal against a 2000 kcal goal.
+    const breakfast = screen.getByRole('button', { name: /Breakfast/ })
+    expect(breakfast).toHaveTextContent('379 kcal')
+    expect(breakfast).toHaveTextContent('19%')
+  })
+
+  it('keeps the breakdown collapsed until asked', () => {
+    renderDay('2026-09-20')
+    expect(screen.getByRole('button', { name: /Breakfast/ })).toHaveAttribute(
+      'aria-expanded',
+      'false',
+    )
+    expect(screen.queryByText('Share of your daily targets')).not.toBeInTheDocument()
+  })
+
+  it('expands to the macro split for that meal alone', async () => {
+    const user = userEvent.setup()
+    renderDay('2026-09-20')
+
+    await user.click(screen.getByRole('button', { name: /Breakfast/ }))
+
+    expect(screen.getByRole('button', { name: /Breakfast/ })).toHaveAttribute(
+      'aria-expanded',
+      'true',
+    )
+
+    // Scope to the breakfast card: the day summary above shows its own bars,
+    // and here they happen to carry the same carb figure.
+    const breakfast = screen
+      .getByRole('button', { name: /Breakfast/ })
+      .closest('section') as HTMLElement
+
+    // 60 g carbs from breakfast against the 260 g daily target.
+    expect(
+      within(breakfast).getByRole('progressbar', { name: /Carbs: 23% of goal/ }),
+    ).toBeInTheDocument()
+    // Breakfast's own protein, not the day's: 11 g against the 50 g target.
+    expect(
+      within(breakfast).getByRole('progressbar', { name: /Protein: 22% of goal/ }),
+    ).toBeInTheDocument()
+  })
+
+  it('collapses again', async () => {
+    const user = userEvent.setup()
+    renderDay('2026-09-20')
+
+    await user.click(screen.getByRole('button', { name: /Breakfast/ }))
+    await user.click(screen.getByRole('button', { name: /Breakfast/ }))
+    expect(screen.queryByText('Share of your daily targets')).not.toBeInTheDocument()
+  })
+
+  it('opens each meal independently', async () => {
+    const user = userEvent.setup()
+    renderDay('2026-09-20')
+
+    await user.click(screen.getByRole('button', { name: /Breakfast/ }))
+    expect(screen.getByRole('button', { name: /Lunch/ })).toHaveAttribute('aria-expanded', 'false')
+
+    await user.click(screen.getByRole('button', { name: /Lunch/ }))
+    expect(screen.getAllByText('Share of your daily targets')).toHaveLength(2)
+  })
+
+  it('offers nothing to expand on an empty meal', () => {
+    renderDay('2026-09-20')
+    // Dinner has no entries, so there is no breakdown behind it.
+    expect(screen.queryByRole('button', { name: /Dinner/ })).not.toBeInTheDocument()
+    expect(screen.getByRole('heading', { name: 'Dinner' })).toBeInTheDocument()
+  })
+
+  it('measures the meal against the daily target, not the day so far', async () => {
+    const user = userEvent.setup()
+    renderDay('2026-09-20')
+
+    await user.click(screen.getByRole('button', { name: /Lunch/ }))
+    const lunch = screen.getByRole('button', { name: /Lunch/ }).closest('section') as HTMLElement
+
+    // Lunch is 62 g protein against the 50 g DAILY target, so it reads as over
+    // on its own — not as a share of what has been eaten today.
+    expect(
+      within(lunch).getByRole('progressbar', { name: /Protein: 124% of goal/ }),
+    ).toBeInTheDocument()
   })
 })

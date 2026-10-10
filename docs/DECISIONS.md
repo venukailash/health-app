@@ -60,6 +60,21 @@ The heat map's bands are weighted to the top of the range (50/75/100/over) becau
 cluster between half and a little over goal; even spacing put almost every day in the same two
 shades.
 
+## A meal's percentages are of the DAILY target
+
+Each meal on the day screen shows its calories and what share of the day's calorie goal that is,
+and expands to the same macro bars measured the same way — breakfast's 62 g of carbs against the
+260 g daily target, not against what has been eaten so far.
+
+The alternative, a meal's share of the day's intake to date, changes meaning as the day goes on:
+breakfast would read 100% at 9am and 30% by dinner without anything being eaten differently.
+Using the daily target throughout means a percentage means the same thing wherever it appears on
+the screen.
+
+Collapsed by default, because the breakdown is for when a number looks wrong, not something to
+scroll past four times on the way to adding lunch. An empty meal has no control at all rather
+than one that expands to six zeroes.
+
 ## Averages divide by logged days, not calendar days
 
 Track four days of a week and the average is over those four. Dividing by seven would report
