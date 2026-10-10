@@ -1,5 +1,5 @@
 import { multiplyNutrients, percentOfGoal, sumNutrients, unsaturatedFat } from '../domain/nutrition'
-import { dateRange, type DateKey } from '../domain/date'
+import { dateRange, isValidDateKey, toDateKey, type DateKey } from '../domain/date'
 import type { Food, Goals, LogEntry, MealType, NutrientKey, Nutrients } from '../domain/types'
 import { MEAL_TYPES, NUTRIENT_KEYS } from '../domain/types'
 import type { AppState } from './reducer'
@@ -164,4 +164,33 @@ export function rangeStats(state: AppState, from: DateKey, to: DateKey): RangeSt
     daysOnTarget: goal > 0 ? logged.filter((day) => day.totals.kcal <= goal).length : 0,
     bestStreak,
   }
+}
+
+/**
+ * The oldest day this browser holds anything worth keeping: a logged meal, or
+ * a food or recipe the user wrote themselves. Null when there is nothing.
+ *
+ * The backup reminder counts from here until the first ever backup, so the
+ * clock measures how long the data has been at risk rather than how long the
+ * app has been installed. Starter foods do not count — they come back on their
+ * own.
+ */
+export function oldestDataKey(state: AppState): DateKey | null {
+  let oldest: DateKey | null = null
+  const consider = (key: DateKey) => {
+    // Date keys sort lexicographically, which is the whole reason for the format.
+    if (isValidDateKey(key) && (oldest === null || key < oldest)) oldest = key
+  }
+
+  for (const [date, entries] of Object.entries(state.log)) {
+    if (entries.length > 0) consider(date)
+  }
+  for (const food of state.foods) {
+    if (food.source === 'user') consider(toDateKey(new Date(food.createdAt)))
+  }
+  for (const recipe of state.recipes) {
+    consider(toDateKey(new Date(recipe.createdAt)))
+  }
+
+  return oldest
 }

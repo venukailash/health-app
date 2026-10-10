@@ -4,12 +4,21 @@ import CalorieRing from '../components/CalorieRing'
 import MacroBar from '../components/MacroBar'
 import Page from '../components/Page'
 import MealBreakdown from '../components/MealBreakdown'
+import BackupReminder from '../components/BackupReminder'
 import PeriodSwitcher from '../components/PeriodSwitcher'
 import { addDays, formatDayLabel, formatFullDate, isValidDateKey, todayKey } from '../domain/date'
+import { backupReminder } from '../domain/backupReminder'
 import { percentOfGoal, round, roundNutrients } from '../domain/nutrition'
 import { MEAL_LABELS, MEAL_TYPES, type MealType } from '../domain/types'
 import { useAppState, useDispatch } from '../state/AppStore'
-import { dayTotals, entriesForDate, fatBreakdown, goalProgress, totalsFor } from '../state/selectors'
+import {
+  dayTotals,
+  entriesForDate,
+  fatBreakdown,
+  goalProgress,
+  oldestDataKey,
+  totalsFor,
+} from '../state/selectors'
 
 export default function TodayPage() {
   const { date } = useParams()
@@ -41,6 +50,18 @@ export default function TodayPage() {
   const progress = goalProgress(totals, state.goals)
   const fat = fatBreakdown(totals)
 
+  // Only on today's page: being told your backup is stale while you are
+  // reading back over last Tuesday is noise.
+  const reminder = backupReminder(
+    {
+      lastBackupAt: state.meta.lastBackupAt,
+      remindersOff: state.meta.backupRemindersOff,
+      snoozedUntil: state.meta.backupReminderSnoozedUntil,
+      oldestDataKey: oldestDataKey(state),
+    },
+    today,
+  )
+
   return (
     <Page
       title={formatDayLabel(date, today)}
@@ -54,6 +75,10 @@ export default function TodayPage() {
       }
     >
       <PeriodSwitcher active="day" date={date} />
+
+      {date === today && reminder.due && (
+        <BackupReminder days={reminder.days} everBackedUp={reminder.everBackedUp} />
+      )}
 
       <nav aria-label="Change day" className="mb-4 flex items-center justify-between gap-2">
         <Link

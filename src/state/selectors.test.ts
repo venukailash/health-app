@@ -10,6 +10,7 @@ import {
   goalProgress,
   loggedDates,
   mealTotals,
+  oldestDataKey,
 } from './selectors'
 import { DEFAULT_GOALS } from '../storage/repository'
 import { roundNutrients } from '../domain/nutrition'
@@ -145,5 +146,38 @@ describe('loggedDates', () => {
 
   it('skips empty buckets', () => {
     expect(loggedDates({ ...EMPTY_STATE, log: { '2026-09-20': [] } })).toEqual([])
+  })
+})
+
+describe('oldestDataKey', () => {
+  it('is null when there is nothing worth backing up', () => {
+    expect(oldestDataKey(EMPTY_STATE)).toBeNull()
+  })
+
+  it('ignores the starter foods, which come back on their own', () => {
+    const seeded = createFood({ name: 'Milk', per100g: oats.per100g })
+    const state: AppState = { ...EMPTY_STATE, foods: [{ ...seeded, source: 'seed' }] }
+    expect(oldestDataKey(state)).toBeNull()
+  })
+
+  it('takes the earliest of logged days and the user\'s own foods', () => {
+    const food = createFood({ name: 'Flapjack', per100g: oats.per100g })
+    const state: AppState = {
+      ...EMPTY_STATE,
+      foods: [{ ...food, source: 'user', createdAt: '2026-05-04T10:00:00.000Z' }],
+      log: {
+        '2026-03-01': [logFood(oats, 50, 'breakfast', '2026-03-01')],
+        '2026-09-01': [logFood(oats, 50, 'lunch', '2026-09-01')],
+      },
+    }
+    expect(oldestDataKey(state)).toBe('2026-03-01')
+  })
+
+  it('skips a day whose entries have all been removed', () => {
+    const state: AppState = {
+      ...EMPTY_STATE,
+      log: { '2026-03-01': [], '2026-09-01': [logFood(oats, 50, 'lunch', '2026-09-01')] },
+    }
+    expect(oldestDataKey(state)).toBe('2026-09-01')
   })
 })

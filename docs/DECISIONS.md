@@ -295,3 +295,27 @@ honest, and that is more machinery than the problem needs.
 
 The Remove button on the edit-entry screen is unchanged: you got there deliberately, through two
 navigations, so a second confirmation would only be in the way.
+
+## The backup reminder is a banner, not a notification
+
+A scheduled notification cannot be done here. The API that would have done it locally,
+Notification Triggers (`TimestampTrigger`), never shipped anywhere and is not even in the compat
+database. Web Push works on iOS 16.4+ for an installed web app, but Web Push means a server
+holding a subscription and pushing on a timer, which is the infrastructure this app does not
+have. Periodic Background Sync, which could have woken the service worker, is Chromium-only.
+
+So the reminder appears on Today when the app is opened, and nowhere else. The honest limit is
+stated in Settings rather than hidden: nothing can reach you while the app is closed.
+
+The clock runs from the last backup, or — before there has ever been one — from the oldest day
+with data in it. Measuring from the first install would nag someone who has logged nothing, and
+measuring from today would never nag at all. Starter foods do not count as data: they come back
+on their own.
+
+"Later" snoozes by a full fifteen days rather than a day or two, because a reminder that returns
+tomorrow is a reminder you learn to swat. "Never remind me" is a real off switch, and the only
+way back is the checkbox in Settings, where someone looking for it would look.
+
+Importing a backup sets `lastBackupAt` to the moment of import. The file just read IS a backup of
+exactly that state, so a freshly restored device should not open to a reminder that its data is
+at risk.

@@ -35,6 +35,15 @@ export interface Meta {
   geminiApiKey?: string
   /** Overrides the default Gemini model, since Google's line-up changes. */
   geminiModel?: string
+  /**
+   * ISO timestamp of the last exported backup, for the staleness reminder.
+   * Absent means there has never been one.
+   */
+  lastBackupAt?: string
+  /** Set when the user asks never to be reminded about backups again. */
+  backupRemindersOff?: boolean
+  /** "Later" on the reminder: it stays hidden until this local date. */
+  backupReminderSnoozedUntil?: string
 }
 
 export interface Envelope<T> {

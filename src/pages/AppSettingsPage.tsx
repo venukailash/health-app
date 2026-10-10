@@ -3,7 +3,10 @@ import Button from '../components/Button'
 import Page from '../components/Page'
 import SettingsTabs from '../components/SettingsTabs'
 import { useAppState, useDispatch } from '../state/AppStore'
-import { ImportError, backupFilename, buildBackup, parseBackup } from '../state/transfer'
+import { ImportError, parseBackup } from '../state/transfer'
+import { downloadBackup } from '../state/downloadBackup'
+import { BACKUP_REMINDER_DAYS } from '../domain/backupReminder'
+import { formatFullDate, toDateKey } from '../domain/date'
 import { DEMO_API_KEY } from '../services/foodDataCentral'
 import { DEFAULT_GEMINI_MODEL } from '../services/gemini'
 import { SEED_VERSION } from '../storage/seed'
@@ -22,22 +25,28 @@ export default function AppSettingsPage() {
   const [geminiSaved, setGeminiSaved] = useState(false)
 
   function exportData() {
-    const blob = new Blob([JSON.stringify(buildBackup(state), null, 2)], {
-      type: 'application/json',
+    downloadBackup(state)
+    // Taking a backup is what resets the reminder, wherever it was taken from.
+    dispatch({
+      type: 'meta/set',
+      meta: {
+        ...state.meta,
+        lastBackupAt: new Date().toISOString(),
+        backupReminderSnoozedUntil: undefined,
+      },
     })
-    const url = URL.createObjectURL(blob)
-    const link = document.createElement('a')
-    link.href = url
-    link.download = backupFilename()
-    link.click()
-    URL.revokeObjectURL(url)
     setMessage({ tone: 'ok', text: 'Backup downloaded.' })
   }
 
   async function importData(file: File) {
     try {
       const imported = parseBackup(await file.text())
-      dispatch({ type: 'data/replace', state: imported })
+      // The file just read IS a backup of what was imported, so the reminder
+      // clock starts fresh rather than firing straight away on a new device.
+      dispatch({
+        type: 'data/replace',
+        state: { ...imported, meta: { ...imported.meta, lastBackupAt: new Date().toISOString() } },
+      })
       const days = Object.keys(imported.log).length
       setMessage({
         tone: 'ok',
@@ -248,6 +257,30 @@ export default function AppSettingsPage() {
             }}
           />
         </div>
+
+        <label className="mt-4 flex items-start gap-3 text-sm">
+          <input
+            type="checkbox"
+            className="mt-0.5 h-4 w-4 accent-[var(--color-brand)]"
+            checked={!state.meta.backupRemindersOff}
+            onChange={(event) =>
+              dispatch({
+                type: 'meta/set',
+                meta: { ...state.meta, backupRemindersOff: event.target.checked ? undefined : true },
+              })
+            }
+          />
+          <span>
+            Remind me on the Today screen when my backup is more than{' '}
+            {BACKUP_REMINDER_DAYS} days old.
+            <span className="block text-xs muted">
+              {state.meta.lastBackupAt
+                ? `Last backup ${formatFullDate(toDateKey(new Date(state.meta.lastBackupAt)))}.`
+                : 'No backup taken yet.'}{' '}
+              The app cannot notify you while it is closed — there is no server to send it.
+            </span>
+          </span>
+        </label>
 
         {message && (
           <p
