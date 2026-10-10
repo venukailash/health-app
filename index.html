@@ -13,6 +13,25 @@
       content="Track meals, recipes and macronutrients against your daily goals. Works offline, stores everything on your device."
     />
     <title>Health App — Meal &amp; Macro Tracker</title>
+    <script>
+      // Reads the saved appearance BEFORE the bundle loads, so a dark-mode
+      // user never gets a white flash. Deliberately duplicates two field
+      // names from storage/repository.ts: the alternative is waiting for
+      // React, and the whole point is not to wait. Failing silently is
+      // correct — the defaults in themes.css are a working theme.
+      try {
+        var saved = JSON.parse(localStorage.getItem('healthapp.meta.v1') || 'null')
+        var meta = (saved && saved.data) || {}
+        if (['teal', 'forest', 'rose', 'steel'].indexOf(meta.theme) !== -1) {
+          document.documentElement.dataset.theme = meta.theme
+        }
+        if (meta.colorMode === 'light' || meta.colorMode === 'dark') {
+          document.documentElement.dataset.mode = meta.colorMode
+        }
+      } catch (error) {
+        /* no saved appearance, or no storage at all */
+      }
+    </script>
   </head>
   <body>
     <div id="root"></div>

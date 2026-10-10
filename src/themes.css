@@ -1,0 +1,256 @@
+/*
+ * Fixed themes. Every value lives in a flat block here so `themes.test.ts` can
+ * read this file and check the numbers — contrast, gamut and separation — for
+ * each theme in both light and dark. Nothing here is chosen by eye.
+ *
+ * Each theme declares --l-* (light) and --d-* (dark) tokens. The mapping rules
+ * at the bottom decide which set is live; they contain no colour values, so
+ * adding a theme means adding exactly one block.
+ *
+ * The macro hues are deliberately NOT part of a theme: they encode what the
+ * bar means, and a carbohydrate bar that changes hue with the chrome would be
+ * a different kind of thing to look at. Only the chrome and the accent change,
+ * and the calorie ring and heat map follow the accent because they are their
+ * own single-series charts, never shown beside the macro bars as a fifth slot.
+ */
+
+/* Teal — the original, and the default. */
+:root,
+[data-theme='teal'] {
+  --l-surface: oklch(0.99 0.004 220);
+  --l-surface-raised: oklch(1 0 0);
+  --l-border: oklch(0.9 0.008 220);
+  --l-text: oklch(0.24 0.02 250);
+  --l-text-muted: oklch(0.52 0.02 250);
+  --l-track: oklch(0.93 0.006 220);
+  --l-brand: oklch(0.52 0.11 185);
+  --l-brand-ink: oklch(1 0 0);
+  --l-kcal: oklch(0.62 0.115 178);
+  --l-heat-1: oklch(0.74 0.09 178);
+  --l-heat-2: oklch(0.65 0.13 178);
+  --l-heat-3: oklch(0.56 0.115 178);
+  --l-heat-4: oklch(0.47 0.1 178);
+
+  --d-surface: oklch(0.19 0.015 250);
+  --d-surface-raised: oklch(0.24 0.018 250);
+  --d-border: oklch(0.33 0.02 250);
+  --d-text: oklch(0.95 0.005 250);
+  --d-text-muted: oklch(0.68 0.015 250);
+  --d-track: oklch(0.31 0.02 250);
+  --d-brand: oklch(0.74 0.11 185);
+  --d-brand-ink: oklch(0.19 0.015 250);
+  --d-kcal: oklch(0.72 0.15 178);
+  --d-heat-1: oklch(0.42 0.08 178);
+  --d-heat-2: oklch(0.52 0.11 178);
+  --d-heat-3: oklch(0.62 0.14 178);
+  --d-heat-4: oklch(0.72 0.15 178);
+}
+
+/* Forest — warm paper in the light, deep green-grey in the dark. */
+[data-theme='forest'] {
+  --l-surface: oklch(0.985 0.008 120);
+  --l-surface-raised: oklch(1 0 0);
+  --l-border: oklch(0.89 0.014 120);
+  --l-text: oklch(0.23 0.02 140);
+  --l-text-muted: oklch(0.5 0.02 140);
+  --l-track: oklch(0.93 0.012 120);
+  --l-brand: oklch(0.5 0.12 145);
+  --l-brand-ink: oklch(1 0 0);
+  --l-kcal: oklch(0.6 0.14 145);
+  --l-heat-1: oklch(0.76 0.1 145);
+  --l-heat-2: oklch(0.67 0.13 145);
+  --l-heat-3: oklch(0.57 0.14 145);
+  --l-heat-4: oklch(0.47 0.12 145);
+
+  --d-surface: oklch(0.19 0.016 150);
+  --d-surface-raised: oklch(0.24 0.02 150);
+  --d-border: oklch(0.33 0.022 150);
+  --d-text: oklch(0.95 0.008 150);
+  --d-text-muted: oklch(0.68 0.016 150);
+  --d-track: oklch(0.31 0.022 150);
+  --d-brand: oklch(0.76 0.14 145);
+  --d-brand-ink: oklch(0.19 0.016 150);
+  --d-kcal: oklch(0.74 0.15 145);
+  --d-heat-1: oklch(0.42 0.08 145);
+  --d-heat-2: oklch(0.52 0.11 145);
+  --d-heat-3: oklch(0.63 0.14 145);
+  --d-heat-4: oklch(0.74 0.15 145);
+}
+
+/* Rose — warm grey chrome with a pink accent. */
+[data-theme='rose'] {
+  --l-surface: oklch(0.985 0.006 20);
+  --l-surface-raised: oklch(1 0 0);
+  --l-border: oklch(0.89 0.012 20);
+  --l-text: oklch(0.24 0.018 10);
+  --l-text-muted: oklch(0.51 0.018 10);
+  --l-track: oklch(0.93 0.01 20);
+  --l-brand: oklch(0.52 0.16 355);
+  --l-brand-ink: oklch(1 0 0);
+  --l-kcal: oklch(0.62 0.17 355);
+  --l-heat-1: oklch(0.78 0.08 355);
+  --l-heat-2: oklch(0.69 0.12 355);
+  --l-heat-3: oklch(0.6 0.16 355);
+  --l-heat-4: oklch(0.5 0.17 355);
+
+  --d-surface: oklch(0.19 0.014 350);
+  --d-surface-raised: oklch(0.24 0.018 350);
+  --d-border: oklch(0.33 0.02 350);
+  --d-text: oklch(0.95 0.006 350);
+  --d-text-muted: oklch(0.68 0.014 350);
+  --d-track: oklch(0.31 0.02 350);
+  --d-brand: oklch(0.74 0.13 355);
+  --d-brand-ink: oklch(0.19 0.014 350);
+  --d-kcal: oklch(0.72 0.15 355);
+  --d-heat-1: oklch(0.42 0.09 355);
+  --d-heat-2: oklch(0.52 0.13 355);
+  --d-heat-3: oklch(0.62 0.16 355);
+  --d-heat-4: oklch(0.72 0.15 355);
+}
+
+/* Steel — nearly neutral, for anyone who wants the colour out of the chrome. */
+[data-theme='steel'] {
+  --l-surface: oklch(0.98 0.002 250);
+  --l-surface-raised: oklch(1 0 0);
+  --l-border: oklch(0.88 0.004 250);
+  --l-text: oklch(0.22 0.012 250);
+  --l-text-muted: oklch(0.49 0.012 250);
+  --l-track: oklch(0.92 0.003 250);
+  --l-brand: oklch(0.45 0.07 250);
+  --l-brand-ink: oklch(1 0 0);
+  --l-kcal: oklch(0.56 0.03 250);
+  --l-heat-1: oklch(0.78 0.03 250);
+  --l-heat-2: oklch(0.68 0.05 250);
+  --l-heat-3: oklch(0.57 0.07 250);
+  --l-heat-4: oklch(0.46 0.08 250);
+
+  --d-surface: oklch(0.18 0.006 250);
+  --d-surface-raised: oklch(0.23 0.008 250);
+  --d-border: oklch(0.32 0.01 250);
+  --d-text: oklch(0.95 0.003 250);
+  --d-text-muted: oklch(0.67 0.008 250);
+  --d-track: oklch(0.3 0.01 250);
+  --d-brand: oklch(0.76 0.07 250);
+  --d-brand-ink: oklch(0.18 0.006 250);
+  --d-kcal: oklch(0.74 0.03 250);
+  --d-heat-1: oklch(0.42 0.03 250);
+  --d-heat-2: oklch(0.53 0.05 250);
+  --d-heat-3: oklch(0.64 0.06 250);
+  --d-heat-4: oklch(0.75 0.07 250);
+}
+
+/* The macro hues, shared by every theme. Dark has its own steps rather than
+   the light ones dimmed: the light values fall outside the dark lightness
+   band. */
+:root {
+  --l-color-carbs: oklch(0.72 0.16 70);
+  --l-color-fibre: oklch(0.52 0.14 70);
+  --l-color-protein: oklch(0.6 0.16 255);
+  --l-color-fat: oklch(0.68 0.17 25);
+  --l-color-satfat: oklch(0.45 0.18 25);
+  --l-color-salt: oklch(0.6 0.16 300);
+  --l-color-over: oklch(0.56 0.2 25);
+  /* Text drawn ON the status red, which is a fill as well as a text colour. */
+  --l-color-over-ink: oklch(1 0 0);
+
+  --d-color-carbs: oklch(0.66 0.16 70);
+  --d-color-fibre: oklch(0.48 0.11 70);
+  --d-color-protein: oklch(0.6 0.16 255);
+  --d-color-fat: oklch(0.64 0.17 25);
+  --d-color-satfat: oklch(0.5 0.19 25);
+  --d-color-salt: oklch(0.6 0.16 300);
+  --d-color-over: oklch(0.65 0.19 25);
+  --d-color-over-ink: oklch(0.18 0.012 25);
+}
+
+/* ---- Mapping. No colour values below this line. ---- */
+
+:root,
+[data-theme] {
+  color-scheme: light dark;
+
+  --surface: var(--l-surface);
+  --surface-raised: var(--l-surface-raised);
+  --border: var(--l-border);
+  --text: var(--l-text);
+  --text-muted: var(--l-text-muted);
+  --track: var(--l-track);
+  --heat-1: var(--l-heat-1);
+  --heat-2: var(--l-heat-2);
+  --heat-3: var(--l-heat-3);
+  --heat-4: var(--l-heat-4);
+
+  --color-brand: var(--l-brand);
+  --color-brand-ink: var(--l-brand-ink);
+  --color-kcal: var(--l-kcal);
+  --color-carbs: var(--l-color-carbs);
+  --color-fibre: var(--l-color-fibre);
+  --color-protein: var(--l-color-protein);
+  --color-fat: var(--l-color-fat);
+  --color-satfat: var(--l-color-satfat);
+  --color-salt: var(--l-color-salt);
+  --color-over: var(--l-color-over);
+  --color-over-ink: var(--l-color-over-ink);
+}
+
+/* Equal specificity with the explicit override below, so order decides: the
+   system preference applies unless the user has asked for a mode by name. */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-mode='light']),
+  :root:not([data-mode='light']) [data-theme] {
+    --surface: var(--d-surface);
+    --surface-raised: var(--d-surface-raised);
+    --border: var(--d-border);
+    --text: var(--d-text);
+    --text-muted: var(--d-text-muted);
+    --track: var(--d-track);
+    --heat-1: var(--d-heat-1);
+    --heat-2: var(--d-heat-2);
+    --heat-3: var(--d-heat-3);
+    --heat-4: var(--d-heat-4);
+
+    --color-brand: var(--d-brand);
+    --color-brand-ink: var(--d-brand-ink);
+    --color-kcal: var(--d-kcal);
+    --color-carbs: var(--d-color-carbs);
+    --color-fibre: var(--d-color-fibre);
+    --color-protein: var(--d-color-protein);
+    --color-fat: var(--d-color-fat);
+    --color-satfat: var(--d-color-satfat);
+    --color-salt: var(--d-color-salt);
+    --color-over: var(--d-color-over);
+  --color-over-ink: var(--d-color-over-ink);
+  }
+}
+
+:root[data-mode='dark'],
+:root[data-mode='dark'] [data-theme] {
+  color-scheme: dark;
+
+  --surface: var(--d-surface);
+  --surface-raised: var(--d-surface-raised);
+  --border: var(--d-border);
+  --text: var(--d-text);
+  --text-muted: var(--d-text-muted);
+  --track: var(--d-track);
+  --heat-1: var(--d-heat-1);
+  --heat-2: var(--d-heat-2);
+  --heat-3: var(--d-heat-3);
+  --heat-4: var(--d-heat-4);
+
+  --color-brand: var(--d-brand);
+  --color-brand-ink: var(--d-brand-ink);
+  --color-kcal: var(--d-kcal);
+  --color-carbs: var(--d-color-carbs);
+  --color-fibre: var(--d-color-fibre);
+  --color-protein: var(--d-color-protein);
+  --color-fat: var(--d-color-fat);
+  --color-satfat: var(--d-color-satfat);
+  --color-salt: var(--d-color-salt);
+  --color-over: var(--d-color-over);
+  --color-over-ink: var(--d-color-over-ink);
+}
+
+:root[data-mode='light'] {
+  color-scheme: light;
+}

@@ -46,7 +46,7 @@ Three invariants worth stating explicitly:
 | `healthapp.recipes.v1` | `Recipe[]` |
 | `healthapp.log.v1` | `LogByDate` |
 | `healthapp.goals.v1` | `Goals` |
-| `healthapp.meta.v1` | `{ seedVersion, fdcApiKey?, geminiApiKey?, geminiModel?, lastBackupAt?, backupRemindersOff?, backupReminderSnoozedUntil? }` |
+| `healthapp.meta.v1` | `{ seedVersion, fdcApiKey?, geminiApiKey?, geminiModel?, lastBackupAt?, backupRemindersOff?, backupReminderSnoozedUntil?, theme?, colorMode? }` |
 
 The key names are fixed; the *schema* version lives inside the envelope. Current version: **2**.
 

@@ -1,3 +1,4 @@
+import type { ColorMode, ThemeId } from '../domain/themes'
 import type { Food, Goals, LogByDate, Recipe } from '../domain/types'
 
 /**
@@ -44,6 +45,10 @@ export interface Meta {
   backupRemindersOff?: boolean
   /** "Later" on the reminder: it stays hidden until this local date. */
   backupReminderSnoozedUntil?: string
+  /** Chosen colour theme. Absent means the default. See `domain/themes.ts`. */
+  theme?: ThemeId
+  /** Light, dark, or follow the device. Absent means follow the device. */
+  colorMode?: ColorMode
 }
 
 export interface Envelope<T> {

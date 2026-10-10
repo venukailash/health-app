@@ -89,7 +89,7 @@ export default function FoodsPage() {
       action={
         <Link
           to="/foods/new"
-          className="rounded-xl bg-brand px-3 py-2 text-sm font-semibold text-white hover:opacity-90"
+          className="rounded-xl bg-brand px-3 py-2 text-sm font-semibold text-brand-ink hover:opacity-90"
         >
           New food
         </Link>
@@ -110,7 +110,7 @@ export default function FoodsPage() {
           onClick={() => setMineOnly((value) => !value)}
           aria-pressed={mineOnly}
           className={`shrink-0 rounded-xl border px-3 text-sm font-medium ${
-            mineOnly ? 'bg-brand text-white' : 'card'
+            mineOnly ? 'bg-brand text-brand-ink' : 'card'
           }`}
           style={mineOnly ? { borderColor: 'transparent' } : undefined}
         >

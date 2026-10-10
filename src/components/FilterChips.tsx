@@ -41,7 +41,7 @@ export default function FilterChips<T extends string | null>({
             aria-pressed={on}
             onClick={() => onChange(option.value)}
             className={`shrink-0 whitespace-nowrap rounded-full px-3 py-1.5 text-sm font-medium transition-colors ${
-              on ? 'bg-brand text-white' : ''
+              on ? 'bg-brand text-brand-ink' : ''
             }`}
             style={on ? undefined : { background: 'var(--track)' }}
           >

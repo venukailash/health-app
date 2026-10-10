@@ -2,11 +2,13 @@ import { Navigate, Route, Routes } from 'react-router-dom'
 import NavBar from './components/NavBar'
 import QuickAddButton from './components/QuickAddButton'
 import ScrollManager from './components/ScrollManager'
+import { useAppearance } from './hooks/useAppearance'
 import { useAppUpdate } from './hooks/useAppUpdate'
 import { useKeyboardOpen } from './hooks/useKeyboardOpen'
 import StorageBanner from './components/StorageBanner'
 import Toaster from './components/Toaster'
 import { todayKey } from './domain/date'
+import { useAppState } from './state/AppStore'
 import AddEntryPage from './pages/AddEntryPage'
 import EditEntryPage from './pages/EditEntryPage'
 import FoodEditPage from './pages/FoodEditPage'
@@ -20,7 +22,9 @@ import TodayPage from './pages/TodayPage'
 import WeekPage from './pages/WeekPage'
 
 export default function App() {
+  const { meta } = useAppState()
   const keyboardOpen = useKeyboardOpen()
+  useAppearance(meta.theme, meta.colorMode)
   useAppUpdate()
 
   return (

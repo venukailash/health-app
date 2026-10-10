@@ -43,7 +43,7 @@ export default function RecipesPage() {
       action={
         <Link
           to="/recipes/new"
-          className="rounded-xl bg-brand px-3 py-2 text-sm font-semibold text-white hover:opacity-90"
+          className="rounded-xl bg-brand px-3 py-2 text-sm font-semibold text-brand-ink hover:opacity-90"
         >
           New recipe
         </Link>

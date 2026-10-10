@@ -8,7 +8,7 @@ export default function StorageBanner() {
   return (
     <div
       role="alert"
-      className="mx-auto mb-2 flex max-w-2xl items-start gap-3 px-4 py-3 text-sm text-white"
+      className="mx-auto mb-2 flex max-w-2xl items-start gap-3 px-4 py-3 text-sm text-over-ink"
       style={{ background: 'var(--color-over)' }}
     >
       <span className="flex-1">{storageError} Recent changes may not have been saved.</span>

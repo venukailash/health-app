@@ -319,3 +319,50 @@ way back is the checkbox in Settings, where someone looking for it would look.
 Importing a backup sets `lastBackupAt` to the moment of import. The file just read IS a backup of
 exactly that state, so a freshly restored device should not open to a reminder that its data is
 at risk.
+
+## Themes are a fixed set, and the data palette is not part of them
+
+Four themes (Teal, Forest, Rose, Steel) and three modes (System, Light, Dark). No colour
+picker: every combination here has been through `themes.test.ts`, and a free choice cannot be.
+
+**A theme changes the chrome and the accent, never the macro hues.** A carbohydrate bar that
+changed colour with the chrome would stop being a carbohydrate bar. The calorie ring and the
+month heat map DO follow the accent, because each is its own single-series chart and never
+appears beside the macro bars as a fifth slot — but the checker still requires the ring to sit at
+least ΔE 12 from every macro hue, so it cannot be read as one of them. That floor is what moved
+Steel's ring down to almost no chroma: at ΔE 7 from the protein blue it was too close.
+
+`themes.css` holds every value in a flat block, and `themes.test.ts` reads that file. The two
+cannot disagree, because there is only one copy of the numbers. Each theme declares `--l-*` and
+`--d-*` tokens; the mapping rules at the bottom of the file pick a set and hold no colours of
+their own, so a new theme is one block and one line in `domain/themes.ts`.
+
+The mapping resolves on `[data-theme]`, not only on `:root`. That is what lets a swatch in
+Settings paint itself in the theme it is offering, in whichever mode is live, instead of being a
+hand-drawn picture of it that can drift.
+
+### What the checker found
+
+Numbers beat intentions. Writing it turned up four real defects in colours that had been shipping:
+
+- **`text-brand` on a dark surface was 3.65:1**, under the 4.5:1 floor for text. The accent is now
+  light in dark mode, with `--color-brand-ink` for text drawn on a brand fill. Filled buttons in
+  dark mode therefore look different to before — that is the fix, not a side effect.
+- **White on the dark-mode status red was 3.54:1.** `--color-over` is both a text colour on the
+  surface and a fill behind text, and one value cannot do both. It gained `--color-over-ink`.
+- **Four tokens were outside sRGB** far enough that the browser was throwing away more than 0.03
+  of chroma — the teal ring and two of its heat steps, and the dark-mode fibre. They were written
+  more vivid than any sRGB screen could ever show.
+- **The light-mode status red was 4.47:1** on the lightest surface, a hair under the floor.
+
+### What the checker deliberately does NOT claim
+
+The earlier note in this file said the categorical macro hues clear the colour-blindness floors.
+Measured with CIEDE2000 over Machado severity-1.0 simulation, **protein and salt are not
+separable under red-green CVD** — ΔE 4.8 for protanopia, 2.4 for deuteranopia. Blue and purple
+are genuinely hard to tell apart for those eyes. The floor in the test covers carbs, protein and
+fat and excludes salt by name, rather than being lowered until everything passes.
+
+The practical mitigation is the one that was always there: every bar carries its name and its
+number, so colour is reinforcement and never the only encoding. Fixing it properly means giving
+salt a different hue, which is a separate change.

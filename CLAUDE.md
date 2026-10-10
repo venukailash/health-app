@@ -47,8 +47,10 @@ src/
    `LogEntry` or `Goals`. See `storage/repository.ts` — v1→v2 added fibre, where absent had to
    become 0. A purely additive OPTIONAL field needs neither: absent already reads correctly
    (`Recipe.meals` is the example).
-5. **Chart colours are validated, not chosen by eye.** See `docs/DECISIONS.md` before touching
-   any `--color-*` token.
+5. **Chart colours are validated, not chosen by eye.** Every colour lives in `src/themes.css`,
+   and `src/themes.test.ts` reads that file and checks contrast, sRGB gamut and separation for
+   all four themes in both modes. Change a colour there and run the tests; do not add values to
+   `index.css`, which only registers the token names for Tailwind. See `docs/DECISIONS.md`.
 6. **Nothing secret goes in a backup.** `buildBackup` strips both API keys; keep it
    that way if you add other credentials.
 7. **An unrecorded day is not a zero day.** The food log distinguishes them, and averages divide

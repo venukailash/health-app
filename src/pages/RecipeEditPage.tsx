@@ -291,7 +291,7 @@ export default function RecipeEditPage() {
                   )
                 }
                 className={`rounded-full px-3 py-1.5 text-sm font-medium ${
-                  on ? 'bg-brand text-white' : ''
+                  on ? 'bg-brand text-brand-ink' : ''
                 }`}
                 style={on ? undefined : { background: 'var(--track)' }}
               >

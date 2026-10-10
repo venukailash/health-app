@@ -60,7 +60,7 @@ export default function EditEntryPage() {
             onClick={() => changeMeal(meal)}
             aria-pressed={entry.meal === meal}
             className={`rounded-full px-3 py-1.5 text-sm font-medium ${
-              entry.meal === meal ? 'bg-brand text-white' : ''
+              entry.meal === meal ? 'bg-brand text-brand-ink' : ''
             }`}
             style={entry.meal === meal ? undefined : { background: 'var(--track)' }}
           >

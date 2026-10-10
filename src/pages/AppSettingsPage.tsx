@@ -1,4 +1,5 @@
 import { useRef, useState } from 'react'
+import AppearancePicker from '../components/AppearancePicker'
 import Button from '../components/Button'
 import Page from '../components/Page'
 import SettingsTabs from '../components/SettingsTabs'
@@ -68,8 +69,10 @@ export default function AppSettingsPage() {
   }
 
   return (
-    <Page title="App" subtitle="Search, backups and storage">
+    <Page title="App" subtitle="Appearance, search, backups and storage">
       <SettingsTabs active="app" />
+
+      <AppearancePicker />
 
       <section className="card mb-4 p-4">
         <h2 className="mb-1 font-semibold">Food search</h2>
