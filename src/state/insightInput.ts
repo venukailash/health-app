@@ -3,7 +3,7 @@ import { roundNutrients } from '../domain/nutrition'
 import { MEAL_LABELS, MEAL_TYPES, type Goals, type Nutrients } from '../domain/types'
 import type { InsightScope } from '../domain/insights'
 import type { AppState } from './reducer'
-import { dayTotals, entriesForDate, mealTotals, rangeStats } from './selectors'
+import { daySummaries, dayTotals, entriesForDate, mealTotals, rangeStats } from './selectors'
 
 /**
  * The crunched summary that gets sent to Gemini — never the raw log.
@@ -29,6 +29,37 @@ export interface InsightInput {
   totalDays?: number
   daysOnTarget?: number
   days?: { date: DateKey; logged: boolean; kcal: number }[]
+  /**
+   * What actually keeps turning up, worst-offender first by calories.
+   *
+   * Without this a week reading can only talk about totals, which is exactly
+   * the readout the person has just looked at. Advice needs something to
+   * attach itself to: "your three flat whites" beats "reduce your fat".
+   */
+  frequentFoods?: { name: string; times: number; kcal: number }[]
+}
+
+const MOST_FREQUENT = 8
+
+function frequentFoods(state: AppState, from: DateKey, to: DateKey) {
+  const tally = new Map<string, { name: string; times: number; kcal: number }>()
+
+  for (const day of daySummaries(state, from, to)) {
+    for (const entry of entriesForDate(state, day.date)) {
+      const existing = tally.get(entry.label)
+      if (existing) {
+        existing.times += 1
+        existing.kcal += entry.nutrients.kcal
+      } else {
+        tally.set(entry.label, { name: entry.label, times: 1, kcal: entry.nutrients.kcal })
+      }
+    }
+  }
+
+  return [...tally.values()]
+    .map((food) => ({ ...food, kcal: Math.round(food.kcal) }))
+    .sort((a, b) => b.kcal - a.kcal)
+    .slice(0, MOST_FREQUENT)
 }
 
 export function periodRange(scope: InsightScope, date: DateKey): { from: DateKey; to: DateKey } {
@@ -87,6 +118,7 @@ export function buildInsightInput(
       logged: day.logged,
       kcal: Math.round(day.totals.kcal),
     })),
+    frequentFoods: frequentFoods(state, from, to),
   }
 }
 

@@ -112,3 +112,39 @@ describe('buildInsightInput', () => {
     expect(input.goals).toEqual(DEFAULT_GOALS)
   })
 })
+
+describe('what a week sends about recurring foods', () => {
+  const coffee = createFood({
+    name: 'Flat white',
+    per100g: { kcal: 60, fat: 3, satFat: 2, carbs: 5, fibre: 0, protein: 3, salt: 0.1 },
+  })
+
+  it('names what keeps turning up, biggest contributor first', () => {
+    const state: AppState = {
+      ...EMPTY_STATE,
+      goals: DEFAULT_GOALS,
+      foods: [oats, coffee],
+      log: {
+        '2026-10-05': [logFood(oats, 100, 'breakfast', '2026-10-05'), logFood(coffee, 200, 'snack', '2026-10-05')],
+        '2026-10-06': [logFood(coffee, 200, 'snack', '2026-10-06')],
+        '2026-10-07': [logFood(coffee, 200, 'snack', '2026-10-07')],
+        '2026-10-08': [logFood(coffee, 200, 'snack', '2026-10-08')],
+      },
+    }
+
+    const input = buildInsightInput(state, 'week', '2026-10-07')
+
+    expect(input.frequentFoods).toEqual([
+      // A small habit four times over outweighs one big bowl, which is the
+      // kind of thing the reading exists to point out.
+      { name: 'Flat white', times: 4, kcal: 480 },
+      { name: 'Porridge oats', times: 1, kcal: 379 },
+    ])
+  })
+
+  it('sends none of this for a single day, where the meals already carry it', () => {
+    const input = buildInsightInput(withMeals('2026-10-07', ['lunch']), 'day', '2026-10-07')
+    expect(input.frequentFoods).toBeUndefined()
+    expect(input.meals?.flatMap((meal) => meal.entries)).toContain('Porridge oats')
+  })
+})

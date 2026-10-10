@@ -500,6 +500,26 @@ The prompt is told not to diagnose, not to mention deficiencies or body weight, 
 suggest under 1200 kcal or skipping meals. That is a request, not a guarantee — which is why the
 panel says, every time, that it is an estimate from a language model and not medical advice.
 
+### It is banned from reading the numbers back
+
+The first version produced things like "your energy intake reached 1726 kcal against your 1600
+kcal target" — true, useless, and already on the screen the person had just closed to open the
+panel. A reading that narrates the dashboard is worth less than no reading, because it costs a
+request and a tap to learn nothing.
+
+So the prompt now forbids restating totals on their own and asks instead for what is DRIVING
+them, named: which meal, which food, which day of the week. The suggestions come first in the
+panel and get the larger budget — four of them against three lines of "Why" — and each has to be
+tied to something the person actually ate, with the rough size of the effect where it can be
+given. "Swap the paneer for 150 g of chicken breast, about 14 g less saturated fat" is worth a
+tap; "reduce your saturated fat" is not.
+
+For a week or month this needed more than totals to work with, so the summary now carries the
+foods that recur, with how many times and how many calories each contributed, ordered by the
+latter. That is what lets it say "your four flat whites" instead of "your fat intake is high" —
+and a small habit repeated often outweighing one big meal is exactly the thing a person cannot
+see on the dashboard themselves.
+
 ## The period row goes back, not forward
 
 Day, week and month all share one row: a step back, the insights button, a step forward. The

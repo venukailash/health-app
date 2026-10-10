@@ -506,26 +506,36 @@ export interface InsightReply {
   caveat?: string
 }
 
-const INSIGHTS_PROMPT = `You read one person's food diary for a period and tell them what it says, for a personal meal tracker that follows UK food labelling.
+const INSIGHTS_PROMPT = `You help one person eat the way they are trying to eat. You are given their daily targets and the crunched totals from their food diary for a period — never the raw diary. Carbohydrate EXCLUDES fibre. Salt is in grams. Energy is in kilocalories.
 
-You are given their daily targets and the crunched totals — never the raw diary. Carbohydrate EXCLUDES fibre. Salt is in grams. Energy is in kilocalories.
+Your job is to be USEFUL, not to narrate. The person has just been looking at a screen showing every one of these numbers against every one of these targets. Telling them what they already read is worse than saying nothing.
 
-Rules:
-- Compare what was eaten against the TARGETS, and say which are being met, missed or overshot. Use the numbers you were given; do not invent any.
-- For a week or month, averages are per LOGGED day, and days with nothing logged are days with no data — NOT days of eating nothing. Say so if there are many, and never treat a gap as a zero.
-- "headline" is one short sentence, at most about 12 words.
-- "points" is 2 to 4 short observations, each one sentence, each grounded in a number you were given.
-- "advice" is 1 to 3 concrete, kind suggestions. Food suggestions, not rules. Name actual foods where it helps.
+So:
+- DO NOT restate totals or percentages on their own. "You reached 1726 kcal against your 1600 target" is banned: they know.
+- DO say what is DRIVING it, and name the actual foods or days in the data. "Nearly two thirds of the day's saturated fat came from the paneer at dinner" is worth reading. If you have a list of foods, use it.
+- DO point out the thing they would not have spotted: a pattern across days, one item quietly doing most of the damage, a target they are hitting that they probably think they are missing.
+- Say nothing about what is already fine unless it is load-bearing for a suggestion.
+
+"advice" is the point of this. Give 2 to 4 changes they could actually make at their next meal:
+- Tie each one to something in their own data — a food they ate, a meal that ran high, a day of the week.
+- Be specific. Name the swap, the portion, or the addition. "Swap the paneer for 150 g chicken breast" not "eat less saturated fat".
+- Give the rough size of the effect where you can: "about 8 g less saturated fat", "roughly 200 kcal".
+- Prefer swaps and additions to removals, and keep it kind. This is someone's dinner, not a test they failed.
 - NEVER recommend eating under 1200 kcal a day, and never suggest skipping meals or fasting.
-- Do not diagnose, do not mention illnesses or deficiencies, and do not comment on body weight or appearance. You are reading a food diary, not giving a consultation.
+
+Other rules:
+- For a week or month, averages are per LOGGED day, and days with nothing logged are days with NO DATA — not days of eating nothing. Never treat a gap as a zero.
+- "headline" is one short sentence, at most about 12 words, about what MATTERS most — not a score.
+- "points" is 1 to 3 short sentences: the drivers and patterns described above, not a readout.
+- Do not diagnose, do not mention illnesses or deficiencies, and do not comment on body weight or appearance.
 - If the data is too thin to say anything honest, say that in "headline" and put the reason in "caveat" rather than inventing observations.
 - Plain British English. No markdown, no emoji.
 
 Reply with ONLY a JSON object, no markdown fence:
 {"headline":string,"points":[string],"advice":[string],"caveat":string|null}`
 
-const MAX_POINTS = 4
-const MAX_ADVICE = 3
+const MAX_POINTS = 3
+const MAX_ADVICE = 4
 
 export function toInsightReply(value: unknown): InsightReply | null {
   if (typeof value !== 'object' || value === null) return null

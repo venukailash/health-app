@@ -499,8 +499,9 @@ describe('toInsightReply', () => {
       points: ['1', '2', '3', '4', '5', '6'],
       advice: ['a', 'b', 'c', 'd', 'e'],
     })
-    expect(reply?.points).toHaveLength(4)
-    expect(reply?.advice).toHaveLength(3)
+    // Advice gets the larger budget: it is the part worth reading.
+    expect(reply?.points).toHaveLength(3)
+    expect(reply?.advice).toHaveLength(4)
   })
 
   it('drops a blank caveat rather than rendering an empty line', () => {
@@ -535,6 +536,6 @@ describe('readInsights', () => {
     // The body nests JSON inside JSON, so decode before looking.
     const parts = JSON.parse(sent).contents[0].parts.map((part: { text: string }) => part.text)
     expect(parts.join('\n')).toContain('"loggedDays":4')
-    expect(parts.join('\n')).toContain('never treat a gap as a zero')
+    expect(parts.join('\n')).toContain('Never treat a gap as a zero')
   })
 })

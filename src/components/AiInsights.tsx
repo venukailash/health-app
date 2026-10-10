@@ -180,19 +180,8 @@ export default function AiInsights({ scope, date }: { scope: InsightScope; date:
                 <>
                   <p className="text-base font-semibold">{stored.headline}</p>
 
-                  {stored.points.length > 0 && (
-                    <ul className="space-y-2 text-sm">
-                      {stored.points.map((point) => (
-                        <li key={point} className="flex gap-2">
-                          <span aria-hidden="true" className="text-brand">
-                            •
-                          </span>
-                          <span>{point}</span>
-                        </li>
-                      ))}
-                    </ul>
-                  )}
-
+                  {/* Suggestions first. The numbers are on the screen behind
+                      this panel; what to do about them is not. */}
                   {stored.advice.length > 0 && (
                     <div>
                       <h3 className="mb-2 text-sm font-semibold">What might help</h3>
@@ -200,10 +189,24 @@ export default function AiInsights({ scope, date }: { scope: InsightScope; date:
                         {stored.advice.map((item) => (
                           <li
                             key={item}
-                            className="rounded-xl px-3 py-2"
-                            style={{ background: 'var(--track)' }}
+                            className="rounded-xl px-3 py-2.5"
+                            style={{ background: 'var(--brand-wash)' }}
                           >
                             {item}
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
+
+                  {stored.points.length > 0 && (
+                    <div>
+                      <h3 className="mb-2 text-sm font-semibold">Why</h3>
+                      <ul className="space-y-1.5 text-sm muted">
+                        {stored.points.map((point) => (
+                          <li key={point} className="flex gap-2">
+                            <span aria-hidden="true">•</span>
+                            <span>{point}</span>
                           </li>
                         ))}
                       </ul>
