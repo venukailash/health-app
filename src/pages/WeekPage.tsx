@@ -3,6 +3,7 @@ import DailyColumns from '../components/DailyColumns'
 import EmptyState from '../components/EmptyState'
 import MacroBar from '../components/MacroBar'
 import Page from '../components/Page'
+import AiInsights from '../components/AiInsights'
 import PeriodSwitcher from '../components/PeriodSwitcher'
 import StatTile from '../components/StatTile'
 import {
@@ -44,6 +45,8 @@ export default function WeekPage() {
       }
     >
       <PeriodSwitcher active="week" date={date} />
+
+      <AiInsights scope="week" date={date} />
 
       <nav aria-label="Change week" className="mb-4 flex items-center justify-between gap-2">
         <Link

@@ -46,6 +46,7 @@ Three invariants worth stating explicitly:
 | `healthapp.recipes.v1` | `Recipe[]` |
 | `healthapp.log.v1` | `LogByDate` |
 | `healthapp.goals.v1` | `Goals` |
+| `healthapp.insights.v1` | `{ '<scope>:<periodKey>': Insight }` — AI readings, one per period |
 | `healthapp.meta.v1` | `{ seedVersion, fdcApiKey?, geminiApiKey?, geminiModel?, lastBackupAt?, backupRemindersOff?, backupReminderSnoozedUntil?, theme?, colorMode?, tourSeenRevision? }` |
 
 The key names are fixed; the *schema* version lives inside the envelope. Current version: **2**.

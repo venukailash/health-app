@@ -490,3 +490,80 @@ export async function estimateGoals(
   }
   return estimate
 }
+
+/**
+ * A reading of one period's food log, measured against the targets.
+ *
+ * Same contract as everything else here: a guess, shown as one. The prompt is
+ * told to stay off diagnosis and off aggressive deficits, and the modal that
+ * shows the result says the same thing in plain English — because a prompt is
+ * a request, and this one is advice about what a real person eats.
+ */
+export interface InsightReply {
+  headline: string
+  points: string[]
+  advice: string[]
+  caveat?: string
+}
+
+const INSIGHTS_PROMPT = `You read one person's food diary for a period and tell them what it says, for a personal meal tracker that follows UK food labelling.
+
+You are given their daily targets and the crunched totals — never the raw diary. Carbohydrate EXCLUDES fibre. Salt is in grams. Energy is in kilocalories.
+
+Rules:
+- Compare what was eaten against the TARGETS, and say which are being met, missed or overshot. Use the numbers you were given; do not invent any.
+- For a week or month, averages are per LOGGED day, and days with nothing logged are days with no data — NOT days of eating nothing. Say so if there are many, and never treat a gap as a zero.
+- "headline" is one short sentence, at most about 12 words.
+- "points" is 2 to 4 short observations, each one sentence, each grounded in a number you were given.
+- "advice" is 1 to 3 concrete, kind suggestions. Food suggestions, not rules. Name actual foods where it helps.
+- NEVER recommend eating under 1200 kcal a day, and never suggest skipping meals or fasting.
+- Do not diagnose, do not mention illnesses or deficiencies, and do not comment on body weight or appearance. You are reading a food diary, not giving a consultation.
+- If the data is too thin to say anything honest, say that in "headline" and put the reason in "caveat" rather than inventing observations.
+- Plain British English. No markdown, no emoji.
+
+Reply with ONLY a JSON object, no markdown fence:
+{"headline":string,"points":[string],"advice":[string],"caveat":string|null}`
+
+const MAX_POINTS = 4
+const MAX_ADVICE = 3
+
+export function toInsightReply(value: unknown): InsightReply | null {
+  if (typeof value !== 'object' || value === null) return null
+  const raw = value as Record<string, unknown>
+
+  const headline = typeof raw.headline === 'string' ? raw.headline.trim() : ''
+  if (!headline) return null
+
+  const list = (input: unknown, limit: number): string[] =>
+    (Array.isArray(input) ? input : [])
+      .filter((item): item is string => typeof item === 'string' && item.trim() !== '')
+      .map((item) => item.trim())
+      .slice(0, limit)
+
+  const caveat = typeof raw.caveat === 'string' && raw.caveat.trim() ? raw.caveat.trim() : undefined
+
+  return {
+    headline,
+    points: list(raw.points, MAX_POINTS),
+    advice: list(raw.advice, MAX_ADVICE),
+    ...(caveat ? { caveat } : {}),
+  }
+}
+
+export async function readInsights(
+  summary: unknown,
+  {
+    apiKey,
+    model = DEFAULT_GEMINI_MODEL,
+    signal,
+  }: { apiKey: string | undefined; model?: string; signal?: AbortSignal },
+): Promise<InsightReply> {
+  const reply = await callGemini(
+    [{ text: INSIGHTS_PROMPT }, { text: JSON.stringify(summary) }],
+    { apiKey, model, signal },
+  )
+
+  const insight = toInsightReply(extractJson(reply))
+  if (!insight) throw new ModelError('Nothing useful came back. Try again tomorrow.')
+  return insight
+}

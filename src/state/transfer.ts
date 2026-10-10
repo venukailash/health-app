@@ -1,4 +1,5 @@
 import { isValidDateKey } from '../domain/date'
+import { INSIGHT_SCOPES, type InsightScope, type InsightsByKey } from '../domain/insights'
 import { MEAL_TYPES, NUTRIENT_KEYS } from '../domain/types'
 import type { Food, Goals, LogByDate, LogEntry, Nutrients, Recipe } from '../domain/types'
 import { DEFAULT_GOALS, DEFAULT_META, SCHEMA_VERSION } from '../storage/repository'
@@ -15,6 +16,41 @@ export interface BackupFile {
   schemaVersion: number
   exportedAt: string
   state: AppState
+}
+
+/**
+ * Readings are carried through a backup rather than dropped.
+ *
+ * They cannot be recreated without spending requests on days that are long
+ * finished, so a restored device that threw them away would either lose them
+ * for good or quietly re-ask for every one.
+ */
+function parseInsights(value: unknown): InsightsByKey {
+  if (!isObject(value)) return {}
+  const out: InsightsByKey = {}
+
+  for (const [key, entry] of Object.entries(value)) {
+    if (!isObject(entry)) continue
+    const { scope, periodKey, generatedOn, headline } = entry
+    if (!INSIGHT_SCOPES.includes(scope as InsightScope)) continue
+    if (!isValidDateKey(periodKey) || !isValidDateKey(generatedOn)) continue
+    if (typeof headline !== 'string' || headline.trim() === '') continue
+
+    const strings = (input: unknown) =>
+      (Array.isArray(input) ? input : []).filter((item): item is string => typeof item === 'string')
+
+    out[key] = {
+      scope: scope as InsightScope,
+      periodKey,
+      generatedOn,
+      headline,
+      points: strings(entry.points),
+      advice: strings(entry.advice),
+      ...(typeof entry.caveat === 'string' && entry.caveat ? { caveat: entry.caveat } : {}),
+    }
+  }
+
+  return out
 }
 
 export function buildBackup(state: AppState): BackupFile {
@@ -204,5 +240,6 @@ export function parseBackup(text: string): AppState {
     log: parseLog(source.log),
     goals: parseGoals(source.goals),
     meta,
+    insights: parseInsights(source.insights),
   }
 }

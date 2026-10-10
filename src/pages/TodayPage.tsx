@@ -5,6 +5,7 @@ import MacroBar from '../components/MacroBar'
 import Page from '../components/Page'
 import MealBreakdown from '../components/MealBreakdown'
 import BackupReminder from '../components/BackupReminder'
+import AiInsights from '../components/AiInsights'
 import PeriodSwitcher from '../components/PeriodSwitcher'
 import { addDays, formatDayLabel, formatFullDate, isValidDateKey, todayKey } from '../domain/date'
 import { backupReminder } from '../domain/backupReminder'
@@ -75,6 +76,8 @@ export default function TodayPage() {
       }
     >
       <PeriodSwitcher active="day" date={date} />
+
+      <AiInsights scope="day" date={date} />
 
       {date === today && reminder.due && (
         <BackupReminder days={reminder.days} everBackedUp={reminder.everBackedUp} />

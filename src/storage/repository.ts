@@ -1,3 +1,4 @@
+import type { InsightsByKey } from '../domain/insights'
 import type { ColorMode, ThemeId } from '../domain/themes'
 import type { Food, Goals, LogByDate, Recipe } from '../domain/types'
 
@@ -16,6 +17,7 @@ export const STORAGE_KEYS = {
   log: 'healthapp.log.v1',
   goals: 'healthapp.goals.v1',
   meta: 'healthapp.meta.v1',
+  insights: 'healthapp.insights.v1',
 } as const
 
 export type StorageKey = (typeof STORAGE_KEYS)[keyof typeof STORAGE_KEYS]
@@ -211,6 +213,10 @@ export const repository = {
   loadMeta: (): Meta => read<Meta>(STORAGE_KEYS.meta, DEFAULT_META, isRecord),
 
   saveMeta: (meta: Meta): void => write(STORAGE_KEYS.meta, meta),
+
+  loadInsights: (): InsightsByKey => read<InsightsByKey>(STORAGE_KEYS.insights, {}, isRecord),
+
+  saveInsights: (insights: InsightsByKey): void => write(STORAGE_KEYS.insights, insights),
 
   clearAll: (): void => {
     for (const key of Object.values(STORAGE_KEYS)) remove(key)

@@ -470,3 +470,32 @@ section and the within-section rule had nothing to act on. It worked, and it was
 such sections stacked at the top, the page read as though the Mine filter were permanently on.
 That filter is already a button, and a list that silently looks filtered is worse than one that
 needs a tap.
+
+## An AI reading is asked for once per period, and kept
+
+The AI insights button on the day, week and month screens sends the CRUNCHED summary — totals,
+averages, per-day calories, the targets — never the raw diary. It is both smaller and the only
+part the model needs.
+
+**One reading per period per calendar day.** The answer is stored under `day:2026-10-07`,
+`week:2026-10-05`, `month:2026-10-01`, and re-opening shows what came back rather than asking
+again: the same question about the same finished day has the same answer, and asking twice spends
+a request and risks a different reply for identical data, which would make the feature look
+unreliable. A period still in progress can be read again tomorrow, when there is something new in
+it; a finished day is read exactly once. This is the rate limit, deliberately, not a side effect
+of caching.
+
+The day button needs breakfast, lunch and dinner before it lights up — a reading of a day with
+only breakfast in it would say nothing but "you have not eaten much today". A week or month needs
+one logged day and no more: gaps are normal, an honest look at four days out of thirty is still
+worth having, and the prompt is told how many days are missing and that **a day with nothing
+logged is a day with no data, not a day of eating nothing**. Averages are per logged day for the
+same reason.
+
+Readings travel in a backup. They cannot be recreated without spending requests on days that are
+long finished, so dropping them on import would either lose them for good or quietly re-ask for
+every one.
+
+The prompt is told not to diagnose, not to mention deficiencies or body weight, and never to
+suggest under 1200 kcal or skipping meals. That is a request, not a guarantee — which is why the
+panel says, every time, that it is an estimate from a language model and not medical advice.

@@ -4,6 +4,7 @@ import CalendarHeatmap from '../components/CalendarHeatmap'
 import EmptyState from '../components/EmptyState'
 import MacroBar from '../components/MacroBar'
 import Page from '../components/Page'
+import AiInsights from '../components/AiInsights'
 import PeriodSwitcher from '../components/PeriodSwitcher'
 import StatTile from '../components/StatTile'
 import {
@@ -57,6 +58,8 @@ export default function MonthPage() {
       }
     >
       <PeriodSwitcher active="month" date={date as string} />
+
+      <AiInsights scope="month" date={date as string} />
 
       <nav aria-label="Change month" className="mb-4 flex items-center justify-between gap-2">
         <Link

@@ -1,3 +1,4 @@
+import type { Insight, InsightsByKey } from '../domain/insights'
 import type { Food, Goals, LogByDate, LogEntry, Recipe } from '../domain/types'
 import { DEFAULT_GOALS, DEFAULT_META, type Meta } from '../storage/repository'
 import { applySeedFoods } from '../storage/seed'
@@ -8,6 +9,8 @@ export interface AppState {
   log: LogByDate
   goals: Goals
   meta: Meta
+  /** AI readings of past periods, kept so each is asked for only once. */
+  insights: InsightsByKey
 }
 
 export const EMPTY_STATE: AppState = {
@@ -16,6 +19,7 @@ export const EMPTY_STATE: AppState = {
   log: {},
   goals: DEFAULT_GOALS,
   meta: DEFAULT_META,
+  insights: {},
 }
 
 export type Action =
@@ -33,6 +37,7 @@ export type Action =
   | { type: 'meta/set'; meta: Meta }
   | { type: 'seed/apply'; seedVersion: number }
   | { type: 'data/replace'; state: AppState }
+  | { type: 'insight/save'; key: string; insight: Insight }
   | { type: 'data/clear' }
 
 /** Remove an entry id from a date bucket, dropping the bucket when it empties. */
@@ -57,6 +62,9 @@ export function reducer(state: AppState, action: Action): AppState {
     case 'hydrate':
     case 'data/replace':
       return action.state
+
+    case 'insight/save':
+      return { ...state, insights: { ...state.insights, [action.key]: action.insight } }
 
     case 'goals/set':
       return { ...state, goals: action.goals }
@@ -117,7 +125,7 @@ export function reducer(state: AppState, action: Action): AppState {
       }
 
     case 'data/clear':
-      return { ...EMPTY_STATE, log: {}, foods: [], recipes: [] }
+      return { ...EMPTY_STATE, log: {}, foods: [], recipes: [], insights: {} }
 
     default:
       return state

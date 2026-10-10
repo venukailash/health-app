@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import { ImportError, backupFilename, buildBackup, parseBackup } from './transfer'
 import { EMPTY_STATE, type AppState } from './reducer'
+import type { Insight } from '../domain/insights'
 import { createFood, createRecipe, logFood } from './factories'
 import { DEFAULT_GOALS, SCHEMA_VERSION } from '../storage/repository'
 
@@ -182,5 +183,53 @@ describe('parseBackup sanitising', () => {
     expect(result.foods).toEqual([])
     expect(result.recipes).toEqual([])
     expect(result.log).toEqual({})
+  })
+})
+
+describe('insights in a backup', () => {
+  const insight: Insight = {
+    scope: 'week',
+    periodKey: '2026-10-05',
+    generatedOn: '2026-10-07',
+    headline: 'A steady week.',
+    points: ['Protein was consistent.'],
+    advice: ['Keep going.'],
+  }
+
+  it('round-trips a reading, so a restored device does not re-ask', () => {
+    const state: AppState = { ...EMPTY_STATE, insights: { 'week:2026-10-05': insight } }
+    const restored = parseBackup(JSON.stringify(buildBackup(state)))
+    expect(restored.insights).toEqual({ 'week:2026-10-05': insight })
+  })
+
+  it('drops a reading that is malformed rather than importing a broken one', () => {
+    const file = {
+      app: 'health-app',
+      schemaVersion: SCHEMA_VERSION,
+      exportedAt: '2026-10-07T00:00:00.000Z',
+      state: {
+        ...EMPTY_STATE,
+        insights: {
+          good: insight,
+          noScope: { ...insight, scope: 'fortnight' },
+          noDate: { ...insight, periodKey: 'last week' },
+          noHeadline: { ...insight, headline: '  ' },
+          notAnObject: 'nope',
+        },
+      },
+    }
+
+    const restored = parseBackup(JSON.stringify(file))
+    expect(Object.keys(restored.insights)).toEqual(['good'])
+  })
+
+  it('treats a missing insights block as none, not as a broken file', () => {
+    const file = {
+      app: 'health-app',
+      schemaVersion: SCHEMA_VERSION,
+      exportedAt: '2026-10-07T00:00:00.000Z',
+      state: { foods: [], recipes: [], log: {}, goals: DEFAULT_GOALS, meta: { seedVersion: 1 } },
+    }
+    expect(parseBackup(JSON.stringify(file)).insights).toEqual({})
   })
 })

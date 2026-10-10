@@ -9,8 +9,10 @@ import {
   MIN_SUGGESTED_KCAL,
   estimateGoals,
   extractJson,
+  readInsights,
   toEstimate,
   toGoalsEstimate,
+  toInsightReply,
   toRecipeEstimate,
 } from './gemini'
 import { LookupFailedError, RateLimitedError } from './openFoodFacts'
@@ -461,5 +463,78 @@ describe('estimateGoals', () => {
     await expect(estimateGoals('make me lose 10kg in a month', { apiKey: 'k' })).rejects.toBeInstanceOf(
       ModelError,
     )
+  })
+})
+
+describe('toInsightReply', () => {
+  const sound = {
+    headline: 'A solid day, a little short on fibre.',
+    points: ['You hit 94% of your calorie target.', 'Fibre came in at 18 g against a 30 g target.'],
+    advice: ['A handful of berries with breakfast would close most of the fibre gap.'],
+    caveat: null,
+  }
+
+  it('takes a sound reply', () => {
+    expect(toInsightReply(sound)).toEqual({
+      headline: sound.headline,
+      points: sound.points,
+      advice: sound.advice,
+    })
+  })
+
+  it('needs a headline to be worth showing', () => {
+    expect(toInsightReply({ ...sound, headline: '   ' })).toBeNull()
+    expect(toInsightReply({ ...sound, headline: 42 })).toBeNull()
+    expect(toInsightReply(null)).toBeNull()
+  })
+
+  it('survives lists that are missing, ragged or the wrong type', () => {
+    const reply = toInsightReply({ headline: 'Something', points: ['a', '', 7, null, 'b'] })
+    expect(reply).toEqual({ headline: 'Something', points: ['a', 'b'], advice: [] })
+  })
+
+  it('caps how much comes back, so the panel stays readable', () => {
+    const reply = toInsightReply({
+      headline: 'Lots to say',
+      points: ['1', '2', '3', '4', '5', '6'],
+      advice: ['a', 'b', 'c', 'd', 'e'],
+    })
+    expect(reply?.points).toHaveLength(4)
+    expect(reply?.advice).toHaveLength(3)
+  })
+
+  it('drops a blank caveat rather than rendering an empty line', () => {
+    expect(toInsightReply({ ...sound, caveat: '  ' })?.caveat).toBeUndefined()
+    expect(toInsightReply({ ...sound, caveat: 'Four days of thirty were logged.' })?.caveat).toBe(
+      'Four days of thirty were logged.',
+    )
+  })
+})
+
+describe('readInsights', () => {
+  it('refuses without a key rather than calling out', async () => {
+    const fetchSpy = vi.spyOn(globalThis, 'fetch')
+    await expect(readInsights({ scope: 'day' }, { apiKey: undefined })).rejects.toBeInstanceOf(
+      MissingKeyError,
+    )
+    expect(fetchSpy).not.toHaveBeenCalled()
+  })
+
+  it('sends the crunched summary, not the raw diary', async () => {
+    let sent = ''
+    vi.stubGlobal(
+      'fetch',
+      vi.fn(async (_url: unknown, init?: RequestInit) => {
+        sent = String(init?.body ?? '')
+        return reply(JSON.stringify({ headline: 'Fine', points: [], advice: [], caveat: null }))
+      }),
+    )
+
+    await readInsights({ scope: 'week', loggedDays: 4, totalDays: 7 }, { apiKey: 'k' })
+
+    // The body nests JSON inside JSON, so decode before looking.
+    const parts = JSON.parse(sent).contents[0].parts.map((part: { text: string }) => part.text)
+    expect(parts.join('\n')).toContain('"loggedDays":4')
+    expect(parts.join('\n')).toContain('never treat a gap as a zero')
   })
 })
