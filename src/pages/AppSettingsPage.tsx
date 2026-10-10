@@ -308,6 +308,26 @@ export default function AppSettingsPage() {
         </dl>
       </section>
 
+      <section className="card mb-4 p-4">
+        <h2 className="mb-1 font-semibold">Guided tour</h2>
+        <p className="mb-4 text-sm muted">
+          The five-card walkthrough from the first run: installing the app, the optional keys,
+          estimating from a photo, targets, and logging a meal. It also reappears on its own when
+          a card is added or rewritten.
+        </p>
+        <Button
+          variant="secondary"
+          onClick={() =>
+            dispatch({
+              type: 'meta/set',
+              meta: { ...state.meta, tourSeenRevision: undefined },
+            })
+          }
+        >
+          Show the tour again
+        </Button>
+      </section>
+
       <section className="card p-4">
         <h2 className="mb-1 font-semibold">Start over</h2>
         <p className="mb-4 text-sm muted">

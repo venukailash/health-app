@@ -49,6 +49,11 @@ export interface Meta {
   theme?: ThemeId
   /** Light, dark, or follow the device. Absent means follow the device. */
   colorMode?: ColorMode
+  /**
+   * The revision of the tour this device has been shown. Absent means it has
+   * never seen any of it. See `domain/tour.ts`.
+   */
+  tourSeenRevision?: number
 }
 
 export interface Envelope<T> {

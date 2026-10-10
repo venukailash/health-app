@@ -366,3 +366,24 @@ fat and excludes salt by name, rather than being lowered until everything passes
 The practical mitigation is the one that was always there: every bar carries its name and its
 number, so colour is reinforcement and never the only encoding. Fixing it properly means giving
 salt a different hue, which is a separate change.
+
+## The tour is versioned by itself, not by the app
+
+The ask was to show the tour on a first run "or when a new version of the app is released". Taken
+literally that means re-running a five-card walkthrough after every deploy, and this app deploys
+several times a day — a punishment for keeping it up to date.
+
+So `TOUR_REVISION` in `domain/tour.ts` is bumped by hand, only when a card is added or rewritten,
+and each card carries the revision it arrived in. A device stores the revision it has been shown.
+On a first run every card is new; after an update only the cards newer than what that device has
+seen appear, headed "What's new" rather than "Welcome"; and when nothing is newer, nothing
+appears. A rewrite that affects nobody costs nobody anything.
+
+It is a stepped sheet, not spotlights on the real controls. The five things worth saying live on
+four different screens, so a spotlight tour would have to drive the router around and would break
+the first time a layout moved. Skip is on every card, Escape closes it, and Settings → App can
+bring it back — the same control, so there is one way in and one way out.
+
+The first card leads with the iPhone storage trap rather than burying it: a home-screen web app
+gets its own storage, so anything logged in Safari first is invisible to it. Finding that out
+after a fortnight of logging is how people lose their data.

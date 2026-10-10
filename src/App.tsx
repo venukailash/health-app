@@ -7,6 +7,7 @@ import { useAppUpdate } from './hooks/useAppUpdate'
 import { useKeyboardOpen } from './hooks/useKeyboardOpen'
 import StorageBanner from './components/StorageBanner'
 import Toaster from './components/Toaster'
+import Tour from './components/Tour'
 import { todayKey } from './domain/date'
 import { useAppState } from './state/AppStore'
 import AddEntryPage from './pages/AddEntryPage'
@@ -58,6 +59,7 @@ export default function App() {
         </Routes>
       </main>
       <Toaster />
+      <Tour />
       <QuickAddButton />
       <NavBar />
     </>
