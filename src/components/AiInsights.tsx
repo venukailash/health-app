@@ -17,9 +17,9 @@ const SCOPE_NOUN: Record<InsightScope, string> = {
 }
 
 const NOT_ENOUGH: Record<InsightScope, string> = {
-  day: 'Log breakfast, lunch and dinner to read this day.',
-  week: 'Log a day this week to read it.',
-  month: 'Log a day this month to read it.',
+  day: 'Log breakfast, lunch and dinner, and I can read this day against your targets.',
+  week: 'Log a day this week and I can read it against your targets.',
+  month: 'Log a day this month and I can read it against your targets.',
 }
 
 /**
@@ -29,6 +29,12 @@ const NOT_ENOUGH: Record<InsightScope, string> = {
  * came back before rather than spending another request on a question whose
  * answer has not changed; a finished day is therefore read exactly once, and a
  * period still in progress can be looked at again tomorrow.
+ *
+ * It lives in the middle of the day/week/month navigation row and is a button
+ * and nothing else. A row of its own, with a line underneath explaining why it
+ * was greyed out, pushed the calorie ring off the bottom of a small screen —
+ * so the reason moved inside the panel, where it costs no height and is read
+ * at the moment someone goes looking for it.
  */
 export default function AiInsights({ scope, date }: { scope: InsightScope; date: string }) {
   const state = useAppState()
@@ -78,8 +84,9 @@ export default function AiInsights({ scope, date }: { scope: InsightScope; date:
     setOpen(true)
     setError(null)
     // Nothing stored yet means this is the first look, so fetch it now rather
-    // than showing an empty panel with a button in it.
-    if (!stored) void run()
+    // than showing an empty panel with a button in it. Too little logged means
+    // say so — and never spend a request to be told the same.
+    if (!stored && enough) void run()
   }
 
   const label =
@@ -91,15 +98,19 @@ export default function AiInsights({ scope, date }: { scope: InsightScope; date:
 
   return (
     <>
-      <div className="mb-4">
-        <Button variant="secondary" onClick={openPanel} disabled={!enough}>
-          <svg viewBox="0 0 24 24" aria-hidden="true" className="h-4 w-4" fill="currentColor">
-            <path d="M12 2.5l1.6 4.6a4 4 0 0 0 2.5 2.5l4.6 1.6-4.6 1.6a4 4 0 0 0-2.5 2.5L12 20l-1.6-4.7a4 4 0 0 0-2.5-2.5L3.2 11.2l4.7-1.6a4 4 0 0 0 2.5-2.5z" />
-          </svg>
-          AI insights
-        </Button>
-        {!enough && <p className="mt-2 text-xs muted">{NOT_ENOUGH[scope]}</p>}
-      </div>
+      <button
+        type="button"
+        onClick={openPanel}
+        aria-label={enough ? 'AI insights' : `AI insights — ${NOT_ENOUGH[scope]}`}
+        className={`flex min-w-0 shrink items-center gap-1.5 rounded-xl px-3 py-2 text-sm font-semibold hover:text-brand ${
+          enough ? 'text-brand' : 'muted'
+        }`}
+      >
+        <svg viewBox="0 0 24 24" aria-hidden="true" className="h-4 w-4 shrink-0" fill="currentColor">
+          <path d="M12 2.5l1.6 4.6a4 4 0 0 0 2.5 2.5l4.6 1.6-4.6 1.6a4 4 0 0 0-2.5 2.5L12 20l-1.6-4.7a4 4 0 0 0-2.5-2.5L3.2 11.2l4.7-1.6a4 4 0 0 0 2.5-2.5z" />
+        </svg>
+        <span className="truncate">Insights</span>
+      </button>
 
       {open && (
         <div className="fixed inset-0 z-50 flex items-end justify-center sm:items-center sm:p-4">
@@ -137,6 +148,8 @@ export default function AiInsights({ scope, date }: { scope: InsightScope; date:
 
             <div className="flex-1 space-y-4 overflow-y-auto px-4 py-4">
               {busy && <p className="text-sm muted">Reading your {SCOPE_NOUN[scope]}…</p>}
+
+              {!enough && !stored && !busy && <p className="text-sm">{NOT_ENOUGH[scope]}</p>}
 
               {error && (
                 <p className="text-sm" style={{ color: 'var(--color-over)' }}>

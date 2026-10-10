@@ -135,9 +135,21 @@ describe('TodayPage', () => {
       'href',
       '/day/2026-09-19',
     )
-    expect(screen.getByRole('link', { name: /Tomorrow/ })).toHaveAttribute(
+    // Viewing today, so the step forward is shown but goes nowhere: there is
+    // nothing to log tomorrow.
+    expect(screen.queryByRole('link', { name: /Tomorrow/ })).not.toBeInTheDocument()
+    expect(screen.getByText(/Tomorrow/)).toHaveAttribute('aria-disabled', 'true')
+  })
+
+  it('lets you step forward from a past day, as far as today', () => {
+    vi.useFakeTimers({ shouldAdvanceTime: true })
+    vi.setSystemTime(new Date(2026, 8, 20, 9, 0))
+
+    renderDay('2026-09-18')
+
+    expect(screen.getByRole('link', { name: /Yesterday/ })).toHaveAttribute(
       'href',
-      '/day/2026-09-21',
+      '/day/2026-09-19',
     )
   })
 

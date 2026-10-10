@@ -499,3 +499,17 @@ every one.
 The prompt is told not to diagnose, not to mention deficiencies or body weight, and never to
 suggest under 1200 kcal or skipping meals. That is a request, not a guarantee — which is why the
 panel says, every time, that it is an estimate from a language model and not medical advice.
+
+## The period row goes back, not forward
+
+Day, week and month all share one row: a step back, the insights button, a step forward. The
+forward step stops at the period containing today — there is nothing to log in the future, and a
+working Next button on an empty screen is an invitation to keep pressing and keep finding
+nothing. It stays on screen, greyed, rather than vanishing, so the row does not jump about as you
+walk backwards through the weeks.
+
+The insights button sits between the two steps rather than on a line of its own. It had a row to
+itself with an explanation underneath for when it was greyed out, and on a phone that pushed the
+calorie ring below the fold — the first thing anyone opens the app to see. The reason moved
+inside the panel, where it costs no height and is read at the moment someone goes looking for it,
+and the button is always pressable so there is nothing to explain in advance.

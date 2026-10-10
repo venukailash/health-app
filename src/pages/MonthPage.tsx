@@ -5,6 +5,7 @@ import EmptyState from '../components/EmptyState'
 import MacroBar from '../components/MacroBar'
 import Page from '../components/Page'
 import AiInsights from '../components/AiInsights'
+import PeriodStep from '../components/PeriodStep'
 import PeriodSwitcher from '../components/PeriodSwitcher'
 import StatTile from '../components/StatTile'
 import {
@@ -59,21 +60,18 @@ export default function MonthPage() {
     >
       <PeriodSwitcher active="month" date={date as string} />
 
-      <AiInsights scope="month" date={date as string} />
-
       <nav aria-label="Change month" className="mb-4 flex items-center justify-between gap-2">
-        <Link
+        <PeriodStep
           to={`/month/${addMonths(from, -1)}`}
-          className="card px-3 py-2 text-sm font-medium hover:border-brand"
-        >
-          ← {formatMonthLabel(addMonths(from, -1)).split(' ')[0]}
-        </Link>
-        <Link
+          label={`← ${formatMonthLabel(addMonths(from, -1)).split(' ')[0]}`}
+        />
+        <AiInsights scope="month" date={date as string} />
+        <PeriodStep
           to={`/month/${addMonths(from, 1)}`}
-          className="card px-3 py-2 text-sm font-medium hover:border-brand"
-        >
-          {formatMonthLabel(addMonths(from, 1)).split(' ')[0]} →
-        </Link>
+          label={`${formatMonthLabel(addMonths(from, 1)).split(' ')[0]} →`}
+          // The month after the one containing today is all empty days.
+          disabled={addMonths(from, 1) > today}
+        />
       </nav>
 
       <section className="card mb-4 p-4">

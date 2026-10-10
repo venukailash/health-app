@@ -4,6 +4,7 @@ import EmptyState from '../components/EmptyState'
 import MacroBar from '../components/MacroBar'
 import Page from '../components/Page'
 import AiInsights from '../components/AiInsights'
+import PeriodStep from '../components/PeriodStep'
 import PeriodSwitcher from '../components/PeriodSwitcher'
 import StatTile from '../components/StatTile'
 import {
@@ -46,21 +47,15 @@ export default function WeekPage() {
     >
       <PeriodSwitcher active="week" date={date} />
 
-      <AiInsights scope="week" date={date} />
-
       <nav aria-label="Change week" className="mb-4 flex items-center justify-between gap-2">
-        <Link
-          to={`/week/${addWeeks(from, -1)}`}
-          className="card px-3 py-2 text-sm font-medium hover:border-brand"
-        >
-          ← Previous
-        </Link>
-        <Link
+        <PeriodStep to={`/week/${addWeeks(from, -1)}`} label="← Previous" />
+        <AiInsights scope="week" date={date} />
+        <PeriodStep
           to={`/week/${addWeeks(from, 1)}`}
-          className="card px-3 py-2 text-sm font-medium hover:border-brand"
-        >
-          Next →
-        </Link>
+          label="Next →"
+          // The week after the one containing today is all empty days.
+          disabled={addWeeks(from, 1) > today}
+        />
       </nav>
 
       {stats.loggedDays === 0 ? (

@@ -48,15 +48,30 @@ function pinToday() {
 }
 
 describe('AI insights', () => {
-  it('stays disabled until a day has breakfast, lunch and dinner', () => {
+  it('explains itself instead of asking, when a day is missing meals', async () => {
+    const fetchMock = vi.fn()
+    vi.stubGlobal('fetch', fetchMock)
+    const user = userEvent.setup()
     render(logged(['breakfast', 'lunch']))
-    expect(screen.getByRole('button', { name: /AI insights/ })).toBeDisabled()
-    expect(screen.getByText(/Log breakfast, lunch and dinner/)).toBeInTheDocument()
+
+    // The reason lives in the panel, not in a line under the button: on a
+    // small screen that line pushed the calorie ring off the bottom.
+    await user.click(screen.getByRole('button', { name: /AI insights/ }))
+
+    expect(await screen.findByText(/Log breakfast, lunch and dinner/)).toBeInTheDocument()
+    expect(fetchMock).not.toHaveBeenCalled()
+  })
+
+  it('names the reason in the button itself, for anyone not looking at it', () => {
+    render(logged(['breakfast', 'lunch']))
+    expect(
+      screen.getByRole('button', { name: /AI insights — Log breakfast, lunch and dinner/ }),
+    ).toBeInTheDocument()
   })
 
   it('is available on a week with a single logged day', () => {
     render(logged(['lunch']), 'week')
-    expect(screen.getByRole('button', { name: /AI insights/ })).toBeEnabled()
+    expect(screen.getByRole('button', { name: 'AI insights' })).toBeInTheDocument()
   })
 
   it('reads the period and shows what came back', async () => {

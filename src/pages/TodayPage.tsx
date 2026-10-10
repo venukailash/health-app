@@ -6,6 +6,7 @@ import Page from '../components/Page'
 import MealBreakdown from '../components/MealBreakdown'
 import BackupReminder from '../components/BackupReminder'
 import AiInsights from '../components/AiInsights'
+import PeriodStep from '../components/PeriodStep'
 import PeriodSwitcher from '../components/PeriodSwitcher'
 import { addDays, formatDayLabel, formatFullDate, isValidDateKey, todayKey } from '../domain/date'
 import { backupReminder } from '../domain/backupReminder'
@@ -77,25 +78,22 @@ export default function TodayPage() {
     >
       <PeriodSwitcher active="day" date={date} />
 
-      <AiInsights scope="day" date={date} />
-
       {date === today && reminder.due && (
         <BackupReminder days={reminder.days} everBackedUp={reminder.everBackedUp} />
       )}
 
       <nav aria-label="Change day" className="mb-4 flex items-center justify-between gap-2">
-        <Link
+        <PeriodStep
           to={`/day/${addDays(date, -1)}`}
-          className="card px-3 py-2 text-sm font-medium hover:border-brand"
-        >
-          ← {formatDayLabel(addDays(date, -1), today)}
-        </Link>
-        <Link
+          label={`← ${formatDayLabel(addDays(date, -1), today)}`}
+        />
+        <AiInsights scope="day" date={date} />
+        <PeriodStep
           to={`/day/${addDays(date, 1)}`}
-          className="card px-3 py-2 text-sm font-medium hover:border-brand"
-        >
-          {formatDayLabel(addDays(date, 1), today)} →
-        </Link>
+          label={`${formatDayLabel(addDays(date, 1), today)} →`}
+          // Nothing to log in the future, so the step stops at today.
+          disabled={addDays(date, 1) > today}
+        />
       </nav>
 
       <section className="card mb-4 p-4">
