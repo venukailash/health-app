@@ -12,9 +12,6 @@ import FoodsPage from './pages/FoodsPage'
 import RecipeEditPage from './pages/RecipeEditPage'
 import MonthPage from './pages/MonthPage'
 import RecipesPage from './pages/RecipesPage'
-import ActivityImportPage from './pages/ActivityImportPage'
-import ActivityPage from './pages/ActivityPage'
-import ActivitySetupPage from './pages/ActivitySetupPage'
 import AppSettingsPage from './pages/AppSettingsPage'
 import TargetsSettingsPage from './pages/TargetsSettingsPage'
 import TodayPage from './pages/TodayPage'
@@ -47,10 +44,6 @@ export default function App() {
           <Route path="/recipes" element={<RecipesPage />} />
           <Route path="/recipes/new" element={<RecipeEditPage />} />
           <Route path="/recipes/:id" element={<RecipeEditPage />} />
-          <Route path="/activity" element={<ActivityPage />} />
-          {/* Ordered before :date-style routes so the Shortcut link always wins. */}
-          <Route path="/activity/import" element={<ActivityImportPage />} />
-          <Route path="/activity/setup" element={<ActivitySetupPage />} />
           <Route path="/settings" element={<Navigate to="/settings/targets" replace />} />
           <Route path="/settings/targets" element={<TargetsSettingsPage />} />
           <Route path="/settings/app" element={<AppSettingsPage />} />

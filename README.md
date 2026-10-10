@@ -21,12 +21,10 @@ in `localStorage` on the device you use, and the app works offline once loaded.
   can be duplicated and edited.
 - **Recipes** — combine foods by weight, set how many servings it makes, and see per-serving and
   whole-recipe nutrition update as you build. Log a recipe by the serving.
-- **Activity** — daily step count against a target, with weekly and monthly averages. Steps come
-  from Apple Health via an iOS Shortcut that copies them to the clipboard, or by hand. (A PWA
-  cannot read HealthKit, and an installed iOS app has its own storage that a link cannot reach —
-  hence the clipboard.)
-- **Settings** — split in two: **Targets** for what you are aiming at each day, **App** for the
-  search API key, backups and resetting.
+- **Photo estimates** — with a Google Gemini key, point the camera at a meal or a label and the
+  food editor is filled in with an estimate for you to check. It is never saved without review.
+- **Settings** — split in two: **Targets** for what you are aiming at each day, **App** for API
+  keys, backups and resetting.
 
 Tracked so far: calories, carbohydrate, protein, fat (with saturates), and salt in grams.
 

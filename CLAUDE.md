@@ -25,14 +25,15 @@ npm run lint       # oxlint (warnings only; zero errors expected)
 src/
   domain/      pure maths — nutrition, dates, food search filters. No React, no storage, no fetch.
   storage/     the ONLY module that touches localStorage, plus the bundled starter foods
-  services/    outside world: Open Food Facts + USDA FoodData Central, fanned out by foodSearch.ts
+  services/    outside world: Open Food Facts + USDA FoodData Central (fanned out by
+               foodSearch.ts), and Gemini for photo estimates
   state/       reducer, selectors, store provider, toast provider, backup import/export
   hooks/       cross-cutting browser behaviour (keyboard, service-worker updates, lookups)
   components/  shared UI, including the hand-rolled charts
   pages/       one file per screen, wired up in App.tsx
 ```
 
-## The five things most likely to trip you up
+## The things most likely to trip you up
 
 1. **Log entries store a snapshot of their nutrition, not a reference.** Editing or deleting a
    food must never change meals already logged. There are tests that enforce this.
@@ -45,12 +46,12 @@ src/
    `Recipe`, `LogEntry` or `Goals`. See `storage/repository.ts` — v1→v2 added fibre.
 5. **Chart colours are validated, not chosen by eye.** See `docs/DECISIONS.md` before touching
    any `--color-*` token.
-6. **Nothing secret goes in a backup.** `buildBackup` strips the FoodData Central key; keep it
+6. **Nothing secret goes in a backup.** `buildBackup` strips both API keys; keep it
    that way if you add other credentials.
-7. **Steps are not a macro.** `ActivityGoals` is separate from `Goals` on purpose — `Goals` is
-   exactly `Nutrients` and the nutrition maths iterates its keys.
-8. **An unrecorded day is not a zero day.** Both the food log and the step log distinguish them,
-   and averages divide by recorded days only.
+7. **An unrecorded day is not a zero day.** The food log distinguishes them, and averages divide
+   by logged days only.
+8. **A photo estimate is never saved directly.** It fills the food editor for review, labelled as
+   an estimate. Gemini cannot know how something was cooked.
 
 ## Testing
 

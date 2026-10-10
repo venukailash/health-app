@@ -104,81 +104,34 @@ the way in regardless, so carrying it would be a leak that buys nothing. The key
 origin in `localStorage`, so it has to be entered once on localhost and once on the deployed
 site.
 
-## Steps arrive via the clipboard, not a URL
+## Nutrition from a photo is always an estimate, and always reviewed
 
-The first version of this used a deep link, `#/activity/import?days=…`, which the Shortcut
-opened. **That does not work for an installed app**, and the failure is silent in the worst way:
+Gemini can suggest a food's nutrition from a picture. It cannot know how a dish was cooked or how
+much oil went into it, so nothing is ever saved straight from the model: the figures land in the
+food editor for review, the card above them says they came from a photo, and the model is asked
+for its own confidence and for whatever it could not tell — both of which are shown.
 
-- iOS gives a Home Screen web app its own storage partition, entirely separate from Safari's.
-- iOS will not route a URL into an installed web app; Safari supports none of the manifest
-  link-capturing members, and Universal Links need a native app.
-- So `Open URLs` opens *Safari*, the import succeeds there, and the numbers land in a copy of the
-  app the user never looks at. Everything appears to work and nothing shows up.
+Other choices worth keeping:
 
-The clipboard crosses the partition; a URL does not. So the Shortcut ends with **Copy to
-Clipboard** and the app offers **Paste from clipboard**, with a textarea fallback because Safari
-only permits a clipboard read from a user gesture and can still refuse. The URL route is kept and
-documented for anyone using the app in Safari rather than installed, and the import page warns
-when it is running in the browser copy.
+- **The image is downscaled to 1024px and re-encoded as JPEG** before sending. Tokens are charged
+  by image size and nothing in a nutrition estimate needs a full phone photo.
+- **The model name is configurable**, defaulting to the cheapest that can read an image. Google
+  retires names often enough that a hard-coded one becomes wrong rather than merely suboptimal; a
+  404 is reported as "no model called X", naming it.
+- **`responseMimeType: application/json` and temperature 0**, and the parser still copes with a
+  markdown fence and surrounding prose, because models add them anyway.
+- Saturated fat above total fat is clamped, as with the other sources.
 
-## The Shortcut is shared through iCloud, with the manual build kept as a fallback
+## The Gemini key lives on the device, which is a real trade-off
 
-`https://www.icloud.com/shortcuts/cee4b743f4b3428a9677421fb3a642cc` is a signed shortcut named
-**Copy to Clipboard**. Tapping it on an iPhone installs it in one step, so it is offered first and
-the five-action build is collapsed behind "Link not working? Build it by hand".
+The API is called straight from the browser, which Google's CORS headers allow and which keeps
+the app a static site. The cost is that the key sits in `localStorage`: anyone with the device can
+read it, and it is not a secret in any meaningful sense.
 
-The manual steps stay because an iCloud link can be revoked, expire, or simply fail to open, and
-without them there would be no way back. The name is also what the Run button needs, so the
-settings field is pre-filled with it.
-
-Installing it shares nothing: the Shortcut reads the Health data of whichever device runs it.
-
-## The app can run the Shortcut, but cannot create it
-
-- **Creating one: no.** There is no iOS API for constructing a Shortcut, `.shortcut` files are
-  Apple property lists that iOS refuses to import unsigned, and the sanctioned sharing route is an
-  iCloud link that only a person on an Apple device can generate.
-- **Pre-filling one: no**, for the same reason.
-- **Running an existing one: yes.** `shortcuts://run-shortcut?name=<name>` launches it, so the
-  app stores the name and offers a Run button.
-- **Importing on return: attempted, not guaranteed.** Coming back from Shortcuts is not a user
-  gesture, and Safari normally refuses a clipboard read without one — so the automatic attempt is
-  best-effort and falls back to a single prompt. Where a browser permits it, the whole thing is
-  one tap.
-
-The pending-run flag is kept in `localStorage`, not React state: iOS discards a backgrounded web
-app, so the fact that an import is expected has to survive the page being thrown away. It carries
-a timestamp and is ignored after five minutes, so an abandoned run does not ambush the next visit.
-
-A subtle trap worth remembering: the callbacks are held in refs. Depending on them directly gave
-the effect a new identity on every render, and because the effect calls setState, its own cleanup
-cancelled the import it had just started — every time. The read waits over a second for Shortcuts
-to finish writing, which is plenty of renders to be torn down in.
-
-## Steps come in through a Shortcut, because a PWA cannot read HealthKit
-
-There is no web API for Apple Health, and no workaround. The only route is to push data in from
-outside: an iOS Shortcut reads the step count and opens
-`#/activity/import?days=YYYY-MM-DD:1234`, which the app parses and stores.
-
-Consequences worth knowing before changing any of it:
-
-- **The payload is plain text, not JSON.** Building `2026-09-20:8421` in Shortcuts is one Text
-  action; assembling and URL-encoding JSON is several, and every extra action is somewhere for a
-  non-technical setup to go wrong.
-- **Both forms are accepted** — `?days=` for batches and `?steps=…&date=…` for a single day,
-  since the latter is what someone naturally builds first.
-- **Rejected rows are reported, not dropped.** The likely failure is a Shortcut sending the wrong
-  Health type; silently importing nothing would be impossible to debug. A count above 200,000 is
-  rejected as implausible for exactly that reason.
-- **A scheduled run leaves the counts on the clipboard**, where anything copied afterwards will
-  overwrite them. The guide says to re-run rather than trust a stale clipboard.
-
-## Activity targets are not part of `Goals`
-
-`Goals` is exactly a set of `Nutrients`, and the nutrition maths iterates its keys — a step count
-living there would be treated as a macro by `goalProgress`, `sumNutrients` and everything else.
-`ActivityGoals` is therefore its own type in its own storage key.
+That is acceptable for a personal app and not acceptable for a shared one. The settings page says
+so plainly and tells the user to create a key only for this and cap its spending. Moving the call
+behind a proxy would fix it and would mean running infrastructure, which this app deliberately
+does not have. Like the FoodData Central key, it is stripped from backups.
 
 ## Settings is split by what the setting is about
 

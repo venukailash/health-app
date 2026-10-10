@@ -6,6 +6,7 @@ import IngredientAmount from '../components/IngredientAmount'
 import NutritionGrid from '../components/NutritionGrid'
 import Page from '../components/Page'
 import RemoteFoodResults from '../components/RemoteFoodResults'
+import PhotoEstimator from '../components/PhotoEstimator'
 import ScanButton from '../components/ScanButton'
 import SearchList, { type SearchItem } from '../components/SearchList'
 import { useBarcodeLookup } from '../hooks/useBarcodeLookup'
@@ -14,7 +15,7 @@ import { newId } from '../state/factories'
 import { perServing, recipeTotals, round, roundNutrients, scaleNutrients } from '../domain/nutrition'
 import type { RecipeIngredient } from '../domain/types'
 import { useAppState, useDispatch } from '../state/AppStore'
-import { createRecipe } from '../state/factories'
+import { createFood, createRecipe } from '../state/factories'
 import { foodsById } from '../state/selectors'
 
 export default function RecipeEditPage() {
@@ -34,6 +35,7 @@ export default function RecipeEditPage() {
   const [picking, setPicking] = useState(false)
   const [pickerQuery, setPickerQuery] = useState('')
   const [scanning, setScanning] = useState(false)
+  const [estimating, setEstimating] = useState(false)
   const [confirmingDelete, setConfirmingDelete] = useState(false)
   const { lookup } = useBarcodeLookup()
 
@@ -133,6 +135,27 @@ export default function RecipeEditPage() {
     navigate('/recipes')
   }
 
+  if (estimating) {
+    return (
+      <Page title="From a photo" subtitle="Gemini estimates, for you to check">
+        <PhotoEstimator
+          onCancel={() => setEstimating(false)}
+          onAccept={(estimate) => {
+            const food = createFood({
+              name: estimate.name,
+              category: 'From a photo',
+              per100g: estimate.per100g,
+              defaultServing: estimate.defaultServing,
+            })
+            dispatch({ type: 'food/add', food })
+            addIngredient(food.id)
+            setEstimating(false)
+          }}
+        />
+      </Page>
+    )
+  }
+
   if (picking) {
     return (
       <Page title="Add ingredient" subtitle="Your foods, or scan a packet">
@@ -142,7 +165,22 @@ export default function RecipeEditPage() {
           query={pickerQuery}
           onQueryChange={setPickerQuery}
           placeholder="Search your foods"
-          action={<ScanButton compact onClick={() => setScanning(true)} />}
+          action={
+            <>
+              <ScanButton compact onClick={() => setScanning(true)} />
+              <Button
+                variant="secondary"
+                onClick={() => setEstimating(true)}
+                aria-label="Estimate an ingredient from a photo"
+                className="shrink-0 px-3"
+              >
+                <svg viewBox="0 0 24 24" className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M3 8a2 2 0 0 1 2-2h2l1.5-2h7L17 6h2a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
+                  <circle cx="12" cy="12.5" r="3.5" />
+                </svg>
+              </Button>
+            </>
+          }
           autoFocus
           footer={<RemoteFoodResults query={pickerQuery} onPick={adoptProduct} />}
         />

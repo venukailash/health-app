@@ -85,7 +85,14 @@ describe('TodayPage', () => {
   })
 
   it('links to the previous and next day', () => {
+    // The neighbour links are labelled relative to the real today, so the
+    // clock is pinned: otherwise this passes only during the week the fixture
+    // dates happen to be current.
+    vi.useFakeTimers({ shouldAdvanceTime: true })
+    vi.setSystemTime(new Date(2026, 8, 20, 9, 0))
+
     renderDay('2026-09-20')
+
     expect(screen.getByRole('link', { name: /Yesterday/ })).toHaveAttribute(
       'href',
       '/day/2026-09-19',

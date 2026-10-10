@@ -6,7 +6,7 @@ import SettingsTabs from '../components/SettingsTabs'
 import { kcalFromMacros, round } from '../domain/nutrition'
 import type { Goals } from '../domain/types'
 import { useAppState, useDispatch } from '../state/AppStore'
-import { DEFAULT_ACTIVITY_GOALS, DEFAULT_GOALS } from '../storage/repository'
+import { DEFAULT_GOALS } from '../storage/repository'
 
 type GoalForm = Record<keyof Goals, string>
 
@@ -40,13 +40,11 @@ export default function TargetsSettingsPage() {
   const dispatch = useDispatch()
 
   const [form, setForm] = useState<GoalForm>(() => toForm(state.goals))
-  const [steps, setSteps] = useState(String(state.activityGoals.steps))
   const [saved, setSaved] = useState(false)
 
   const goals = toGoals(form)
   const macroKcal = kcalFromMacros(goals)
   const satOverFat = goals.satFat > goals.fat
-  const stepsTarget = Math.max(0, Math.round(toNumber(steps)))
   const valid = goals.kcal > 0 && !satOverFat
 
   const set = (key: keyof Goals) => (value: string) => {
@@ -56,13 +54,11 @@ export default function TargetsSettingsPage() {
 
   function saveAll() {
     dispatch({ type: 'goals/set', goals })
-    dispatch({ type: 'activityGoals/set', goals: { steps: stepsTarget } })
     setSaved(true)
   }
 
   function useDefaults() {
     setForm(toForm(DEFAULT_GOALS))
-    setSteps(String(DEFAULT_ACTIVITY_GOALS.steps))
     setSaved(false)
   }
 
@@ -71,7 +67,7 @@ export default function TargetsSettingsPage() {
       <SettingsTabs active="targets" />
 
       <section className="card mb-4 p-4">
-        <h2 className="mb-1 font-semibold">Food</h2>
+        <h2 className="mb-1 font-semibold">Daily targets</h2>
         <p className="mb-4 text-sm muted">
           Everything on the Progress screens is measured against these numbers.
         </p>
@@ -107,24 +103,6 @@ export default function TargetsSettingsPage() {
           Your macro targets come to <strong className="text-[var(--text)]">{macroKcal} kcal</strong>
           {goals.kcal > 0 && <> — {round((macroKcal / goals.kcal) * 100, 0)}% of your calorie goal</>}.
         </p>
-      </section>
-
-      <section className="card mb-4 p-4">
-        <h2 className="mb-1 font-semibold">Activity</h2>
-        <p className="mb-4 text-sm muted">
-          Your daily step target. Weekly and monthly progress compare your average against it.
-        </p>
-        <div className="sm:max-w-xs">
-          <NumberField
-            label="Steps per day"
-            value={steps}
-            onChange={(value) => {
-              setSteps(value)
-              setSaved(false)
-            }}
-            step="500"
-          />
-        </div>
       </section>
 
       <div className="flex flex-wrap items-center gap-2">

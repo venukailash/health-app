@@ -1,14 +1,5 @@
-import type {
-  ActivityByDate,
-  ActivityGoals,
-  Food,
-  Goals,
-  LogByDate,
-  LogEntry,
-  Recipe,
-} from '../domain/types'
-import { mergeActivity, type ParsedDay } from '../domain/activity'
-import { DEFAULT_ACTIVITY_GOALS, DEFAULT_GOALS, DEFAULT_META, type Meta } from '../storage/repository'
+import type { Food, Goals, LogByDate, LogEntry, Recipe } from '../domain/types'
+import { DEFAULT_GOALS, DEFAULT_META, type Meta } from '../storage/repository'
 import { applySeedFoods } from '../storage/seed'
 
 export interface AppState {
@@ -16,8 +7,6 @@ export interface AppState {
   recipes: Recipe[]
   log: LogByDate
   goals: Goals
-  activity: ActivityByDate
-  activityGoals: ActivityGoals
   meta: Meta
 }
 
@@ -26,8 +15,6 @@ export const EMPTY_STATE: AppState = {
   recipes: [],
   log: {},
   goals: DEFAULT_GOALS,
-  activity: {},
-  activityGoals: DEFAULT_ACTIVITY_GOALS,
   meta: DEFAULT_META,
 }
 
@@ -44,9 +31,6 @@ export type Action =
   | { type: 'entry/update'; entry: LogEntry }
   | { type: 'entry/delete'; date: string; id: string }
   | { type: 'meta/set'; meta: Meta }
-  | { type: 'activity/import'; days: ParsedDay[]; source: 'manual' | 'shortcut' }
-  | { type: 'activity/delete'; date: string }
-  | { type: 'activityGoals/set'; goals: ActivityGoals }
   | { type: 'seed/apply'; seedVersion: number }
   | { type: 'data/replace'; state: AppState }
   | { type: 'data/clear' }
@@ -80,18 +64,6 @@ export function reducer(state: AppState, action: Action): AppState {
     case 'meta/set':
       return { ...state, meta: action.meta }
 
-    case 'activity/import':
-      return { ...state, activity: mergeActivity(state.activity, action.days, action.source) }
-
-    case 'activity/delete': {
-      if (!state.activity[action.date]) return state
-      const activity = { ...state.activity }
-      delete activity[action.date]
-      return { ...state, activity }
-    }
-
-    case 'activityGoals/set':
-      return { ...state, activityGoals: action.goals }
 
     case 'food/add':
       return { ...state, foods: [...state.foods, action.food] }
@@ -145,7 +117,7 @@ export function reducer(state: AppState, action: Action): AppState {
       }
 
     case 'data/clear':
-      return { ...EMPTY_STATE, log: {}, foods: [], recipes: [], activity: {} }
+      return { ...EMPTY_STATE, log: {}, foods: [], recipes: [] }
 
     default:
       return state

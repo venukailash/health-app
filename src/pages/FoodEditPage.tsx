@@ -3,6 +3,7 @@ import { useNavigate, useParams } from 'react-router-dom'
 import Button from '../components/Button'
 import NumberField from '../components/NumberField'
 import Page from '../components/Page'
+import PhotoEstimator from '../components/PhotoEstimator'
 import { kcalFromMacros, roundNutrients, scaleNutrients, unsaturatedFat } from '../domain/nutrition'
 import type { Food, Nutrients } from '../domain/types'
 import { useAppState, useDispatch } from '../state/AppStore'
@@ -83,6 +84,37 @@ export default function FoodEditPage() {
 
   const [form, setForm] = useState<Form>(() => (existing ? toForm(existing) : EMPTY_FORM))
   const [confirmingDelete, setConfirmingDelete] = useState(false)
+  const [estimating, setEstimating] = useState(false)
+  const [fromPhoto, setFromPhoto] = useState(false)
+
+  if (estimating) {
+    return (
+      <Page title="From a photo" subtitle="Gemini estimates, for you to check" backTo="/foods">
+        <PhotoEstimator
+          onCancel={() => setEstimating(false)}
+          onAccept={(estimate) => {
+            setForm((current) => ({
+              ...current,
+              name: estimate.name,
+              kcal: String(estimate.per100g.kcal),
+              fat: String(estimate.per100g.fat),
+              satFat: String(estimate.per100g.satFat),
+              carbs: String(estimate.per100g.carbs),
+              fibre: String(estimate.per100g.fibre),
+              protein: String(estimate.per100g.protein),
+              salt: String(estimate.per100g.salt),
+              servingLabel: estimate.defaultServing?.label ?? current.servingLabel,
+              servingGrams: estimate.defaultServing
+                ? String(estimate.defaultServing.grams)
+                : current.servingGrams,
+            }))
+            setFromPhoto(true)
+            setEstimating(false)
+          }}
+        />
+      </Page>
+    )
+  }
 
   if (id && !existing) {
     return (
@@ -156,6 +188,32 @@ export default function FoodEditPage() {
       subtitle={readOnly ? 'Starter food — duplicate it to make changes' : 'Nutrition per 100 g'}
       backTo="/foods"
     >
+      {!existing && !fromPhoto && (
+        <section className="card mb-4 p-4">
+          <h2 className="mb-1 font-semibold">Not sure of the numbers?</h2>
+          <p className="mb-3 text-sm muted">
+            Photograph the food or its label and Gemini will suggest them. You check and correct
+            everything before saving.
+          </p>
+          <Button variant="secondary" onClick={() => setEstimating(true)}>
+            Estimate from a photo
+          </Button>
+        </section>
+      )}
+
+      {fromPhoto && (
+        <section
+          className="card mb-4 p-4"
+          style={{ borderLeft: '3px solid var(--color-over)' }}
+        >
+          <h2 className="mb-1 font-semibold">These figures came from a photo</h2>
+          <p className="text-sm muted">
+            They are a model&apos;s estimate, not a label. Correct anything that looks wrong before
+            you save — especially the portion weight.
+          </p>
+        </section>
+      )}
+
       <fieldset disabled={readOnly} className="space-y-4">
         <section className="card p-4">
           <div className="grid gap-4 sm:grid-cols-2">

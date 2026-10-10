@@ -1,15 +1,7 @@
 import { isValidDateKey } from '../domain/date'
 import { MEAL_TYPES, NUTRIENT_KEYS } from '../domain/types'
-import type {
-  ActivityByDate,
-  Food,
-  Goals,
-  LogByDate,
-  LogEntry,
-  Nutrients,
-  Recipe,
-} from '../domain/types'
-import { DEFAULT_ACTIVITY_GOALS, DEFAULT_GOALS, DEFAULT_META, SCHEMA_VERSION } from '../storage/repository'
+import type { Food, Goals, LogByDate, LogEntry, Nutrients, Recipe } from '../domain/types'
+import { DEFAULT_GOALS, DEFAULT_META, SCHEMA_VERSION } from '../storage/repository'
 import { EMPTY_STATE, type AppState } from './reducer'
 
 /**
@@ -26,11 +18,11 @@ export interface BackupFile {
 }
 
 export function buildBackup(state: AppState): BackupFile {
-  // The FoodData Central key is deliberately left out. A backup gets emailed
-  // to yourself and parked in cloud storage, so it is the wrong place for a
-  // credential — and the import side ignores it anyway, so carrying it would
-  // be a leak that buys nothing. It is one field to re-enter in Settings.
-  const { fdcApiKey: _omitted, ...meta } = state.meta
+  // API keys are deliberately left out. A backup gets emailed to yourself and
+  // parked in cloud storage, so it is the wrong place for a credential — and
+  // the import side ignores them anyway, so carrying them would be a leak that
+  // buys nothing. They are two fields to re-enter in Settings.
+  const { fdcApiKey: _fdc, geminiApiKey: _gemini, ...meta } = state.meta
 
   return {
     app: 'health-app',
@@ -148,22 +140,6 @@ function parseGoals(value: unknown): Goals {
   return parseNutrients(value) ?? DEFAULT_GOALS
 }
 
-function parseActivity(value: unknown): ActivityByDate {
-  if (!isObject(value)) return {}
-  const activity: ActivityByDate = {}
-  for (const [date, day] of Object.entries(value)) {
-    if (!isValidDateKey(date) || !isObject(day)) continue
-    if (!isPositiveNumber(day.steps)) continue
-    activity[date] = {
-      date,
-      steps: day.steps,
-      source: day.source === 'shortcut' ? 'shortcut' : 'manual',
-      updatedAt: typeof day.updatedAt === 'string' ? day.updatedAt : new Date().toISOString(),
-    }
-  }
-  return activity
-}
-
 function parseLog(value: unknown): LogByDate {
   if (!isObject(value)) return {}
   const log: LogByDate = {}
@@ -220,11 +196,6 @@ export function parseBackup(text: string): AppState {
     recipes,
     log: parseLog(source.log),
     goals: parseGoals(source.goals),
-    activity: parseActivity(source.activity),
-    activityGoals:
-      isObject(source.activityGoals) && isPositiveNumber(source.activityGoals.steps)
-        ? { steps: source.activityGoals.steps }
-        : DEFAULT_ACTIVITY_GOALS,
     meta,
   }
 }

@@ -26,12 +26,8 @@ Nutrients { kcal, fat, satFat, carbs, fibre, protein, salt }   // per 100 g for 
 Food      { id, name, brand?, category?, barcode?, per100g, defaultServing?, source, createdAt }
 Recipe    { id, name, ingredients: [{ foodId, grams }], servings, createdAt }
 LogEntry  { id, date, meal, ref, label, nutrients, loggedAt }
-Goals     = Nutrients                                          // daily nutrition targets
+Goals     = Nutrients                                          // daily targets
 LogByDate = Record<'YYYY-MM-DD', LogEntry[]>
-
-DayActivity   { date, steps, source: 'manual' | 'shortcut', updatedAt }
-ActivityByDate = Record<'YYYY-MM-DD', DayActivity>
-ActivityGoals  { steps }                                       // NOT part of Goals — see DECISIONS
 ```
 
 Three invariants worth stating explicitly:
@@ -49,10 +45,8 @@ Three invariants worth stating explicitly:
 | `healthapp.foods.v1` | `Food[]` |
 | `healthapp.recipes.v1` | `Recipe[]` |
 | `healthapp.log.v1` | `LogByDate` |
-| `healthapp.goals.v1` | `Goals` (nutrition only) |
-| `healthapp.activity.v1` | `ActivityByDate` — steps per local date |
-| `healthapp.activitygoals.v1` | `ActivityGoals` — the daily step target |
-| `healthapp.meta.v1` | `{ seedVersion, fdcApiKey? }` |
+| `healthapp.goals.v1` | `Goals` |
+| `healthapp.meta.v1` | `{ seedVersion, fdcApiKey?, geminiApiKey?, geminiModel? }` |
 
 The key names are fixed; the *schema* version lives inside the envelope. Current version: **2**.
 
@@ -83,6 +77,7 @@ Both are free, keyless-or-nearly, and CORS-open — the app stays a pure static 
 | Branded / UK products | Open Food Facts | The only source with real UK supermarket coverage |
 | Generic and cooked foods | USDA FoodData Central | Foundation, SR Legacy and FNDDS (prepared dishes) |
 | Barcode lookup | Open Food Facts | Best barcode coverage; its product endpoint is reliable |
+| Nutrition from a photo | Google Gemini | Optional, needs the user's own key — see `docs/DECISIONS.md` |
 
 `services/foodSearch.ts` fans out to both and merges, branded first. One source failing yields
 partial results, not none. Both share the rate-limit shape: a 429/403 sets a shared cooldown, the
