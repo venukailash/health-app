@@ -3,8 +3,8 @@ import {
   DEFAULT_GEMINI_MODEL,
   MissingKeyError,
   ModelError,
-  estimateFromPhoto,
-  estimateRecipeFromText,
+  estimateFood,
+  estimateRecipe,
   extractJson,
   toEstimate,
   toRecipeEstimate,
@@ -108,13 +108,13 @@ describe('toEstimate', () => {
   })
 })
 
-describe('estimateFromPhoto', () => {
+describe('estimateFood — from a photo', () => {
   it('refuses without a key rather than calling out', async () => {
     const fetchSpy = vi.spyOn(globalThis, 'fetch')
-    await expect(estimateFromPhoto(photo(), { apiKey: undefined })).rejects.toBeInstanceOf(
+    await expect(estimateFood({ photo: photo() }, { apiKey: undefined })).rejects.toBeInstanceOf(
       MissingKeyError,
     )
-    await expect(estimateFromPhoto(photo(), { apiKey: '   ' })).rejects.toBeInstanceOf(
+    await expect(estimateFood({ photo: photo() }, { apiKey: '   ' })).rejects.toBeInstanceOf(
       MissingKeyError,
     )
     expect(fetchSpy).not.toHaveBeenCalled()
@@ -122,7 +122,7 @@ describe('estimateFromPhoto', () => {
 
   it('returns a parsed estimate', async () => {
     vi.spyOn(globalThis, 'fetch').mockResolvedValue(reply(JSON.stringify(VALID)))
-    const estimate = await estimateFromPhoto(photo(), { apiKey: 'k' })
+    const estimate = await estimateFood({ photo: photo() }, { apiKey: 'k' })
     expect(estimate.name).toBe('Scrambled eggs on toast')
   })
 
@@ -132,16 +132,16 @@ describe('estimateFromPhoto', () => {
       .spyOn(globalThis, 'fetch')
       .mockImplementation(async () => reply(JSON.stringify(VALID)))
 
-    await estimateFromPhoto(photo(), { apiKey: 'k' })
+    await estimateFood({ photo: photo() }, { apiKey: 'k' })
     expect(String(fetchSpy.mock.calls[0][0])).toContain(DEFAULT_GEMINI_MODEL)
 
-    await estimateFromPhoto(photo(), { apiKey: 'k', model: 'gemini-3.1-flash-lite' })
+    await estimateFood({ photo: photo() }, { apiKey: 'k', model: 'gemini-3.1-flash-lite' })
     expect(String(fetchSpy.mock.calls[1][0])).toContain('gemini-3.1-flash-lite')
   })
 
   it('downscales the image instead of sending a whole phone photo', async () => {
     const fetchSpy = vi.spyOn(globalThis, 'fetch').mockResolvedValue(reply(JSON.stringify(VALID)))
-    await estimateFromPhoto(photo(), { apiKey: 'k' })
+    await estimateFood({ photo: photo() }, { apiKey: 'k' })
 
     // 2000x1000 is capped to 1024 on the long edge; tokens are charged by
     // image size and nothing here needs more.
@@ -152,26 +152,26 @@ describe('estimateFromPhoto', () => {
 
   it('reports a bad key distinctly from a missing one', async () => {
     vi.spyOn(globalThis, 'fetch').mockResolvedValue(new Response('', { status: 403 }))
-    await expect(estimateFromPhoto(photo(), { apiKey: 'bad' })).rejects.toThrow(/rejected the key/)
+    await expect(estimateFood({ photo: photo() }, { apiKey: 'bad' })).rejects.toThrow(/rejected the key/)
   })
 
   it('names the model when it does not exist', async () => {
     vi.spyOn(globalThis, 'fetch').mockResolvedValue(new Response('', { status: 404 }))
     await expect(
-      estimateFromPhoto(photo(), { apiKey: 'k', model: 'gemini-retired' }),
+      estimateFood({ photo: photo() }, { apiKey: 'k', model: 'gemini-retired' }),
     ).rejects.toThrow(/no model called "gemini-retired"/)
   })
 
   it('surfaces rate limiting', async () => {
     vi.spyOn(globalThis, 'fetch').mockResolvedValue(new Response('', { status: 429 }))
-    await expect(estimateFromPhoto(photo(), { apiKey: 'k' })).rejects.toBeInstanceOf(
+    await expect(estimateFood({ photo: photo() }, { apiKey: 'k' })).rejects.toBeInstanceOf(
       RateLimitedError,
     )
   })
 
   it('reports an unreachable network', async () => {
     vi.spyOn(globalThis, 'fetch').mockRejectedValue(new TypeError('offline'))
-    await expect(estimateFromPhoto(photo(), { apiKey: 'k' })).rejects.toBeInstanceOf(
+    await expect(estimateFood({ photo: photo() }, { apiKey: 'k' })).rejects.toBeInstanceOf(
       LookupFailedError,
     )
   })
@@ -180,19 +180,19 @@ describe('estimateFromPhoto', () => {
     vi.spyOn(globalThis, 'fetch').mockResolvedValue(
       reply(JSON.stringify({ ...VALID, name: '' })),
     )
-    await expect(estimateFromPhoto(photo(), { apiKey: 'k' })).rejects.toThrow(
+    await expect(estimateFood({ photo: photo() }, { apiKey: 'k' })).rejects.toThrow(
       /No food could be identified/,
     )
   })
 
   it('handles a reply that is not JSON at all', async () => {
     vi.spyOn(globalThis, 'fetch').mockResolvedValue(reply('I cannot tell what that is.'))
-    await expect(estimateFromPhoto(photo(), { apiKey: 'k' })).rejects.toBeInstanceOf(ModelError)
+    await expect(estimateFood({ photo: photo() }, { apiKey: 'k' })).rejects.toBeInstanceOf(ModelError)
   })
 
   it('handles a reply with no candidates', async () => {
     vi.spyOn(globalThis, 'fetch').mockResolvedValue(new Response(JSON.stringify({}), { status: 200 }))
-    await expect(estimateFromPhoto(photo(), { apiKey: 'k' })).rejects.toThrow(/did not return/)
+    await expect(estimateFood({ photo: photo() }, { apiKey: 'k' })).rejects.toThrow(/did not return/)
   })
 })
 
@@ -259,7 +259,7 @@ describe('toRecipeEstimate', () => {
   })
 })
 
-describe('estimateRecipeFromText', () => {
+describe('estimateRecipe — from a description', () => {
   const RECIPE_REPLY = JSON.stringify({
     name: 'Moka pot latte',
     servings: 2,
@@ -269,36 +269,50 @@ describe('estimateRecipeFromText', () => {
 
   it('parses a described recipe', async () => {
     vi.spyOn(globalThis, 'fetch').mockResolvedValue(reply(RECIPE_REPLY))
-    const estimate = await estimateRecipeFromText('200g whole milk, serves 2', { apiKey: 'k' })
+    const estimate = await estimateRecipe({ text: '200g whole milk, serves 2' }, { apiKey: 'k' })
     expect(estimate.servings).toBe(2)
     expect(estimate.ingredients[0].grams).toBe(200)
   })
 
   it('sends the description to the model', async () => {
     const fetchSpy = vi.spyOn(globalThis, 'fetch').mockResolvedValue(reply(RECIPE_REPLY))
-    await estimateRecipeFromText('28g coffee beans in a moka pot', { apiKey: 'k' })
+    await estimateRecipe({ text: '28g coffee beans in a moka pot' }, { apiKey: 'k' })
     const body = JSON.parse(String(fetchSpy.mock.calls[0][1]?.body))
     expect(JSON.stringify(body)).toContain('28g coffee beans in a moka pot')
   })
 
-  it('refuses an empty description without calling out', async () => {
+  it('refuses an empty input without calling out', async () => {
     const fetchSpy = vi.spyOn(globalThis, 'fetch')
-    await expect(estimateRecipeFromText('   ', { apiKey: 'k' })).rejects.toBeInstanceOf(ModelError)
+    await expect(estimateRecipe({ text: '   ' }, { apiKey: 'k' })).rejects.toBeInstanceOf(ModelError)
+    await expect(estimateRecipe({}, { apiKey: 'k' })).rejects.toBeInstanceOf(ModelError)
     expect(fetchSpy).not.toHaveBeenCalled()
+  })
+
+  it('accepts a photo as well as a description, which is the point of the pair', async () => {
+    const fetchSpy = vi.spyOn(globalThis, 'fetch').mockResolvedValue(reply(RECIPE_REPLY))
+    await estimateRecipe({ photo: photo() }, { apiKey: 'k' })
+    const body = JSON.parse(String(fetchSpy.mock.calls[0][1]?.body))
+    expect(body.contents[0].parts.some((p: { inline_data?: unknown }) => p.inline_data)).toBe(true)
   })
 
   it('refuses without a key', async () => {
     await expect(
-      estimateRecipeFromText('200g milk', { apiKey: undefined }),
+      estimateRecipe({ text: '200g milk' }, { apiKey: undefined }),
     ).rejects.toBeInstanceOf(MissingKeyError)
+  })
+
+  it('estimates a single food from a description too', async () => {
+    vi.spyOn(globalThis, 'fetch').mockResolvedValue(reply(JSON.stringify(VALID)))
+    const estimate = await estimateFood({ text: 'a flat white with oat milk' }, { apiKey: 'k' })
+    expect(estimate.name).toBe('Scrambled eggs on toast')
   })
 
   it('reports text that describes no food', async () => {
     vi.spyOn(globalThis, 'fetch').mockResolvedValue(
       reply(JSON.stringify({ name: 'x', servings: 1, ingredients: [] })),
     )
-    await expect(estimateRecipeFromText('the weather today', { apiKey: 'k' })).rejects.toThrow(
-      /No ingredients could be read/,
+    await expect(estimateRecipe({ text: 'the weather today' }, { apiKey: 'k' })).rejects.toThrow(
+      /No ingredients could be worked out/,
     )
   })
 })

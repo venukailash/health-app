@@ -27,7 +27,7 @@ export default function QuickAddButton() {
 
   return (
     <Link
-      to="/foods/new?photo=1"
+      to="/foods/new?ai=photo"
       aria-label="Add a food from a photo"
       className="fixed right-4 z-20 flex h-14 w-14 items-center justify-center rounded-full bg-brand text-white shadow-lg transition-transform hover:scale-105 active:scale-95"
       style={{ bottom: 'calc(5.25rem + env(safe-area-inset-bottom))' }}

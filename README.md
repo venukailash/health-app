@@ -21,11 +21,11 @@ in `localStorage` on the device you use, and the app works offline once loaded.
   can be duplicated and edited.
 - **Recipes** — combine foods by weight, set how many servings it makes, and see per-serving and
   whole-recipe nutrition update as you build. Log a recipe by the serving.
-- **Photo estimates** — with a Google Gemini key, point the camera at a meal or a label and the
-  food editor is filled in with an estimate for you to check. It is never saved without review.
-  The floating camera button on the main screens goes straight there. Recipes can also be
-  described in words — "28g coffee beans in a moka pot + 200g whole milk, serves 2" — and the
-  ingredients are worked out for you, reusing foods already in your library where they match.
+- **Gemini assist** — with a Google Gemini key, every "new food" and "new recipe" screen offers
+  the same two options: **Photo** or **Describe**. Photograph a meal or a label, or write
+  "28g coffee beans in a moka pot + 200g whole milk, serves 2", and the figures are worked out for
+  you to check. Recipes reuse foods already in your library where the names match. Nothing is
+  saved without review, and the floating camera button goes straight there.
 - **Settings** — split in two: **Targets** for what you are aiming at each day, **App** for API
   keys, backups and resetting.
 

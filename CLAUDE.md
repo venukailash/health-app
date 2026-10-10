@@ -50,8 +50,11 @@ src/
    that way if you add other credentials.
 7. **An unrecorded day is not a zero day.** The food log distinguishes them, and averages divide
    by logged days only.
-8. **A photo estimate is never saved directly.** It fills the food editor for review, labelled as
-   an estimate. Gemini cannot know how something was cooked.
+8. **A Gemini estimate is never saved directly.** It fills the editor for review, labelled as an
+   estimate. Gemini cannot know how something was cooked.
+9. **There is one AI entry point, not several.** `AiAssist` takes the input (photo / describe) and
+   the target (food / recipe) as separate props, so every screen offers the same two options in
+   the same order. Resist adding a fourth place to do this.
 
 ## Testing
 

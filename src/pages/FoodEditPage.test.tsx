@@ -110,11 +110,40 @@ describe('FoodEditPage — existing food', () => {
   })
 })
 
-describe('FoodEditPage — opened from the floating button', () => {
-  it('starts on the camera when asked to', () => {
-    renderWithApp(<FoodEditPage />, { path: '/foods/new', route: '/foods/new?photo=1' })
-    expect(screen.getByRole('heading', { name: /Estimate from a photo/ })).toBeInTheDocument()
+describe('FoodEditPage — Gemini assist', () => {
+  it('starts on the camera when the floating button asks for it', () => {
+    renderWithApp(<FoodEditPage />, { path: '/foods/new', route: '/foods/new?ai=photo' })
+    expect(screen.getByRole('tab', { name: 'Photo' })).toHaveAttribute('aria-selected', 'true')
     expect(screen.getByRole('button', { name: 'Take a photo' })).toBeInTheDocument()
+  })
+
+  it('can start on the description instead', () => {
+    renderWithApp(<FoodEditPage />, { path: '/foods/new', route: '/foods/new?ai=describe' })
+    expect(screen.getByRole('tab', { name: 'Describe' })).toHaveAttribute('aria-selected', 'true')
+  })
+
+  it('ignores an unknown mode and shows the form', () => {
+    renderWithApp(<FoodEditPage />, { path: '/foods/new', route: '/foods/new?ai=nonsense' })
+    expect(screen.getByLabelText('Name')).toBeInTheDocument()
+  })
+
+  it('offers both options, photo first', async () => {
+    const user = userEvent.setup()
+    renderWithApp(<FoodEditPage />, { path: '/foods/new', route: '/foods/new' })
+
+    const buttons = screen.getAllByRole('button').map((b) => b.textContent)
+    expect(buttons.indexOf('Photo')).toBeLessThan(buttons.indexOf('Describe'))
+
+    await user.click(screen.getByRole('button', { name: 'Describe' }))
+    expect(screen.getByRole('tab', { name: 'Describe' })).toHaveAttribute('aria-selected', 'true')
+  })
+
+  it('comes back to the form', async () => {
+    const user = userEvent.setup()
+    renderWithApp(<FoodEditPage />, { path: '/foods/new', route: '/foods/new?ai=photo' })
+
+    await user.click(screen.getByRole('button', { name: 'Back' }))
+    expect(screen.getByLabelText('Name')).toBeInTheDocument()
   })
 
   it('starts on the form otherwise', () => {

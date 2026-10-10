@@ -104,6 +104,23 @@ the way in regardless, so carrying it would be a leak that buys nothing. The key
 origin in `localStorage`, so it has to be entered once on localhost and once on the deployed
 site.
 
+## One AI assist, offered the same way everywhere
+
+The AI features grew one at a time and ended up inconsistent: photo only on foods, description
+only on recipes, a third camera buried inside the ingredient picker, and three different labels
+for the same idea. It read as several half-features.
+
+Now there is one component, `AiAssist`, with the input and the target as separate choices:
+
+- **Input:** photo, or description. Photo first, every time.
+- **Target:** one food, or a recipe. Decided by where you started, not by a question.
+
+The same card — "Let Gemini work it out", **Photo** then **Describe** — appears on new food and
+new recipe, and the floating button opens it in photo mode (`?ai=photo`), with description one tap
+away on the switch. The camera nested inside the ingredient picker is gone: the recipe-level photo
+covers it, and a camera two levels deep was the thing people got lost in. Barcode scanning stays
+in the picker, because it is a different capability rather than a duplicate.
+
 ## Nutrition from a photo is always an estimate, and always reviewed
 
 Gemini can suggest a food's nutrition from a picture. It cannot know how a dish was cooked or how

@@ -65,15 +65,45 @@ describe('RecipeEditPage — ingredient picker', () => {
     expect(within(list).getByText(/Porridge oats/)).toBeInTheDocument()
   })
 
-  it('offers a way back from the photo estimator too', async () => {
+  it('offers the same two options as foods, photo first', async () => {
+    const user = userEvent.setup()
+    renderNew()
+
+    const buttons = screen.getAllByRole('button').map((b) => b.textContent)
+    expect(buttons.indexOf('Photo')).toBeLessThan(buttons.indexOf('Describe'))
+
+    await user.click(screen.getByRole('button', { name: 'Photo' }))
+    expect(screen.getByRole('heading', { name: 'Let Gemini work it out' })).toBeInTheDocument()
+    expect(screen.getByRole('tab', { name: 'Photo' })).toHaveAttribute('aria-selected', 'true')
+  })
+
+  it('switches between photo and description without leaving', async () => {
+    const user = userEvent.setup()
+    renderNew()
+
+    await user.click(screen.getByRole('button', { name: 'Photo' }))
+    await user.click(screen.getByRole('tab', { name: 'Describe' }))
+    expect(screen.getByRole('textbox')).toBeInTheDocument()
+  })
+
+  it('comes back to the recipe from the assist', async () => {
+    const user = userEvent.setup()
+    renderNew()
+
+    await user.click(screen.getByRole('button', { name: 'Describe' }))
+    await user.click(screen.getByRole('button', { name: 'Back' }))
+    expect(screen.getByRole('heading', { name: 'New recipe' })).toBeInTheDocument()
+  })
+
+  it('no longer buries a camera inside the ingredient picker', async () => {
     const user = userEvent.setup()
     renderNew()
 
     await user.click(screen.getByRole('button', { name: 'Add' }))
-    await user.click(screen.getByRole('button', { name: 'Estimate an ingredient from a photo' }))
-    expect(screen.getByRole('heading', { name: 'From a photo' })).toBeInTheDocument()
-
-    await user.click(screen.getByRole('button', { name: 'Back' }))
-    expect(screen.getByRole('heading', { name: 'Add ingredient' })).toBeInTheDocument()
+    expect(
+      screen.queryByRole('button', { name: /Estimate an ingredient from a photo/ }),
+    ).not.toBeInTheDocument()
+    // Barcode scanning stays: a different capability, not a duplicate.
+    expect(screen.getByRole('button', { name: 'Scan a barcode' })).toBeInTheDocument()
   })
 })

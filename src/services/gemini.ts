@@ -3,13 +3,18 @@ import { ZERO_NUTRIENTS, round } from '../domain/nutrition'
 import { LookupFailedError, RateLimitedError } from './openFoodFacts'
 
 /**
- * Estimate nutrition from a photo, using Google's Gemini API.
+ * Estimate nutrition from a photo or a description, using Google's Gemini API.
  *
- * Everything this returns is a GUESS. A model looking at a picture cannot know
- * what is in a dish, how it was cooked, or how much oil went in — so the
- * result is always shown for review before anything is saved, and is labelled
- * as an estimate wherever it appears. It is a faster starting point than
- * typing a label in, not a substitute for one.
+ * Two estimators, each taking either input: `estimateFood` for one item and
+ * `estimateRecipe` for something with ingredients. Keeping the input and the
+ * target as separate choices is what lets every entry point in the app offer
+ * the same two options in the same order.
+ *
+ * Everything this returns is a GUESS. A model cannot know what is in a dish,
+ * how it was cooked, or how much oil went in — so the result is always shown
+ * for review before anything is saved, and is labelled as an estimate wherever
+ * it appears. It is a faster starting point than typing a label in, not a
+ * substitute for one.
  *
  * The API is called straight from the browser, which Google's CORS headers
  * allow. That keeps the app a static site, at the cost of the key living on
@@ -51,14 +56,14 @@ export class ModelError extends Error {
   }
 }
 
-export interface PhotoEstimate {
+export interface FoodEstimate {
   name: string
   /** What the model thinks a normal helping of this is. */
   defaultServing?: Serving
   per100g: Nutrients
   /** The model's own confidence, which it is asked for explicitly. */
   confidence: 'low' | 'medium' | 'high'
-  /** Anything it could not tell from the picture. */
+  /** Anything it could not tell. */
   caveat?: string
 }
 
@@ -87,19 +92,19 @@ export async function prepareImage(file: File): Promise<{ data: string; mimeType
   return { data: dataUrl.split(',')[1] ?? '', mimeType: 'image/jpeg' }
 }
 
-const PROMPT = `You are helping log food in a nutrition tracker that follows UK food labelling.
+const FOOD_PROMPT = `You are helping log food in a nutrition tracker that follows UK food labelling.
 
-Look at the photo and identify the food. Then estimate its nutrition PER 100 GRAMS.
+Identify the food from the photo or description given. Then estimate its nutrition PER 100 GRAMS.
 
 Rules:
 - Carbohydrate EXCLUDES fibre (UK convention). Report fibre separately.
 - Report salt in grams, not sodium.
 - Energy in kilocalories.
 - If several foods are on the plate, describe the whole plate as one item and estimate for the combination.
-- servingGrams is your estimate of the weight of the portion actually shown in the photo.
-- Be honest in "confidence". Use "low" when the photo is ambiguous, the dish could have been cooked many ways, or the portion is hard to judge.
-- Put anything you genuinely cannot tell from the photo in "caveat", briefly. Use null if there is nothing worth saying.
-- If the photo contains no food at all, set name to "" and confidence to "low".
+- servingGrams is your estimate of the weight of one normal portion.
+- Be honest in "confidence". Use "low" when it is ambiguous, the dish could have been cooked many ways, or the portion is hard to judge.
+- Put anything you genuinely cannot tell in "caveat", briefly. Use null if there is nothing worth saying.
+- If there is no food at all, set name to "" and confidence to "low".
 
 Reply with ONLY a JSON object, no markdown fence, in exactly this shape:
 {"name":string,"servingLabel":string,"servingGrams":number,"per100g":{"kcal":number,"fat":number,"satFat":number,"carbs":number,"fibre":number,"protein":number,"salt":number},"confidence":"low"|"medium"|"high","caveat":string|null}`
@@ -123,7 +128,7 @@ export function extractJson(text: string): unknown {
   }
 }
 
-export function toEstimate(value: unknown): PhotoEstimate | null {
+export function toEstimate(value: unknown): FoodEstimate | null {
   if (typeof value !== 'object' || value === null) return null
   const raw = value as Record<string, unknown>
 
@@ -166,6 +171,26 @@ export function toEstimate(value: unknown): PhotoEstimate | null {
 /* ------------------------------------------------------------------ */
 /* Recipes described in words                                           */
 /* ------------------------------------------------------------------ */
+
+/** Either a photo or a description — both estimators accept either. */
+export interface AiInput {
+  photo?: File
+  text?: string
+}
+
+/** Build the request parts for whichever input was given. */
+async function inputParts(input: AiInput, label: string): Promise<unknown[]> {
+  const parts: unknown[] = []
+  if (input.text && input.text.trim() !== '') {
+    parts.push({ text: `${label}: ${input.text.trim()}` })
+  }
+  if (input.photo) {
+    const image = await prepareImage(input.photo)
+    parts.push({ inline_data: { mime_type: image.mimeType, data: image.data } })
+  }
+  if (parts.length === 0) throw new ModelError('Add a photo or a description first.')
+  return parts
+}
 
 export interface EstimatedIngredient {
   name: string
@@ -297,98 +322,34 @@ async function callGemini(
   return text
 }
 
-export async function estimateRecipeFromText(
-  description: string,
+export async function estimateRecipe(
+  input: AiInput,
   {
     apiKey,
     model = DEFAULT_GEMINI_MODEL,
     signal,
   }: { apiKey: string | undefined; model?: string; signal?: AbortSignal },
 ): Promise<RecipeEstimate> {
-  const text = description.trim()
-  if (text === '') throw new ModelError('Describe the recipe first.')
-
-  const reply = await callGemini([{ text: RECIPE_PROMPT }, { text: `Recipe: ${text}` }], {
-    apiKey,
-    model,
-    signal,
-  })
+  const parts = await inputParts(input, 'Recipe')
+  const reply = await callGemini([{ text: RECIPE_PROMPT }, ...parts], { apiKey, model, signal })
 
   const estimate = toRecipeEstimate(extractJson(reply))
-  if (!estimate) throw new ModelError('No ingredients could be read from that description.')
+  if (!estimate) throw new ModelError('No ingredients could be worked out from that.')
   return estimate
 }
 
-export async function estimateFromPhoto(
-  file: File,
+export async function estimateFood(
+  input: AiInput,
   {
     apiKey,
     model = DEFAULT_GEMINI_MODEL,
     signal,
   }: { apiKey: string | undefined; model?: string; signal?: AbortSignal },
-): Promise<PhotoEstimate> {
-  if (!apiKey || apiKey.trim() === '') throw new MissingKeyError()
+): Promise<FoodEstimate> {
+  const parts = await inputParts(input, 'Food')
+  const reply = await callGemini([{ text: FOOD_PROMPT }, ...parts], { apiKey, model, signal })
 
-  const image = await prepareImage(file)
-
-  let response: Response
-  try {
-    response = await fetch(
-      `${ENDPOINT}/${encodeURIComponent(model)}:generateContent?key=${encodeURIComponent(apiKey.trim())}`,
-      {
-        method: 'POST',
-        signal,
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          contents: [
-            {
-              parts: [
-                { text: PROMPT },
-                { inline_data: { mime_type: image.mimeType, data: image.data } },
-              ],
-            },
-          ],
-          generationConfig: {
-            temperature: 0,
-            responseMimeType: 'application/json',
-          },
-        }),
-      },
-    )
-  } catch (error) {
-    if (error instanceof DOMException && error.name === 'AbortError') throw error
-    throw new LookupFailedError('Could not reach Gemini. Check your connection.')
-  }
-
-  if (response.status === 429) throw new RateLimitedError(Date.now() + 60_000)
-  if (response.status === 400 || response.status === 403) {
-    throw new ModelError('Gemini rejected the key. Check it in Settings.')
-  }
-  if (response.status === 404) {
-    throw new ModelError(
-      `Gemini has no model called "${model}" — it may have been retired. Change it in Settings.`,
-    )
-  }
-  if (!response.ok) throw new LookupFailedError('Gemini returned an error.')
-
-  let payload: unknown
-  try {
-    payload = await response.json()
-  } catch {
-    throw new LookupFailedError('Gemini returned something unreadable.')
-  }
-
-  const text = (payload as {
-    candidates?: { content?: { parts?: { text?: string }[] } }[]
-  }).candidates?.[0]?.content?.parts?.[0]?.text
-
-  if (typeof text !== 'string') {
-    throw new ModelError('Gemini did not return an answer. Try a clearer photo.')
-  }
-
-  const estimate = toEstimate(extractJson(text))
-  if (!estimate) {
-    throw new ModelError('No food could be identified in that photo.')
-  }
+  const estimate = toEstimate(extractJson(reply))
+  if (!estimate) throw new ModelError('No food could be identified from that.')
   return estimate
 }

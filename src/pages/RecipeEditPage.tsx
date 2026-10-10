@@ -6,8 +6,8 @@ import IngredientAmount from '../components/IngredientAmount'
 import NutritionGrid from '../components/NutritionGrid'
 import Page from '../components/Page'
 import RemoteFoodResults from '../components/RemoteFoodResults'
-import PhotoEstimator from '../components/PhotoEstimator'
-import RecipePrompt from '../components/RecipePrompt'
+import AiAssist, { type AiMode } from '../components/AiAssist'
+import AiAssistCard from '../components/AiAssistCard'
 import { findMatchingFood } from '../domain/matchFood'
 import ScanButton from '../components/ScanButton'
 import SearchList, { type SearchItem } from '../components/SearchList'
@@ -37,8 +37,7 @@ export default function RecipeEditPage() {
   const [picking, setPicking] = useState(false)
   const [pickerQuery, setPickerQuery] = useState('')
   const [scanning, setScanning] = useState(false)
-  const [estimating, setEstimating] = useState(false)
-  const [describing, setDescribing] = useState(false)
+  const [assist, setAssist] = useState<AiMode | null>(null)
   const [confirmingDelete, setConfirmingDelete] = useState(false)
   const { lookup } = useBarcodeLookup()
 
@@ -138,16 +137,18 @@ export default function RecipeEditPage() {
     navigate('/recipes')
   }
 
-  if (describing) {
+  if (assist) {
     return (
       <Page
-        title="Describe a recipe"
-        subtitle="Gemini works out the ingredients"
-        onBack={() => setDescribing(false)}
+        title="Let Gemini work it out"
+        subtitle="An estimate, for you to check"
+        onBack={() => setAssist(null)}
       >
-        <RecipePrompt
-          onCancel={() => setDescribing(false)}
-          onAccept={(estimate) => {
+        <AiAssist
+          target="recipe"
+          initialMode={assist}
+          onCancel={() => setAssist(null)}
+          onAcceptRecipe={(estimate) => {
             // Reuse a food already in the library where the name matches: its
             // figures are curated, the model's are a guess.
             const added: RecipeIngredient[] = estimate.ingredients.map((item) => {
@@ -156,7 +157,7 @@ export default function RecipeEditPage() {
 
               const created = createFood({
                 name: item.name,
-                category: 'From a description',
+                category: 'From Gemini',
                 per100g: item.per100g,
               })
               dispatch({ type: 'food/add', food: created })
@@ -166,32 +167,7 @@ export default function RecipeEditPage() {
             setName((current) => current || estimate.name)
             setServings(String(estimate.servings))
             setIngredients((current) => [...current, ...added])
-            setDescribing(false)
-          }}
-        />
-      </Page>
-    )
-  }
-
-  if (estimating) {
-    return (
-      <Page
-        title="From a photo"
-        subtitle="Gemini estimates, for you to check"
-        onBack={() => setEstimating(false)}
-      >
-        <PhotoEstimator
-          onCancel={() => setEstimating(false)}
-          onAccept={(estimate) => {
-            const food = createFood({
-              name: estimate.name,
-              category: 'From a photo',
-              per100g: estimate.per100g,
-              defaultServing: estimate.defaultServing,
-            })
-            dispatch({ type: 'food/add', food })
-            addIngredient(food.id)
-            setEstimating(false)
+            setAssist(null)
           }}
         />
       </Page>
@@ -214,22 +190,7 @@ export default function RecipeEditPage() {
           query={pickerQuery}
           onQueryChange={setPickerQuery}
           placeholder="Search your foods"
-          action={
-            <>
-              <ScanButton compact onClick={() => setScanning(true)} />
-              <Button
-                variant="secondary"
-                onClick={() => setEstimating(true)}
-                aria-label="Estimate an ingredient from a photo"
-                className="shrink-0 px-3"
-              >
-                <svg viewBox="0 0 24 24" className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="M3 8a2 2 0 0 1 2-2h2l1.5-2h7L17 6h2a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
-                  <circle cx="12" cy="12.5" r="3.5" />
-                </svg>
-              </Button>
-            </>
-          }
+          action={<ScanButton compact onClick={() => setScanning(true)} />}
           autoFocus
           footer={<RemoteFoodResults query={pickerQuery} onPick={adoptProduct} />}
         />
@@ -253,16 +214,7 @@ export default function RecipeEditPage() {
       backTo="/recipes"
     >
       {!existing && ingredients.length === 0 && (
-        <section className="card mb-4 p-4">
-          <h2 className="mb-1 font-semibold">Describe it instead</h2>
-          <p className="mb-3 text-sm muted">
-            Something like &ldquo;28g coffee beans in a moka pot + 200g whole milk, serves
-            2&rdquo; — Gemini turns it into ingredients for you to check.
-          </p>
-          <Button variant="secondary" onClick={() => setDescribing(true)}>
-            Describe a recipe
-          </Button>
-        </section>
+        <AiAssistCard target="recipe" onStart={setAssist} />
       )}
 
       <section className="card mb-4 p-4">

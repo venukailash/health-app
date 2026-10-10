@@ -3,7 +3,8 @@ import { useNavigate, useParams, useSearchParams } from 'react-router-dom'
 import Button from '../components/Button'
 import NumberField from '../components/NumberField'
 import Page from '../components/Page'
-import PhotoEstimator from '../components/PhotoEstimator'
+import AiAssist, { type AiMode } from '../components/AiAssist'
+import AiAssistCard from '../components/AiAssistCard'
 import { kcalFromMacros, roundNutrients, scaleNutrients, unsaturatedFat } from '../domain/nutrition'
 import type { Food, Nutrients } from '../domain/types'
 import { useAppState, useDispatch } from '../state/AppStore'
@@ -85,21 +86,26 @@ export default function FoodEditPage() {
 
   const [form, setForm] = useState<Form>(() => (existing ? toForm(existing) : EMPTY_FORM))
   const [confirmingDelete, setConfirmingDelete] = useState(false)
-  // ?photo=1 comes from the floating button, which exists to skip the two
-  // taps it otherwise takes to reach the camera.
-  const [estimating, setEstimating] = useState(() => params.get('photo') === '1')
+  // ?ai=photo|describe comes from the floating button, which exists to skip
+  // the taps it otherwise takes to reach the camera.
+  const [assist, setAssist] = useState<AiMode | null>(() => {
+    const requested = params.get('ai')
+    return requested === 'photo' || requested === 'describe' ? requested : null
+  })
   const [fromPhoto, setFromPhoto] = useState(false)
 
-  if (estimating) {
+  if (assist) {
     return (
       <Page
-        title="From a photo"
-        subtitle="Gemini estimates, for you to check"
-        onBack={() => setEstimating(false)}
+        title="Let Gemini work it out"
+        subtitle="An estimate, for you to check"
+        onBack={() => setAssist(null)}
       >
-        <PhotoEstimator
-          onCancel={() => setEstimating(false)}
-          onAccept={(estimate) => {
+        <AiAssist
+          target="food"
+          initialMode={assist}
+          onCancel={() => setAssist(null)}
+          onAcceptFood={(estimate) => {
             setForm((current) => ({
               ...current,
               name: estimate.name,
@@ -116,7 +122,7 @@ export default function FoodEditPage() {
                 : current.servingGrams,
             }))
             setFromPhoto(true)
-            setEstimating(false)
+            setAssist(null)
           }}
         />
       </Page>
@@ -195,25 +201,14 @@ export default function FoodEditPage() {
       subtitle={readOnly ? 'Starter food — duplicate it to make changes' : 'Nutrition per 100 g'}
       backTo="/foods"
     >
-      {!existing && !fromPhoto && (
-        <section className="card mb-4 p-4">
-          <h2 className="mb-1 font-semibold">Not sure of the numbers?</h2>
-          <p className="mb-3 text-sm muted">
-            Photograph the food or its label and Gemini will suggest them. You check and correct
-            everything before saving.
-          </p>
-          <Button variant="secondary" onClick={() => setEstimating(true)}>
-            Estimate from a photo
-          </Button>
-        </section>
-      )}
+      {!existing && !fromPhoto && <AiAssistCard target="food" onStart={setAssist} />}
 
       {fromPhoto && (
         <section
           className="card mb-4 p-4"
           style={{ borderLeft: '3px solid var(--color-over)' }}
         >
-          <h2 className="mb-1 font-semibold">These figures came from a photo</h2>
+          <h2 className="mb-1 font-semibold">These figures came from Gemini</h2>
           <p className="text-sm muted">
             They are a model&apos;s estimate, not a label. Correct anything that looks wrong before
             you save — especially the portion weight.

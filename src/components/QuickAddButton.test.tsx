@@ -11,11 +11,11 @@ const at = (route: string) =>
   )
 
 describe('QuickAddButton', () => {
-  it('goes straight to the photo estimator', () => {
+  it('goes straight to the camera, with describe one tap away', () => {
     at('/day/2026-10-10')
     expect(screen.getByRole('link', { name: 'Add a food from a photo' })).toHaveAttribute(
       'href',
-      '/foods/new?photo=1',
+      '/foods/new?ai=photo',
     )
   })
 
