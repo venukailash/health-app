@@ -10,6 +10,18 @@ export function matchesQuery(food: Food, query: string): boolean {
 }
 
 /** Bucket foods by category for the library list, alphabetically by heading. */
+/**
+ * Your own foods first, then everything else, each run alphabetical.
+ *
+ * Within a category rather than across the whole list: a food you wrote is
+ * the one you are most likely to be looking for, but moving it out of its
+ * section to do that would cost more than it gains.
+ */
+export function byMineThenName(a: Food, b: Food): number {
+  const mine = Number(b.source === 'user') - Number(a.source === 'user')
+  return mine !== 0 ? mine : a.name.localeCompare(b.name)
+}
+
 export function groupByCategory(foods: Food[]): [string, Food[]][] {
   const groups = new Map<string, Food[]>()
   for (const food of foods) {

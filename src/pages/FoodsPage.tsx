@@ -11,7 +11,7 @@ import EmptyState from '../components/EmptyState'
 import FilterChips from '../components/FilterChips'
 import Page from '../components/Page'
 import { round } from '../domain/nutrition'
-import { groupByCategory, matchesQuery } from '../domain/foodSearch'
+import { byMineThenName, groupByCategory, matchesQuery } from '../domain/foodSearch'
 import { useAppState } from '../state/AppStore'
 
 export default function FoodsPage() {
@@ -76,7 +76,7 @@ export default function FoodsPage() {
       .filter(
         (food) => (activeCategory ? (food.category?.trim() || 'Other') === activeCategory : true),
       )
-      .sort((a, b) => a.name.localeCompare(b.name))
+      .sort(byMineThenName)
     return groupByCategory(filtered)
   }, [inScope, activeCategory])
 

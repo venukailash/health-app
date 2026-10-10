@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { groupByCategory, matchesQuery } from './foodSearch'
+import { byMineThenName, groupByCategory, matchesQuery } from './foodSearch'
 import type { Food } from './types'
 
 const food = (overrides: Partial<Food>): Food => ({
@@ -59,5 +59,32 @@ describe('groupByCategory', () => {
 
   it('returns nothing for an empty library', () => {
     expect(groupByCategory([])).toEqual([])
+  })
+})
+
+describe('byMineThenName', () => {
+  const named = (name: string, source: 'seed' | 'user') => food({ id: `${source}-${name}`, name, source })
+
+  it('puts your own foods before the bundled ones', () => {
+    const sorted = [named('Apple', 'seed'), named('Zuppa', 'user')].sort(byMineThenName)
+    expect(sorted.map((item) => item.name)).toEqual(['Zuppa', 'Apple'])
+  })
+
+  it('keeps each run alphabetical', () => {
+    const sorted = [
+      named('Oats', 'seed'),
+      named('Banana', 'user'),
+      named('Apple', 'seed'),
+      named('Almonds', 'user'),
+    ].sort(byMineThenName)
+    expect(sorted.map((item) => item.name)).toEqual(['Almonds', 'Banana', 'Apple', 'Oats'])
+  })
+
+  it('is a total order, so the sort is stable whatever the input order', () => {
+    const items = [named('B', 'user'), named('A', 'seed'), named('A', 'user'), named('B', 'seed')]
+    const forwards = [...items].sort(byMineThenName).map((i) => `${i.source}:${i.name}`)
+    const backwards = [...items].reverse().sort(byMineThenName).map((i) => `${i.source}:${i.name}`)
+    expect(forwards).toEqual(backwards)
+    expect(forwards).toEqual(['user:A', 'user:B', 'seed:A', 'seed:B'])
   })
 })

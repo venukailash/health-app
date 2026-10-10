@@ -106,3 +106,26 @@ describe('FoodsPage — category menu', () => {
     ).not.toBeInTheDocument()
   })
 })
+
+describe('FoodsPage — ordering', () => {
+  it('lists your own foods before the bundled ones in each section', () => {
+    const dairy = 'Dairy & eggs'
+    renderWithApp(<FoodsPage />, {
+      path: '/foods',
+      route: '/foods',
+      state: {
+        foods: [
+          food('Cheddar', dairy),
+          food('Anna yoghurt', dairy, 'user'),
+          food('Butter', dairy),
+          food('Zoe kefir', dairy, 'user'),
+        ],
+      },
+    })
+
+    // Your two first, alphabetical, then the bundled two, alphabetical.
+    // Rows carry their nutrition summary too, so compare on the name only.
+    const names = rows().map((row) => row.split('100 kcal')[0])
+    expect(names).toEqual(['Anna yoghurt', 'Zoe kefir', 'Butter', 'Cheddar'])
+  })
+})
