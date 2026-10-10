@@ -16,11 +16,14 @@ in `localStorage` on the device you use, and the app works offline once loaded.
   bars, and a day-by-day list. Averages are over the days you actually logged, not all seven.
 - **Month** — a calendar heat map shaded by how much of your calorie goal you ate, with days over
   goal ringed, plus the same averages and an optional table of every logged day.
-- **Foods** — a searchable library, pre-loaded with 128 common UK foods. Add your own from the
+- **Foods** — a searchable library, pre-loaded with 128 common UK foods, filtered by category
+  from a row along the top. Add your own from the
   per-100 g column of a label, with an optional typical portion. Starter foods are read-only but
   can be duplicated and edited.
 - **Recipes** — combine foods by weight, set how many servings it makes, and see per-serving and
-  whole-recipe nutrition update as you build. Log a recipe by the serving.
+  whole-recipe nutrition update as you build. Log a recipe by the serving. Recipes can be tagged
+  with the meals you usually eat them at and filtered by those tags — the tag is only a filter,
+  never a restriction on where you can log it.
 - **Gemini assist** — with a Google Gemini key, every "new food" and "new recipe" screen offers
   the same two options: **Photo** or **Describe**. Photograph a meal or a label, or write
   "28g coffee beans in a moka pot + 200g whole milk, serves 2", and the figures are worked out for

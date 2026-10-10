@@ -97,11 +97,18 @@ function parseRecipe(value: unknown): Recipe | null {
       : [],
   )
 
+  const meals = Array.isArray(value.meals)
+    ? value.meals.filter((meal): meal is LogEntry['meal'] =>
+        typeof meal === 'string' && MEAL_TYPES.includes(meal as LogEntry['meal']),
+      )
+    : []
+
   return {
     id,
     name,
     servings,
     ingredients: parsed,
+    ...(meals.length > 0 ? { meals } : {}),
     createdAt: typeof value.createdAt === 'string' ? value.createdAt : new Date().toISOString(),
   }
 }

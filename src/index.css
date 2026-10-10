@@ -115,6 +115,11 @@ body {
   outline-offset: 1px;
 }
 
+/* The sideways filter rows: no visible scrollbar, it is a chip row not a pane. */
+[role='group']::-webkit-scrollbar {
+  display: none;
+}
+
 /* Number inputs: hide the spinners, they are fiddly on touch and on desktop. */
 input[type='number']::-webkit-outer-spin-button,
 input[type='number']::-webkit-inner-spin-button {

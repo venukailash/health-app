@@ -15,7 +15,7 @@ import { useBarcodeLookup } from '../hooks/useBarcodeLookup'
 import { toFood as searchedToFood, type FoundFood } from '../services/foodSearch'
 import { newId } from '../state/factories'
 import { perServing, recipeTotals, round, roundNutrients, scaleNutrients } from '../domain/nutrition'
-import type { RecipeIngredient } from '../domain/types'
+import { MEAL_LABELS, MEAL_TYPES, type MealType, type RecipeIngredient } from '../domain/types'
 import { useAppState, useDispatch } from '../state/AppStore'
 import { createFood, createRecipe } from '../state/factories'
 import { foodsById } from '../state/selectors'
@@ -32,6 +32,7 @@ export default function RecipeEditPage() {
 
   const [name, setName] = useState(existing?.name ?? '')
   const [servings, setServings] = useState(String(existing?.servings ?? 1))
+  const [meals, setMeals] = useState<MealType[]>(existing?.meals ?? [])
   const [ingredients, setIngredients] = useState<RecipeIngredient[]>(
     () => existing?.ingredients.map((ingredient) => ({ ...ingredient })) ?? [],
   )
@@ -123,12 +124,20 @@ export default function RecipeEditPage() {
     if (existing) {
       dispatch({
         type: 'recipe/update',
-        recipe: { ...existing, name: name.trim(), servings: yieldCount, ingredients },
+        recipe: {
+          ...existing,
+          name: name.trim(),
+          servings: yieldCount,
+          ingredients,
+          // Dropped entirely when empty, so an untagged recipe stays untagged
+          // rather than gaining an empty array.
+          ...(meals.length > 0 ? { meals } : { meals: undefined }),
+        },
       })
     } else {
       dispatch({
         type: 'recipe/add',
-        recipe: createRecipe({ name, servings: yieldCount, ingredients }),
+        recipe: createRecipe({ name, servings: yieldCount, ingredients, meals }),
       })
     }
     navigate('/recipes')
@@ -256,6 +265,40 @@ export default function RecipeEditPage() {
               </span>
             </div>
           </div>
+        </div>
+      </section>
+
+      <section className="card mb-4 p-4">
+        <h2 className="mb-1 font-semibold">
+          When do you eat it? <span className="muted">(optional)</span>
+        </h2>
+        <p className="mb-3 text-sm muted">
+          Only used to filter the recipe list. It never stops you logging this to any meal.
+        </p>
+        <div className="flex flex-wrap gap-2">
+          {MEAL_TYPES.map((meal) => {
+            const on = meals.includes(meal)
+            return (
+              <button
+                key={meal}
+                type="button"
+                aria-pressed={on}
+                onClick={() =>
+                  setMeals((current) =>
+                    current.includes(meal)
+                      ? current.filter((value) => value !== meal)
+                      : [...current, meal],
+                  )
+                }
+                className={`rounded-full px-3 py-1.5 text-sm font-medium ${
+                  on ? 'bg-brand text-white' : ''
+                }`}
+                style={on ? undefined : { background: 'var(--track)' }}
+              >
+                {MEAL_LABELS[meal]}
+              </button>
+            )
+          })}
         </div>
       </section>
 

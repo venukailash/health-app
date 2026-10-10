@@ -107,3 +107,44 @@ describe('RecipeEditPage — ingredient picker', () => {
     expect(screen.getByRole('button', { name: 'Scan a barcode' })).toBeInTheDocument()
   })
 })
+
+describe('RecipeEditPage — meal tags', () => {
+  it('starts untagged and stays that way unless chosen', async () => {
+    const user = userEvent.setup()
+    renderNew()
+
+    for (const meal of ['Breakfast', 'Lunch', 'Dinner', 'Snacks']) {
+      expect(screen.getByRole('button', { name: meal })).toHaveAttribute('aria-pressed', 'false')
+    }
+    await user.click(screen.getByRole('button', { name: 'Breakfast' }))
+    expect(screen.getByRole('button', { name: 'Breakfast' })).toHaveAttribute(
+      'aria-pressed',
+      'true',
+    )
+  })
+
+  it('allows several meals at once', async () => {
+    const user = userEvent.setup()
+    renderNew()
+
+    await user.click(screen.getByRole('button', { name: 'Lunch' }))
+    await user.click(screen.getByRole('button', { name: 'Dinner' }))
+
+    expect(screen.getByRole('button', { name: 'Lunch' })).toHaveAttribute('aria-pressed', 'true')
+    expect(screen.getByRole('button', { name: 'Dinner' })).toHaveAttribute('aria-pressed', 'true')
+  })
+
+  it('toggles a tag back off', async () => {
+    const user = userEvent.setup()
+    renderNew()
+
+    await user.click(screen.getByRole('button', { name: 'Snacks' }))
+    await user.click(screen.getByRole('button', { name: 'Snacks' }))
+    expect(screen.getByRole('button', { name: 'Snacks' })).toHaveAttribute('aria-pressed', 'false')
+  })
+
+  it('says plainly that a tag is not a restriction', () => {
+    renderNew()
+    expect(screen.getByText(/never stops you logging this to any meal/)).toBeInTheDocument()
+  })
+})

@@ -42,8 +42,11 @@ src/
 3. **Carbohydrate excludes fibre** (UK label convention). USDA reports it the US way, with fibre
    included, so `services/foodDataCentral.ts` subtracts it on the way in. Open Food Facts already
    matches our convention.
-4. **Bump `SCHEMA_VERSION` and write a migration** for any change to `Nutrients`, `Food`,
-   `Recipe`, `LogEntry` or `Goals`. See `storage/repository.ts` — v1→v2 added fibre.
+4. **Bump `SCHEMA_VERSION` and write a migration whenever existing records would otherwise be
+   MISREAD** — a renamed, removed, or differently-meaning field on `Nutrients`, `Food`, `Recipe`,
+   `LogEntry` or `Goals`. See `storage/repository.ts` — v1→v2 added fibre, where absent had to
+   become 0. A purely additive OPTIONAL field needs neither: absent already reads correctly
+   (`Recipe.meals` is the example).
 5. **Chart colours are validated, not chosen by eye.** See `docs/DECISIONS.md` before touching
    any `--color-*` token.
 6. **Nothing secret goes in a backup.** `buildBackup` strips both API keys; keep it

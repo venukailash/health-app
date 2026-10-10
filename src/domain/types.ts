@@ -52,6 +52,14 @@ export interface Recipe {
   ingredients: RecipeIngredient[]
   /** How many servings the full recipe yields. Always >= 1. */
   servings: number
+  /**
+   * Meals this recipe is usually eaten at, for filtering the recipe list.
+   *
+   * Purely a label: it never restricts which meal the recipe can be logged
+   * to. Absent on recipes created before tagging existed, which reads as
+   * untagged — the correct state, so there is nothing to migrate.
+   */
+  meals?: MealType[]
   createdAt: string
 }
 

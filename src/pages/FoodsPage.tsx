@@ -8,6 +8,7 @@ import { toFood as searchedToFood, type FoundFood } from '../services/foodSearch
 import { useDispatch } from '../state/AppStore'
 import { newId } from '../state/factories'
 import EmptyState from '../components/EmptyState'
+import FilterChips from '../components/FilterChips'
 import Page from '../components/Page'
 import { round } from '../domain/nutrition'
 import { groupByCategory, matchesQuery } from '../domain/foodSearch'
@@ -20,6 +21,7 @@ export default function FoodsPage() {
   const { lookup } = useBarcodeLookup()
   const [query, setQuery] = useState('')
   const [mineOnly, setMineOnly] = useState(false)
+  const [category, setCategory] = useState<string | null>(null)
   const [scanning, setScanning] = useState(false)
 
   async function handleScan(barcode: string) {
@@ -46,13 +48,37 @@ export default function FoodsPage() {
     navigate(`/foods/${food.id}`)
   }
 
+  // Categories come from what is actually in view, so the row never offers a
+  // section that would turn up empty.
+  const inScope = useMemo(
+    () =>
+      foods
+        .filter((food) => (mineOnly ? food.source === 'user' : true))
+        .filter((food) => matchesQuery(food, query)),
+    [foods, query, mineOnly],
+  )
+
+  const categories = useMemo(
+    () => groupByCategory(inScope).map(([name]) => name),
+    [inScope],
+  )
+
+  /**
+   * A chosen category that the search has since filtered away falls back to
+   * All, rather than leaving an empty list for a reason that is not on screen.
+   * Derived rather than corrected with setState, so there is no render that
+   * shows the wrong thing first.
+   */
+  const activeCategory = category && categories.includes(category) ? category : null
+
   const groups = useMemo(() => {
-    const filtered = foods
-      .filter((food) => (mineOnly ? food.source === 'user' : true))
-      .filter((food) => matchesQuery(food, query))
+    const filtered = inScope
+      .filter(
+        (food) => (activeCategory ? (food.category?.trim() || 'Other') === activeCategory : true),
+      )
       .sort((a, b) => a.name.localeCompare(b.name))
     return groupByCategory(filtered)
-  }, [foods, query, mineOnly])
+  }, [inScope, activeCategory])
 
   const total = groups.reduce((count, [, items]) => count + items.length, 0)
 
@@ -92,6 +118,18 @@ export default function FoodsPage() {
         </button>
       </div>
 
+      {categories.length > 1 && (
+        <FilterChips
+          label="Filter foods by category"
+          value={activeCategory}
+          onChange={setCategory}
+          options={[
+            { value: null, label: 'All' },
+            ...categories.map((name) => ({ value: name, label: name })),
+          ]}
+        />
+      )}
+
       {total === 0 ? (
         <EmptyState
           title="No foods found"
@@ -108,11 +146,13 @@ export default function FoodsPage() {
         />
       ) : (
         <div className="space-y-5">
-          {groups.map(([category, items]) => (
-            <section key={category}>
-              <h2 className="mb-2 text-xs font-semibold uppercase tracking-wide muted">
-                {category}
-              </h2>
+          {groups.map(([heading, items]) => (
+            <section key={heading}>
+              {!activeCategory && (
+                <h2 className="mb-2 text-xs font-semibold uppercase tracking-wide muted">
+                  {heading}
+                </h2>
+              )}
               <ul className="card divide-y overflow-hidden" style={{ borderColor: 'var(--border)' }}>
                 {items.map((food) => (
                   <li key={food.id} style={{ borderColor: 'var(--border)' }}>

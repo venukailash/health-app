@@ -191,6 +191,32 @@ so plainly and tells the user to create a key only for this and cap its spending
 behind a proxy would fix it and would mean running infrastructure, which this app deliberately
 does not have. Like the FoodData Central key, it is stripped from backups.
 
+## Recipe meal tags are a label, never a constraint
+
+Recipes can be tagged breakfast / lunch / dinner / snack, and the recipe list filters on them.
+The tag does **not** restrict which meal a recipe can be logged to — tagging something breakfast
+does not stop you eating it for dinner — and the editor says so in those words, because an
+interface that looks like a restriction will be read as one.
+
+There is deliberately no filter in the add-to-meal flow; the existing search is enough there, and
+a filter would imply exactly the restriction that does not exist.
+
+No migration came with this. The field is optional, so recipes made before tagging read as
+`undefined` — untagged, which is the correct state. A migration writing `meals: []` would change
+nothing except the stored bytes.
+
+## Filter rows scroll sideways rather than wrapping
+
+A dozen food categories wrap to four lines and push the list itself off a phone screen. One
+sideways-scrolling row stays one line tall whatever the number of options, and bleeds past the
+screen edges so it reads as scrollable rather than clipped. `FilterChips` is shared by Foods and
+Recipes so the two behave identically.
+
+Two details that matter on the Foods row: the categories offered are those actually in view, so
+the row never lists a section that would come back empty; and a category the search has since
+filtered away falls back to All, derived rather than corrected with `setState`, so no render ever
+shows the wrong thing first.
+
 ## Settings is split by what the setting is about
 
 Targets (what you are aiming for) and App (how the app behaves: search key, backups, reset) are

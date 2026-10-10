@@ -48,6 +48,7 @@ export interface RecipeDraft {
   name: string
   servings: number
   ingredients: Recipe['ingredients']
+  meals?: MealType[]
 }
 
 export function createRecipe(draft: RecipeDraft): Recipe {
@@ -56,6 +57,7 @@ export function createRecipe(draft: RecipeDraft): Recipe {
     name: draft.name.trim(),
     servings: Math.max(1, Math.round(draft.servings)),
     ingredients: draft.ingredients.map((ingredient) => ({ ...ingredient })),
+    ...(draft.meals && draft.meals.length > 0 ? { meals: [...draft.meals] } : {}),
     createdAt: new Date().toISOString(),
   }
 }
