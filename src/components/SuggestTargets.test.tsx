@@ -72,7 +72,9 @@ describe('suggesting targets', () => {
     await user.type(screen.getByLabelText('About you'), 'anything')
     await user.click(screen.getByRole('button', { name: 'Suggest targets' }))
 
-    expect(await screen.findByText(/Gemini API key in Settings/)).toBeInTheDocument()
+    // Not "...to estimate nutrition from a photo": there is no camera here.
+    expect(await screen.findByText(/Add a Gemini API key in Settings → App to use this\./))
+      .toBeInTheDocument()
   })
 
   it('leaves the existing targets alone when the suggestion is unsafe', async () => {

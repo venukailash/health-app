@@ -43,8 +43,11 @@ const MAX_IMAGE_EDGE = 1024
 const JPEG_QUALITY = 0.8
 
 export class MissingKeyError extends Error {
+  // Deliberately says nothing about photos. The same error now surfaces on
+  // the Targets screen, where "to estimate nutrition from a photo" sent the
+  // reader looking for a camera that was not there.
   constructor() {
-    super('Add a Gemini API key in Settings to estimate nutrition from a photo.')
+    super('Add a Gemini API key in Settings → App to use this.')
     this.name = 'MissingKeyError'
   }
 }
