@@ -92,7 +92,11 @@ export default function FoodEditPage() {
 
   if (estimating) {
     return (
-      <Page title="From a photo" subtitle="Gemini estimates, for you to check" backTo="/foods">
+      <Page
+        title="From a photo"
+        subtitle="Gemini estimates, for you to check"
+        onBack={() => setEstimating(false)}
+      >
         <PhotoEstimator
           onCancel={() => setEstimating(false)}
           onAccept={(estimate) => {

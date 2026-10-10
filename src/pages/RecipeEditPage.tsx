@@ -137,7 +137,11 @@ export default function RecipeEditPage() {
 
   if (estimating) {
     return (
-      <Page title="From a photo" subtitle="Gemini estimates, for you to check">
+      <Page
+        title="From a photo"
+        subtitle="Gemini estimates, for you to check"
+        onBack={() => setEstimating(false)}
+      >
         <PhotoEstimator
           onCancel={() => setEstimating(false)}
           onAccept={(estimate) => {
@@ -158,7 +162,14 @@ export default function RecipeEditPage() {
 
   if (picking) {
     return (
-      <Page title="Add ingredient" subtitle="Your foods, or scan a packet">
+      <Page
+        title="Add ingredient"
+        subtitle="Your foods, or scan a packet"
+        onBack={() => {
+          setPicking(false)
+          setPickerQuery('')
+        }}
+      >
         <SearchList
           items={pickerItems}
           onSelect={addIngredient}
