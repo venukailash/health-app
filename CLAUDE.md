@@ -57,9 +57,14 @@ src/
    by logged days only.
 8. **A Gemini estimate is never saved directly.** It fills the editor for review, labelled as an
    estimate. Gemini cannot know how something was cooked.
-9. **There is one AI entry point, not several.** `AiAssist` takes the input (photo / describe) and
-   the target (food / recipe) as separate props, so every screen offers the same two options in
-   the same order. Resist adding a fourth place to do this.
+9. **There is one AI entry point for FOOD, not several.** `AiAssist` takes the input (photo /
+   describe) and the target (food / recipe) as separate props, so every screen offers the same
+   two options in the same order. Resist adding a fourth place to do this. Suggesting daily
+   TARGETS is a different job — a settings form, words only — and lives in `SuggestTargets`;
+   it shares the estimator and the error wording, not the shape. See `docs/DECISIONS.md`.
+10. **Anything Gemini suggests about a person is bounded in code.** `toGoalsEstimate` rejects a
+   calorie target outside 1200-5000 outright. The prompt asks for the same thing, but a prompt is
+   a request and this one has a body attached to it.
 
 ## Testing
 

@@ -3,6 +3,7 @@ import Button from '../components/Button'
 import NumberField from '../components/NumberField'
 import Page from '../components/Page'
 import SettingsTabs from '../components/SettingsTabs'
+import SuggestTargets from '../components/SuggestTargets'
 import { kcalFromMacros, round } from '../domain/nutrition'
 import type { Goals } from '../domain/types'
 import { useAppState, useDispatch } from '../state/AppStore'
@@ -65,6 +66,13 @@ export default function TargetsSettingsPage() {
   return (
     <Page title="Targets" subtitle="What you are aiming for each day">
       <SettingsTabs active="targets" />
+
+      <SuggestTargets
+        onSuggest={(suggested) => {
+          setForm(toForm(suggested))
+          setSaved(false)
+        }}
+      />
 
       <section className="card mb-4 p-4">
         <h2 className="mb-1 font-semibold">Daily targets</h2>

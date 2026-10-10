@@ -4,14 +4,12 @@ import NutritionGrid from './NutritionGrid'
 import {
   DEFAULT_GEMINI_MODEL,
   MAX_PHOTOS,
-  MissingKeyError,
-  ModelError,
   estimateFood,
   estimateRecipe,
+  geminiErrorMessage,
   type FoodEstimate,
   type RecipeEstimate,
 } from '../services/gemini'
-import { LookupFailedError, RateLimitedError } from '../services/openFoodFacts'
 import { useAppState } from '../state/AppStore'
 import { useHasCamera } from '../hooks/useHasCamera'
 import { findMatchingFood } from '../domain/matchFood'
@@ -90,17 +88,7 @@ export default function AiAssist({
       if (target === 'food') setFood(await estimateFood(input, options))
       else setRecipe(await estimateRecipe(input, options))
     } catch (caught) {
-      if (
-        caught instanceof MissingKeyError ||
-        caught instanceof ModelError ||
-        caught instanceof LookupFailedError
-      ) {
-        setError(caught.message)
-      } else if (caught instanceof RateLimitedError) {
-        setError('Gemini is rate limiting. Try again in a minute.')
-      } else {
-        setError('Something went wrong working that out.')
-      }
+      setError(geminiErrorMessage(caught))
     } finally {
       setBusy(false)
     }

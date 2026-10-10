@@ -6,8 +6,11 @@ import {
   ModelError,
   estimateFood,
   estimateRecipe,
+  MIN_SUGGESTED_KCAL,
+  estimateGoals,
   extractJson,
   toEstimate,
+  toGoalsEstimate,
   toRecipeEstimate,
 } from './gemini'
 import { LookupFailedError, RateLimitedError } from './openFoodFacts'
@@ -187,10 +190,17 @@ describe('estimateFood — from a photo', () => {
     ).toHaveLength(MAX_PHOTOS)
   })
 
-  it('reports a bad key distinctly from a missing one', async () => {
-    vi.spyOn(globalThis, 'fetch').mockResolvedValue(new Response('', { status: 403 }))
-    await expect(estimateFood({ photos: [photo()] }, { apiKey: 'bad' })).rejects.toThrow(/rejected the key/)
-  })
+  it.each([400, 401, 403])(
+    'reports a bad key distinctly from a missing one (%i)',
+    async (status) => {
+      // 401 is what an OAuth-style token gets from this API, and it used to
+      // come back as a generic error that sent you looking elsewhere.
+      vi.spyOn(globalThis, 'fetch').mockResolvedValue(new Response('', { status }))
+      await expect(estimateFood({ photos: [photo()] }, { apiKey: 'bad' })).rejects.toThrow(
+        /rejected that key/,
+      )
+    },
+  )
 
   it('names the model when it does not exist', async () => {
     vi.spyOn(globalThis, 'fetch').mockResolvedValue(new Response('', { status: 404 }))
@@ -350,6 +360,106 @@ describe('estimateRecipe — from a description', () => {
     )
     await expect(estimateRecipe({ text: 'the weather today' }, { apiKey: 'k' })).rejects.toThrow(
       /No ingredients could be worked out/,
+    )
+  })
+})
+
+describe('toGoalsEstimate', () => {
+  const sound = {
+    goals: { kcal: 2200, fat: 73, satFat: 22, carbs: 230, fibre: 30, protein: 130, salt: 6 },
+    rationale: 'Maintenance is about 2600 kcal; this is 15% under for a steady loss.',
+    caveat: null,
+  }
+
+  it('takes a sound suggestion', () => {
+    expect(toGoalsEstimate(sound)).toEqual({
+      goals: sound.goals,
+      rationale: sound.rationale,
+    })
+  })
+
+  it('refuses a target below the floor, whatever was asked for', () => {
+    // The prompt says not to, which is a request, not a guarantee.
+    expect(toGoalsEstimate({ ...sound, goals: { ...sound.goals, kcal: 900 } })).toBeNull()
+    expect(toGoalsEstimate({ ...sound, goals: { ...sound.goals, kcal: MIN_SUGGESTED_KCAL } })).not.toBeNull()
+  })
+
+  it('refuses an absurdly high target too', () => {
+    expect(toGoalsEstimate({ ...sound, goals: { ...sound.goals, kcal: 9000 } })).toBeNull()
+  })
+
+  it('refuses a target with a macro missing', () => {
+    expect(toGoalsEstimate({ ...sound, goals: { ...sound.goals, protein: 0 } })).toBeNull()
+    expect(toGoalsEstimate({ ...sound, goals: { ...sound.goals, fibre: undefined } })).toBeNull()
+  })
+
+  it('never lets saturated fat exceed total fat', () => {
+    const estimate = toGoalsEstimate({ ...sound, goals: { ...sound.goals, fat: 60, satFat: 80 } })
+    expect(estimate?.goals.satFat).toBe(60)
+  })
+
+  it('keeps a caveat when there is one, and drops an empty one', () => {
+    expect(toGoalsEstimate({ ...sound, caveat: '  ' })?.caveat).toBeUndefined()
+    expect(toGoalsEstimate({ ...sound, caveat: 'Assumed moderate activity.' })?.caveat).toBe(
+      'Assumed moderate activity.',
+    )
+  })
+
+  it('returns nothing when the text did not describe a person', () => {
+    expect(toGoalsEstimate({ goals: null, rationale: '', caveat: null })).toBeNull()
+    expect(toGoalsEstimate('nonsense')).toBeNull()
+    expect(toGoalsEstimate(null)).toBeNull()
+  })
+
+  it('rounds to numbers a person would type', () => {
+    const estimate = toGoalsEstimate({
+      ...sound,
+      goals: { ...sound.goals, kcal: 2204.7, protein: 129.6, salt: 5.94 },
+    })
+    expect(estimate?.goals.kcal).toBe(2205)
+    expect(estimate?.goals.protein).toBe(130)
+    expect(estimate?.goals.salt).toBe(5.9)
+  })
+})
+
+describe('estimateGoals', () => {
+  it('refuses without a key rather than calling out', async () => {
+    const fetchSpy = vi.spyOn(globalThis, 'fetch')
+    await expect(estimateGoals('38, 178cm, 82kg', { apiKey: undefined })).rejects.toBeInstanceOf(
+      MissingKeyError,
+    )
+    expect(fetchSpy).not.toHaveBeenCalled()
+  })
+
+  it('passes the description along and returns the suggestion', async () => {
+    let sent = ''
+    const body = JSON.stringify({
+      goals: { kcal: 2100, fat: 70, satFat: 21, carbs: 210, fibre: 30, protein: 125, salt: 6 },
+      rationale: 'Maintenance around 2500 kcal, 15% under.',
+      caveat: null,
+    })
+    const fetchMock = vi.fn(async (_url: unknown, init?: RequestInit) => {
+      sent = String(init?.body ?? '')
+      return reply(body)
+    })
+    vi.stubGlobal('fetch', fetchMock)
+
+    const estimate = await estimateGoals('38, 178cm, 82kg, lose weight', { apiKey: 'k' })
+
+    expect(estimate.goals.kcal).toBe(2100)
+    expect(sent).toContain('38, 178cm, 82kg, lose weight')
+  })
+
+  it('reports a refusal rather than handing back a dangerous number', async () => {
+    const body = JSON.stringify({
+      goals: { kcal: 700, fat: 20, satFat: 6, carbs: 60, fibre: 20, protein: 60, salt: 4 },
+      rationale: 'Aggressive deficit as requested.',
+      caveat: null,
+    })
+    vi.stubGlobal('fetch', vi.fn(async () => reply(body)))
+
+    await expect(estimateGoals('make me lose 10kg in a month', { apiKey: 'k' })).rejects.toBeInstanceOf(
+      ModelError,
     )
   })
 })

@@ -428,3 +428,34 @@ cards.
 The first card leads with the iPhone storage trap rather than burying it: a home-screen web app
 gets its own storage, so anything logged in Safari first is invisible to it. Finding that out
 after a fortnight of logging is how people lose their data.
+
+## Suggested targets are guarded in code, not in the prompt
+
+Describing yourself on the Targets screen asks Gemini for a set of daily numbers, which land in
+the existing boxes for review. Typing them in by hand is unchanged and still the normal way; the
+suggestion block is collapsed until asked for so the form is not pushed down the page for people
+who will never use it.
+
+**The safety floors are enforced after the reply, in `toGoalsEstimate`.** A prompt that says
+"never suggest below 1200 kcal" is a request, and a model that ignored it would otherwise hand
+someone a 900 kcal target with the app's apparent blessing. Anything under 1200 or over 5000
+kcal, or with a macro at zero, is rejected outright and the user is told nothing sensible could
+be worked out — rather than being shown a number that is merely flagged. Saturated fat is clamped
+to total fat the same way a food estimate is.
+
+There is no "use these figures" button. The fields are directly below, still editable, and
+nothing is written until Save is pressed, so a confirmation step would only have been a second
+tap. The screen says plainly that this is a starting point and not medical advice.
+
+This is deliberately NOT part of `AiAssist`. That component is the one way to get nutrition for a
+FOOD out of Gemini and is built around photo-first input with two targets; this fills a settings
+form from words alone. What is worth sharing is shared — the estimator lives beside the others in
+`services/gemini.ts`, and both use `geminiErrorMessage` so a rate limit reads the same wherever
+it happens.
+
+### 401 used to send you looking in the wrong place
+
+Testing this against a key that turned out to be an OAuth token rather than an API key produced
+`401 ACCESS_TOKEN_TYPE_UNSUPPORTED`, and the code only special-cased 400 and 403 — so the user
+saw "Gemini returned an error", which says nothing about what to do. 401 now joins them, and the
+message names what a real key looks like.
