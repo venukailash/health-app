@@ -47,14 +47,16 @@ export default function WeekPage() {
     >
       <PeriodSwitcher active="week" date={date} />
 
-      <nav aria-label="Change week" className="mb-4 flex items-center justify-between gap-2">
-        <PeriodStep to={`/week/${addWeeks(from, -1)}`} label="← Previous" />
+      <nav aria-label="Change week" className="mb-4 flex items-center gap-2">
+        <PeriodStep to={`/week/${addWeeks(from, -1)}`} label="← Previous"   align="start"
+        />
         <AiInsights scope="week" date={date} />
         <PeriodStep
           to={`/week/${addWeeks(from, 1)}`}
           label="Next →"
           // The week after the one containing today is all empty days.
           disabled={addWeeks(from, 1) > today}
+          align="end"
         />
       </nav>
 

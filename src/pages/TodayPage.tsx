@@ -82,10 +82,11 @@ export default function TodayPage() {
         <BackupReminder days={reminder.days} everBackedUp={reminder.everBackedUp} />
       )}
 
-      <nav aria-label="Change day" className="mb-4 flex items-center justify-between gap-2">
+      <nav aria-label="Change day" className="mb-4 flex items-center gap-2">
         <PeriodStep
           to={`/day/${addDays(date, -1)}`}
           label={`← ${formatDayLabel(addDays(date, -1), today)}`}
+          align="start"
         />
         <AiInsights scope="day" date={date} />
         <PeriodStep
@@ -93,6 +94,7 @@ export default function TodayPage() {
           label={`${formatDayLabel(addDays(date, 1), today)} →`}
           // Nothing to log in the future, so the step stops at today.
           disabled={addDays(date, 1) > today}
+          align="end"
         />
       </nav>
 

@@ -102,14 +102,16 @@ export default function AiInsights({ scope, date }: { scope: InsightScope; date:
         type="button"
         onClick={openPanel}
         aria-label={enough ? 'AI insights' : `AI insights — ${NOT_ENOUGH[scope]}`}
-        className={`flex min-w-0 shrink items-center gap-1.5 rounded-xl px-3 py-2 text-sm font-semibold hover:text-brand ${
+        // Never shrinks and never truncates: it is the fixed point the two
+        // steps are arranged around.
+        className={`flex shrink-0 items-center gap-1.5 rounded-xl px-3 py-2 text-sm font-semibold hover:text-brand ${
           enough ? 'text-brand' : 'muted'
         }`}
       >
         <svg viewBox="0 0 24 24" aria-hidden="true" className="h-4 w-4 shrink-0" fill="currentColor">
           <path d="M12 2.5l1.6 4.6a4 4 0 0 0 2.5 2.5l4.6 1.6-4.6 1.6a4 4 0 0 0-2.5 2.5L12 20l-1.6-4.7a4 4 0 0 0-2.5-2.5L3.2 11.2l4.7-1.6a4 4 0 0 0 2.5-2.5z" />
         </svg>
-        <span className="truncate">Insights</span>
+        <span>Insights</span>
       </button>
 
       {open && (

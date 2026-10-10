@@ -4,10 +4,10 @@ import { MemoryRouter } from 'react-router-dom'
 import { describe, expect, it } from 'vitest'
 import PeriodStep from './PeriodStep'
 
-const show = (props: { to: string; label: string; disabled?: boolean }) =>
+const show = (props: { to: string; label: string; align?: 'start' | 'end'; disabled?: boolean }) =>
   render(
     <MemoryRouter>
-      <PeriodStep {...props} />
+      <PeriodStep align="start" {...props} />
     </MemoryRouter>,
   )
 

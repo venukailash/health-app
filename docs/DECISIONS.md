@@ -508,6 +508,11 @@ working Next button on an empty screen is an invitation to keep pressing and kee
 nothing. It stays on screen, greyed, rather than vanishing, so the row does not jump about as you
 walk backwards through the weeks.
 
+The two steps each take an equal share of the row whatever their labels say, which is what keeps
+the insights button between them dead centre. Sizing the sides by their text instead moved the
+button left and right as you walked from "Yesterday" to "September" to "June" — a wobble you
+notice every time you switch view.
+
 The insights button sits between the two steps rather than on a line of its own. It had a row to
 itself with an explanation underneath for when it was greyed out, and on a phone that pushed the
 calorie ring below the fold — the first thing anyone opens the app to see. The reason moved

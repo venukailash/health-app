@@ -60,10 +60,11 @@ export default function MonthPage() {
     >
       <PeriodSwitcher active="month" date={date as string} />
 
-      <nav aria-label="Change month" className="mb-4 flex items-center justify-between gap-2">
+      <nav aria-label="Change month" className="mb-4 flex items-center gap-2">
         <PeriodStep
           to={`/month/${addMonths(from, -1)}`}
           label={`← ${formatMonthLabel(addMonths(from, -1)).split(' ')[0]}`}
+          align="start"
         />
         <AiInsights scope="month" date={date as string} />
         <PeriodStep
@@ -71,6 +72,7 @@ export default function MonthPage() {
           label={`${formatMonthLabel(addMonths(from, 1)).split(' ')[0]} →`}
           // The month after the one containing today is all empty days.
           disabled={addMonths(from, 1) > today}
+          align="end"
         />
       </nav>
 
