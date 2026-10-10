@@ -518,3 +518,16 @@ itself with an explanation underneath for when it was greyed out, and on a phone
 calorie ring below the fold — the first thing anyone opens the app to see. The reason moved
 inside the panel, where it costs no height and is read at the moment someone goes looking for it,
 and the button is always pressable so there is nothing to explain in advance.
+
+## The insights button is the only thing in its row wearing the theme
+
+It sits between two plain card pills and has to read as the one thing that does something, so it
+gets a gradient edge from the theme's accent into its chart hue, over a faint wash of the same
+accent. A plain `border-color` cannot hold a gradient, hence the two background layers: the
+first paints the inside, the second the edge, and the clips keep them apart.
+
+Both colours are existing tokens, and the wash is a new one per theme and mode — so it goes
+through the same checker as everything else. Two rules were added for it: the wash has to sit
+between 1.03 and 1.6 against the surface (visible as a tint, not a block of colour), and both the
+accent label and the muted one have to clear 4.5:1 on top of it, because the button carries both
+depending on whether there is enough logged.

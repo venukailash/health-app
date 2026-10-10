@@ -104,9 +104,26 @@ export default function AiInsights({ scope, date }: { scope: InsightScope; date:
         aria-label={enough ? 'AI insights' : `AI insights — ${NOT_ENOUGH[scope]}`}
         // Never shrinks and never truncates: it is the fixed point the two
         // steps are arranged around.
-        className={`flex shrink-0 items-center gap-1.5 rounded-xl px-3 py-2 text-sm font-semibold hover:text-brand ${
+        className={`flex shrink-0 items-center gap-1.5 rounded-xl px-3 py-2 text-sm font-semibold transition-opacity hover:opacity-80 ${
           enough ? 'text-brand' : 'muted'
         }`}
+        style={{
+          /*
+           * A two-stop border in the theme's own accent and chart hue, over a
+           * faint wash of the same accent — so it reads as the one thing in
+           * the row that does something, in whichever theme is on.
+           *
+           * The border is a gradient, which a plain `border-color` cannot be:
+           * the first layer paints the inside, the second the edge, and the
+           * clips keep them apart. Every colour is a token, so all four
+           * themes and both modes are covered by themes.test.ts.
+           */
+          border: '1px solid transparent',
+          backgroundImage:
+            'linear-gradient(var(--brand-wash), var(--brand-wash)), linear-gradient(120deg, var(--color-brand), var(--color-kcal))',
+          backgroundOrigin: 'border-box',
+          backgroundClip: 'padding-box, border-box',
+        }}
       >
         <svg viewBox="0 0 24 24" aria-hidden="true" className="h-4 w-4 shrink-0" fill="currentColor">
           <path d="M12 2.5l1.6 4.6a4 4 0 0 0 2.5 2.5l4.6 1.6-4.6 1.6a4 4 0 0 0-2.5 2.5L12 20l-1.6-4.7a4 4 0 0 0-2.5-2.5L3.2 11.2l4.7-1.6a4 4 0 0 0 2.5-2.5z" />

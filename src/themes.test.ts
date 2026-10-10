@@ -98,6 +98,7 @@ describe('every theme ships every token', () => {
     'track',
     'brand',
     'brand-ink',
+    'brand-wash',
     'kcal',
     'heat-1',
     'heat-2',
@@ -122,7 +123,7 @@ describe('colours survive an sRGB screen', () => {
         const { get } = tokens(theme.id, mode)
         const named = [
           ...['surface', 'surface-raised', 'border', 'text', 'text-muted', 'track'],
-          ...['brand', 'brand-ink', 'kcal', 'heat-1', 'heat-2', 'heat-3', 'heat-4'],
+          ...['brand', 'brand-ink', 'brand-wash', 'kcal', 'heat-1', 'heat-2', 'heat-3', 'heat-4'],
           ...MACRO_KEYS.map((key) => `color-${key}`),
         ]
         for (const name of named) {
@@ -181,6 +182,20 @@ describe('text is legible on its surface', () => {
         expect(ratio(get('color-over'), get('surface')), 'over on surface').toBeGreaterThanOrEqual(
           4.5,
         )
+      })
+
+      it(`${label}: the accent wash is a tint, not a block of colour`, () => {
+        const { get } = tokens(theme.id, mode)
+        // Visible as a different surface...
+        expect(ratio(get('brand-wash'), get('surface')), 'wash vs surface').toBeGreaterThan(1.03)
+        // ...but close enough to it that the row still reads as one row.
+        expect(ratio(get('brand-wash'), get('surface')), 'wash vs surface').toBeLessThan(1.6)
+        // And the label on top of it has to stay readable, in both states.
+        expect(ratio(get('brand'), get('brand-wash')), 'brand on wash').toBeGreaterThanOrEqual(4.5)
+        expect(
+          ratio(get('text-muted'), get('brand-wash')),
+          'muted on wash',
+        ).toBeGreaterThanOrEqual(4.5)
       })
 
       it(`${label}: borders and bar tracks are visible`, () => {

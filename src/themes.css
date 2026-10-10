@@ -25,6 +25,7 @@
   --l-track: oklch(0.93 0.006 220);
   --l-brand: oklch(0.52 0.11 185);
   --l-brand-ink: oklch(1 0 0);
+  --l-brand-wash: oklch(0.955 0.022 185);
   --l-kcal: oklch(0.62 0.115 178);
   --l-heat-1: oklch(0.74 0.09 178);
   --l-heat-2: oklch(0.65 0.13 178);
@@ -39,6 +40,7 @@
   --d-track: oklch(0.31 0.02 250);
   --d-brand: oklch(0.74 0.11 185);
   --d-brand-ink: oklch(0.19 0.015 250);
+  --d-brand-wash: oklch(0.27 0.026 185);
   --d-kcal: oklch(0.72 0.15 178);
   --d-heat-1: oklch(0.42 0.08 178);
   --d-heat-2: oklch(0.52 0.11 178);
@@ -56,6 +58,7 @@
   --l-track: oklch(0.93 0.012 120);
   --l-brand: oklch(0.5 0.12 145);
   --l-brand-ink: oklch(1 0 0);
+  --l-brand-wash: oklch(0.955 0.026 145);
   --l-kcal: oklch(0.6 0.14 145);
   --l-heat-1: oklch(0.76 0.1 145);
   --l-heat-2: oklch(0.67 0.13 145);
@@ -70,6 +73,7 @@
   --d-track: oklch(0.31 0.022 150);
   --d-brand: oklch(0.76 0.14 145);
   --d-brand-ink: oklch(0.19 0.016 150);
+  --d-brand-wash: oklch(0.27 0.03 145);
   --d-kcal: oklch(0.74 0.15 145);
   --d-heat-1: oklch(0.42 0.08 145);
   --d-heat-2: oklch(0.52 0.11 145);
@@ -87,6 +91,7 @@
   --l-track: oklch(0.93 0.01 20);
   --l-brand: oklch(0.52 0.16 355);
   --l-brand-ink: oklch(1 0 0);
+  --l-brand-wash: oklch(0.955 0.024 355);
   --l-kcal: oklch(0.62 0.17 355);
   --l-heat-1: oklch(0.78 0.08 355);
   --l-heat-2: oklch(0.69 0.12 355);
@@ -101,6 +106,7 @@
   --d-track: oklch(0.31 0.02 350);
   --d-brand: oklch(0.74 0.13 355);
   --d-brand-ink: oklch(0.19 0.014 350);
+  --d-brand-wash: oklch(0.27 0.03 355);
   --d-kcal: oklch(0.72 0.15 355);
   --d-heat-1: oklch(0.42 0.09 355);
   --d-heat-2: oklch(0.52 0.13 355);
@@ -118,6 +124,7 @@
   --l-track: oklch(0.92 0.003 250);
   --l-brand: oklch(0.45 0.07 250);
   --l-brand-ink: oklch(1 0 0);
+  --l-brand-wash: oklch(0.95 0.012 250);
   --l-kcal: oklch(0.56 0.03 250);
   --l-heat-1: oklch(0.78 0.03 250);
   --l-heat-2: oklch(0.68 0.05 250);
@@ -132,6 +139,7 @@
   --d-track: oklch(0.3 0.01 250);
   --d-brand: oklch(0.76 0.07 250);
   --d-brand-ink: oklch(0.18 0.006 250);
+  --d-brand-wash: oklch(0.26 0.014 250);
   --d-kcal: oklch(0.74 0.03 250);
   --d-heat-1: oklch(0.42 0.03 250);
   --d-heat-2: oklch(0.53 0.05 250);
@@ -182,6 +190,7 @@
 
   --color-brand: var(--l-brand);
   --color-brand-ink: var(--l-brand-ink);
+  --brand-wash: var(--l-brand-wash);
   --color-kcal: var(--l-kcal);
   --color-carbs: var(--l-color-carbs);
   --color-fibre: var(--l-color-fibre);
@@ -211,6 +220,7 @@
 
     --color-brand: var(--d-brand);
     --color-brand-ink: var(--d-brand-ink);
+  --brand-wash: var(--d-brand-wash);
     --color-kcal: var(--d-kcal);
     --color-carbs: var(--d-color-carbs);
     --color-fibre: var(--d-color-fibre);
@@ -240,6 +250,7 @@
 
   --color-brand: var(--d-brand);
   --color-brand-ink: var(--d-brand-ink);
+  --brand-wash: var(--d-brand-wash);
   --color-kcal: var(--d-kcal);
   --color-carbs: var(--d-color-carbs);
   --color-fibre: var(--d-color-fibre);
