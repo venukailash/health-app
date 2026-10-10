@@ -280,3 +280,18 @@ everything ever logged with it.
 
 Camera permission gets declined, lenses get scratched, and a barcode on a crumpled wrapper may
 simply not read. The manual field is not a fallback for errors — it is always visible.
+
+## Removing a logged entry takes two taps
+
+The × on a meal row sat a thumb-width from the row itself, and one stray tap cost the entry and
+the search that found it. The row now arms on the first tap — the × becomes "Remove?" — and only
+the second tap deletes. It disarms itself after four seconds, and arming one row disarms any
+other, so a live destructive control is never left sitting there.
+
+Two taps rather than a swipe because a swipe is invisible until you discover it, and a hidden
+gesture is a poor home for the only destructive action on the screen. Two taps rather than an
+undo toast because undo has to reinstate the entry under its original id to keep the day's totals
+honest, and that is more machinery than the problem needs.
+
+The Remove button on the edit-entry screen is unchanged: you got there deliberately, through two
+navigations, so a second confirmation would only be in the way.

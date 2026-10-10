@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Link, Navigate, useParams } from 'react-router-dom'
 import CalorieRing from '../components/CalorieRing'
 import MacroBar from '../components/MacroBar'
@@ -18,6 +18,18 @@ export default function TodayPage() {
   // Collapsed by default: the breakdown is for when a number looks wrong, not
   // something to scroll past four times on the way to adding lunch.
   const [expanded, setExpanded] = useState<MealType[]>([])
+  // Removing a logged entry takes two taps: the first arms the row, the second
+  // does it. A mis-tap on a phone otherwise costs you the whole entry and the
+  // search that found it.
+  const [armedForRemoval, setArmedForRemoval] = useState<string | null>(null)
+
+  // An armed row disarms itself, so a stray tap never leaves a live destructive
+  // control sitting under your thumb.
+  useEffect(() => {
+    if (!armedForRemoval) return
+    const timer = setTimeout(() => setArmedForRemoval(null), 4000)
+    return () => clearTimeout(timer)
+  }, [armedForRemoval])
 
   if (!date || !isValidDateKey(date)) {
     return <Navigate to={`/day/${todayKey()}`} replace />
@@ -172,16 +184,30 @@ export default function TodayPage() {
                             {value.salt}g
                           </p>
                         </Link>
-                        <button
-                          type="button"
-                          onClick={() => dispatch({ type: 'entry/delete', date, id: entry.id })}
-                          aria-label={`Remove ${entry.label}`}
-                          className="mr-2 shrink-0 rounded-lg p-2 muted hover:text-[var(--color-over)]"
-                        >
-                          <svg viewBox="0 0 24 24" className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
-                            <path d="M6 6l12 12M18 6L6 18" />
-                          </svg>
-                        </button>
+                        {armedForRemoval === entry.id ? (
+                          <button
+                            type="button"
+                            onClick={() => {
+                              dispatch({ type: 'entry/delete', date, id: entry.id })
+                              setArmedForRemoval(null)
+                            }}
+                            aria-label={`Confirm removing ${entry.label}`}
+                            className="mr-2 shrink-0 rounded-lg px-3 py-2 text-sm font-semibold text-[var(--color-over)]"
+                          >
+                            Remove?
+                          </button>
+                        ) : (
+                          <button
+                            type="button"
+                            onClick={() => setArmedForRemoval(entry.id)}
+                            aria-label={`Remove ${entry.label}`}
+                            className="mr-2 shrink-0 rounded-lg p-2 muted hover:text-[var(--color-over)]"
+                          >
+                            <svg viewBox="0 0 24 24" className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+                              <path d="M6 6l12 12M18 6L6 18" />
+                            </svg>
+                          </button>
+                        )}
                       </li>
                     )
                   })}

@@ -1,4 +1,4 @@
-import { screen, within } from '@testing-library/react'
+import { act, screen, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import TodayPage from './TodayPage'
@@ -76,13 +76,50 @@ describe('TodayPage', () => {
     expect(screen.getByText(/11\.8 g unsaturated/)).toBeInTheDocument()
   })
 
-  it('removes an entry from the day when its remove button is used', async () => {
+  it('removes an entry only after the removal is confirmed', async () => {
     const user = userEvent.setup()
     renderDay('2026-09-20')
 
     await user.click(screen.getByRole('button', { name: 'Remove Porridge oats' }))
+    // The first tap arms the row; nothing has gone yet.
+    expect(screen.getByText('Porridge oats')).toBeInTheDocument()
+
+    await user.click(screen.getByRole('button', { name: 'Confirm removing Porridge oats' }))
     expect(screen.queryByText('Porridge oats')).not.toBeInTheDocument()
     expect(screen.getByText('330')).toBeInTheDocument()
+  })
+
+  it('arms only the row that was tapped', async () => {
+    const user = userEvent.setup()
+    renderDay('2026-09-20')
+
+    await user.click(screen.getByRole('button', { name: 'Remove Porridge oats' }))
+    await user.click(screen.getByRole('button', { name: 'Remove Chicken breast' }))
+
+    expect(
+      screen.queryByRole('button', { name: 'Confirm removing Porridge oats' }),
+    ).not.toBeInTheDocument()
+    expect(
+      screen.getByRole('button', { name: 'Confirm removing Chicken breast' }),
+    ).toBeInTheDocument()
+  })
+
+  it('disarms a row that is left alone', async () => {
+    vi.useFakeTimers({ shouldAdvanceTime: true })
+    const user = userEvent.setup({ advanceTimers: vi.advanceTimersByTime })
+    renderDay('2026-09-20')
+
+    await user.click(screen.getByRole('button', { name: 'Remove Porridge oats' }))
+    expect(
+      screen.getByRole('button', { name: 'Confirm removing Porridge oats' }),
+    ).toBeInTheDocument()
+
+    await act(async () => {
+      vi.advanceTimersByTime(4000)
+    })
+
+    expect(screen.getByRole('button', { name: 'Remove Porridge oats' })).toBeInTheDocument()
+    expect(screen.getByText('Porridge oats')).toBeInTheDocument()
   })
 
   it('links to the previous and next day', () => {
