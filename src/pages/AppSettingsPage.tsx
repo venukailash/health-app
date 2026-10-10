@@ -74,7 +74,7 @@ export default function AppSettingsPage() {
 
       <AppearancePicker />
 
-      <section className="card mb-4 p-4">
+      <section className="card mb-4 p-4" data-tour="fdc-key">
         <h2 className="mb-1 font-semibold">Food search</h2>
         <p className="mb-4 text-sm muted">
           Searching queries Open Food Facts for branded products and USDA FoodData Central for
@@ -138,7 +138,7 @@ export default function AppSettingsPage() {
         </div>
       </section>
 
-      <section className="card mb-4 p-4">
+      <section className="card mb-4 p-4" data-tour="gemini-key">
         <h2 className="mb-1 font-semibold">Estimate from a photo</h2>
         <p className="mb-4 text-sm muted">
           With a Google Gemini key, the food editor can suggest nutrition from a photo. It is

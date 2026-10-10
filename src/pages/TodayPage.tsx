@@ -241,6 +241,9 @@ export default function TodayPage() {
 
               <Link
                 to={`/day/${date}/add/${meal}`}
+                // Only the first one is the tour's anchor; four identical
+                // highlights would be four places to look.
+                data-tour={meal === MEAL_TYPES[0] ? 'add-to-meal' : undefined}
                 className="block px-4 py-3 text-sm font-semibold text-brand hover:bg-[var(--track)]"
               >
                 + Add to {MEAL_LABELS[meal].toLowerCase()}

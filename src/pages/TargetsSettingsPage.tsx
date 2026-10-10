@@ -66,7 +66,7 @@ export default function TargetsSettingsPage() {
     <Page title="Targets" subtitle="What you are aiming for each day">
       <SettingsTabs active="targets" />
 
-      <section className="card mb-4 p-4">
+      <section className="card mb-4 p-4" data-tour="daily-targets">
         <h2 className="mb-1 font-semibold">Daily targets</h2>
         <p className="mb-4 text-sm muted">
           Everything on the Progress screens is measured against these numbers.

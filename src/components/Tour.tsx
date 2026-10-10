@@ -1,17 +1,24 @@
 import { useEffect, useRef, useState, type ReactNode } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useLocation, useNavigate } from 'react-router-dom'
 import Button from './Button'
 import { todayKey } from '../domain/date'
-import { TOUR_REVISION, stepsFor, type TourStepId } from '../domain/tour'
+import { TOUR_REVISION, stepsFor, tourRoute, type TourStep, type TourStepId } from '../domain/tour'
+import { useSpotlight } from '../hooks/useSpotlight'
 import { useAppState, useDispatch } from '../state/AppStore'
 
 /**
  * The welcome tour: five cards, Next and Back, and Skip on every one of them.
  *
- * It is a stepped sheet rather than spotlights on the real controls. The five
- * things worth saying live on four different screens, so a spotlight tour
- * would have to drive the router around and would break the moment a layout
- * moved. This says where everything is and gets out of the way.
+ * A card that names a route drives the router there, and a card that names an
+ * anchor cuts a hole in the dimming over the real control — so "the Gemini key
+ * is in Settings" becomes the actual box, on the actual screen, with a ring
+ * round it.
+ *
+ * Pointing at things that may not be there is the whole difficulty. The anchor
+ * is missing while the route is still changing, and stays missing if a layout
+ * drops it. `useSpotlight` returns null in both cases and this falls back to a
+ * plain centred card, so the worst outcome is the tour that existed before.
+ * `Tour.anchors.test.tsx` is what stops an anchor quietly disappearing.
  */
 
 const CONTENT: Record<TourStepId, { title: string; body: ReactNode }> = {
@@ -41,25 +48,32 @@ const CONTENT: Record<TourStepId, { title: string; body: ReactNode }> = {
       </>
     ),
   },
-  keys: {
-    title: 'Two optional keys, both free',
+  foodKey: {
+    title: 'A food search key, if you want one',
     body: (
       <>
         <p>
-          Everything works without them. They are in <strong>Settings → App</strong>, and both
-          are stored on this device only — never in a backup, never sent anywhere but to the
-          service itself.
+          Search works without it, on a demo key shared with everyone else, which runs out after
+          about ten searches an hour. Your own is free and instant from{' '}
+          <strong>fdc.nal.usda.gov</strong> and raises that to a thousand.
         </p>
-        <ul className="ml-4 list-disc space-y-1">
-          <li>
-            <strong>FoodData Central</strong> makes food search faster and lifts the shared demo
-            limit of about ten searches an hour.
-          </li>
-          <li>
-            <strong>Google Gemini</strong> unlocks working out nutrition from a photo or a
-            description.
-          </li>
-        </ul>
+        <p>Paste it into the box behind this card and tap Save key. Barcode scanning needs none.</p>
+      </>
+    ),
+  },
+  geminiKey: {
+    title: 'And a Gemini key, for the photo feature',
+    body: (
+      <>
+        <p>
+          This one unlocks working out nutrition from a photo or a description. Free keys come
+          from <strong>aistudio.google.com/apikey</strong>.
+        </p>
+        <p className="rounded-lg px-3 py-2" style={{ background: 'var(--track)' }}>
+          Both keys are stored on this device only. They are left out of backups, and go nowhere
+          except to the service they belong to. Use keys made only for this, and set a spending
+          cap on the Google one.
+        </p>
       </>
     ),
   },
@@ -68,8 +82,8 @@ const CONTENT: Record<TourStepId, { title: string; body: ReactNode }> = {
     body: (
       <>
         <p>
-          The <strong>sparkle button</strong> at the bottom right, and the same option inside a
-          new food or recipe, will estimate nutrition two ways:
+          The <strong>sparkle button</strong> highlighted here, and the same option inside a new
+          food or recipe, will estimate nutrition two ways:
         </p>
         <ul className="ml-4 list-disc space-y-1">
           <li>
@@ -93,8 +107,8 @@ const CONTENT: Record<TourStepId, { title: string; body: ReactNode }> = {
     body: (
       <>
         <p>
-          <strong>Settings → Targets</strong> holds your daily calories, carbs, fibre, protein,
-          fat, saturated fat and salt. Sensible defaults are already in there.
+          This is <strong>Settings → Targets</strong>: your daily calories, carbs, fibre,
+          protein, fat, saturated fat and salt. Sensible defaults are already in there.
         </p>
         <p>
           Every percentage in the app is measured against these — the ring, the bars, and each
@@ -108,8 +122,7 @@ const CONTENT: Record<TourStepId, { title: string; body: ReactNode }> = {
     body: (
       <>
         <p>
-          On the day screen, tap <strong>+ Add to breakfast</strong> (or lunch, dinner, snacks)
-          and then either:
+          This is the one for breakfast; each meal has its own. Tap it, then either:
         </p>
         <ul className="ml-4 list-disc space-y-1">
           <li>search the food library and your own recipes,</li>
@@ -129,6 +142,7 @@ export default function Tour() {
   const state = useAppState()
   const dispatch = useDispatch()
   const navigate = useNavigate()
+  const location = useLocation()
   const [index, setIndex] = useState(0)
 
   const steps = stepsFor(state.meta.tourSeenRevision)
@@ -158,33 +172,68 @@ export default function Tour() {
       if (event.key === 'Escape') finishRef.current()
     }
     document.addEventListener('keydown', onKeyDown)
-
-    // The sheet scrolls on its own; the page behind it must not.
-    const previous = document.body.style.overflow
-    document.body.style.overflow = 'hidden'
-
-    return () => {
-      document.removeEventListener('keydown', onKeyDown)
-      document.body.style.overflow = previous
-    }
+    return () => document.removeEventListener('keydown', onKeyDown)
   }, [open])
 
-  if (!open) return null
+  const step: TourStep | undefined = open ? steps[Math.min(index, steps.length - 1)] : undefined
+  const wanted = step && tourRoute(step, todayKey())
 
-  const step = steps[Math.min(index, steps.length - 1)]
+  // Drive the router to the screen the card is about. `replace` so stepping
+  // through the tour does not leave five entries in the back history.
+  useEffect(() => {
+    if (wanted && location.pathname !== wanted) navigate(wanted, { replace: true })
+  }, [wanted, location.pathname, navigate])
+
+  const onRoute = !wanted || location.pathname === wanted
+  const rect = useSpotlight(step?.anchor, open && onRoute)
+
+  if (!open || !step) return null
+
   const content = CONTENT[step.id]
   const last = index >= steps.length - 1
+  // With a hole cut in the dimming, the card takes whichever side of it has
+  // more room left: measuring the gaps beats guessing from the midpoint,
+  // which put the card on top of anything tall.
+  const roomAbove = rect ? rect.top : 0
+  const roomBelow = rect ? window.innerHeight - (rect.top + rect.height) : 0
+  const cardAtTop = rect !== null && roomAbove > roomBelow
 
   return (
-    <div
-      className="fixed inset-0 z-50 flex items-end justify-center p-0 sm:items-center sm:p-4"
-      style={{ background: 'rgba(0, 0, 0, 0.55)' }}
-    >
+    <div className="fixed inset-0 z-50">
+      {/* The dimming. With a spotlight it is an enormous shadow around the
+          hole, which is one element and no clipping; without one it is a
+          plain sheet over everything. */}
+      {rect ? (
+        <div
+          aria-hidden="true"
+          className="pointer-events-none fixed rounded-2xl"
+          style={{
+            top: rect.top,
+            left: rect.left,
+            width: rect.width,
+            height: rect.height,
+            boxShadow: '0 0 0 9999px rgba(0, 0, 0, 0.6)',
+            outline: '2px solid var(--color-brand)',
+            outlineOffset: 0,
+          }}
+        />
+      ) : (
+        <div aria-hidden="true" className="fixed inset-0" style={{ background: 'rgba(0, 0, 0, 0.55)' }} />
+      )}
+
+      {/* Catches everything aimed at the app underneath. The tour is reading,
+          not doing: tapping the highlighted control would navigate away from
+          the card that is explaining it. */}
+      <div className="fixed inset-0" onClick={(event) => event.preventDefault()} />
+
       <div
         role="dialog"
         aria-modal="true"
         aria-labelledby="tour-title"
-        className="card flex max-h-[88vh] w-full max-w-lg flex-col rounded-b-none sm:rounded-b-2xl"
+        className={`card fixed inset-x-0 mx-auto flex max-h-[70vh] w-full max-w-lg flex-col sm:inset-x-4 ${
+          cardAtTop ? 'top-0 rounded-t-none sm:top-4 sm:rounded-t-2xl' : 'bottom-0 rounded-b-none sm:bottom-4 sm:rounded-b-2xl'
+        }`}
+        style={cardAtTop ? { paddingTop: 'env(safe-area-inset-top)' } : undefined}
       >
         <header
           className="flex items-center justify-between gap-3 border-b px-4 py-3"

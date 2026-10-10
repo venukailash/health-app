@@ -379,10 +379,32 @@ On a first run every card is new; after an update only the cards newer than what
 seen appear, headed "What's new" rather than "Welcome"; and when nothing is newer, nothing
 appears. A rewrite that affects nobody costs nobody anything.
 
-It is a stepped sheet, not spotlights on the real controls. The five things worth saying live on
-four different screens, so a spotlight tour would have to drive the router around and would break
-the first time a layout moved. Skip is on every card, Escape closes it, and Settings → App can
-bring it back — the same control, so there is one way in and one way out.
+Each card drives the router to the screen it is about and cuts a hole in the dimming over the
+control it is describing, so "the Gemini key is in Settings" is the actual box with a ring round
+it. Skip is on every card, Escape closes it, and Settings → App can bring it back.
+
+Pointing at things is mostly a problem of pointing at things that are not there. The anchor is
+missing while the route is still changing, and stays missing if a layout drops it, so
+`useSpotlight` returns null in both cases and the card falls back to the plain centred sheet —
+the worst outcome is the tour as it was before it could point. `Tour.anchors.test.tsx` renders
+each page and fails if its `data-tour` attribute has gone, which is the only thing tying a step
+to the element it names.
+
+Three details that are not obvious:
+
+- **The position is measured every animation frame**, not on a list of scroll and resize events.
+  The target moves for too many reasons — the page scrolls, a card above it expands, the keyboard
+  opens, the route is still settling — and one rule covers all of them. A `getBoundingClientRect`
+  per frame costs nothing next to being subtly wrong.
+- **The scroll is re-issued, not fired once.** `ScrollManager` sends every new route to the top,
+  and that can land after the tour's own scroll and undo it. The hook keeps nudging until the
+  target is near the middle, at most six times, and gives up the moment the reader scrolls for
+  themselves.
+- **The card takes whichever side of the hole has more room**, measured. Choosing by the target's
+  midpoint instead put the card on top of anything tall.
+
+Keys got a card each rather than one card for both. One highlight covering both boxes was most
+of the screen, which left the card nowhere to go and pointed at nothing in particular.
 
 The first card leads with the iPhone storage trap rather than burying it: a home-screen web app
 gets its own storage, so anything logged in Safari first is invisible to it. Finding that out

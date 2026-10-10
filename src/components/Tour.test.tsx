@@ -1,13 +1,28 @@
 import { screen, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { describe, expect, it } from 'vitest'
+import { useLocation } from 'react-router-dom'
 import Tour from './Tour'
 import { renderWithApp } from '../test/renderWithApp'
 import { TOUR_REVISION, TOUR_STEPS } from '../domain/tour'
 import { DEFAULT_META } from '../storage/repository'
 
+function Where() {
+  return <p data-testid="where">{useLocation().pathname}</p>
+}
+
+// Mounted on the catch-all so the tour survives its own navigation: it drives
+// the router, and a tour that unmounted when it did would prove nothing.
 const renderTour = (tourSeenRevision?: number) =>
-  renderWithApp(<Tour />, { state: { meta: { ...DEFAULT_META, tourSeenRevision } } })
+  renderWithApp(
+    <>
+      <Tour />
+      <Where />
+    </>,
+    { path: '*', state: { meta: { ...DEFAULT_META, tourSeenRevision } } },
+  )
+
+const where = () => screen.getByTestId('where').textContent
 
 describe('Tour', () => {
   it('greets someone who has never seen it', () => {
@@ -78,13 +93,46 @@ describe('Tour', () => {
     expect(screen.queryByRole('dialog')).not.toBeInTheDocument()
   })
 
-  it('lets the page behind it scroll again afterwards', async () => {
+  it('walks the app to the screen each card is about', async () => {
     const user = userEvent.setup()
     renderTour()
-    expect(document.body.style.overflow).toBe('hidden')
 
-    await user.click(screen.getByRole('button', { name: 'Skip' }))
-    expect(document.body.style.overflow).not.toBe('hidden')
+    // The first card is about the browser's own install menu and names no
+    // route, so it leaves you where you were.
+    expect(where()).toBe('/')
+
+    // Two cards in a row live on the settings screen: one per key.
+    await user.click(screen.getByRole('button', { name: 'Next' }))
+    expect(where()).toBe('/settings/app')
+
+    await user.click(screen.getByRole('button', { name: 'Next' }))
+    expect(where()).toBe('/settings/app')
+
+    await user.click(screen.getByRole('button', { name: 'Next' }))
+    expect(where()).toMatch(/^\/day\/\d{4}-\d{2}-\d{2}$/)
+
+    await user.click(screen.getByRole('button', { name: 'Next' }))
+    expect(where()).toBe('/settings/targets')
+  })
+
+  it('leaves you on the last screen it showed you', async () => {
+    const user = userEvent.setup()
+    renderTour()
+
+    for (let step = 2; step <= TOUR_STEPS.length; step++) {
+      await user.click(screen.getByRole('button', { name: 'Next' }))
+    }
+    await user.click(screen.getByRole('button', { name: 'Start logging' }))
+
+    expect(where()).toMatch(/^\/day\/\d{4}-\d{2}-\d{2}$/)
+  })
+
+  it('still shows the card when the thing it points at is not there', () => {
+    // Nothing in this render has a data-tour attribute, which is exactly the
+    // state the tour is in while a route is still changing.
+    renderTour()
+    expect(screen.getByRole('dialog')).toBeInTheDocument()
+    expect(document.querySelector('[data-tour]')).toBeNull()
   })
 
   it('calls it what it is when only part of it is new', () => {

@@ -29,6 +29,7 @@ export default function QuickAddButton() {
     <Link
       to="/foods/new?ai=photo"
       aria-label="Add a food with Gemini"
+      data-tour="quick-add"
       className="fixed right-4 z-20 flex h-14 w-14 items-center justify-center rounded-full bg-brand text-brand-ink shadow-lg transition-transform hover:scale-105 active:scale-95"
       style={{ bottom: 'calc(5.25rem + env(safe-area-inset-bottom))' }}
     >
