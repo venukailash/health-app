@@ -28,22 +28,15 @@ export default function QuickAddButton() {
   return (
     <Link
       to="/foods/new?ai=photo"
-      aria-label="Add a food from a photo"
+      aria-label="Add a food with Gemini"
       className="fixed right-4 z-20 flex h-14 w-14 items-center justify-center rounded-full bg-brand text-white shadow-lg transition-transform hover:scale-105 active:scale-95"
       style={{ bottom: 'calc(5.25rem + env(safe-area-inset-bottom))' }}
     >
-      <svg
-        viewBox="0 0 24 24"
-        aria-hidden="true"
-        className="h-7 w-7"
-        fill="none"
-        stroke="currentColor"
-        strokeWidth="1.8"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      >
-        <path d="M3 8a2 2 0 0 1 2-2h2l1.5-2h7L17 6h2a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
-        <circle cx="12" cy="12.5" r="3.5" />
+      {/* Sparkles, not a camera: the button opens the whole assist, where a
+          photo is one of two ways in. */}
+      <svg viewBox="0 0 24 24" aria-hidden="true" className="h-7 w-7" fill="currentColor">
+        <path d="M12 2.5l1.6 4.6a4 4 0 0 0 2.5 2.5l4.6 1.6-4.6 1.6a4 4 0 0 0-2.5 2.5L12 20l-1.6-4.7a4 4 0 0 0-2.5-2.5L3.2 11.2l4.7-1.6a4 4 0 0 0 2.5-2.5z" />
+        <path d="M18.5 16.5l.65 1.85a1.6 1.6 0 0 0 1 1L22 20l-1.85.65a1.6 1.6 0 0 0-1 1L18.5 23.5l-.65-1.85a1.6 1.6 0 0 0-1-1L15 20l1.85-.65a1.6 1.6 0 0 0 1-1z" />
       </svg>
     </Link>
   )

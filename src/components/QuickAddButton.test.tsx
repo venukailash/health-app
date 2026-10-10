@@ -13,7 +13,7 @@ const at = (route: string) =>
 describe('QuickAddButton', () => {
   it('goes straight to the camera, with describe one tap away', () => {
     at('/day/2026-10-10')
-    expect(screen.getByRole('link', { name: 'Add a food from a photo' })).toHaveAttribute(
+    expect(screen.getByRole('link', { name: 'Add a food with Gemini' })).toHaveAttribute(
       'href',
       '/foods/new?ai=photo',
     )
@@ -23,7 +23,7 @@ describe('QuickAddButton', () => {
     'appears on the top-level screen %s',
     (route) => {
       at(route)
-      expect(screen.getByRole('link', { name: 'Add a food from a photo' })).toBeInTheDocument()
+      expect(screen.getByRole('link', { name: 'Add a food with Gemini' })).toBeInTheDocument()
     },
   )
 
@@ -39,6 +39,6 @@ describe('QuickAddButton', () => {
     // Deeper screens are mid-task; a button floating over the form is an
     // obstacle, not a shortcut.
     at(route)
-    expect(screen.queryByRole('link', { name: 'Add a food from a photo' })).not.toBeInTheDocument()
+    expect(screen.queryByRole('link', { name: 'Add a food with Gemini' })).not.toBeInTheDocument()
   })
 })

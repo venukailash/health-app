@@ -103,6 +103,21 @@ iOS Safari does not shrink the layout viewport for the keyboard, so a `position:
 floats on top of it. `hooks/useKeyboardOpen.ts` compares `window.innerHeight` against
 `visualViewport` to detect it.
 
+## The app mark is cutlery inside the progress ring
+
+The icon was a bare three-quarter arc, which said "progress" and nothing about food — half the
+app. It now holds a fork and spoon inside that arc, keeping the link to the calorie ring on the
+dashboard while saying what is being tracked. The ring was thinned, since it is now a frame rather
+than the whole mark.
+
+`scripts/generate-icons.mjs` draws every raster size from shape predicates sampled 3×3 per pixel,
+so there is still no SVG rasteriser or image toolchain to install. `favicon.svg` is the same mark
+written by hand. Run `npm run generate-icons` after changing either, and check the 192px output —
+detail that works at 512 can turn to mush small.
+
+The floating button uses sparkles rather than a camera: it opens the whole assist, where a photo
+is one of two ways in.
+
 ## The barcode decoder is lazy and not precached
 
 Chrome on Android has a native `BarcodeDetector`; iOS Safari has none, so ZXing (~475 KB) is
