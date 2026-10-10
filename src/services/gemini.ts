@@ -101,7 +101,7 @@ Rules:
 - Report salt in grams, not sodium.
 - Energy in kilocalories.
 - If several foods are on the plate, describe the whole plate as one item and estimate for the combination.
-- servingGrams is your estimate of the weight of one normal portion.
+- servingGrams is your estimate of the weight of one normal portion. If a photo shows a container, a utensil or a hand for scale, use it to judge the size.
 - Be honest in "confidence". Use "low" when it is ambiguous, the dish could have been cooked many ways, or the portion is hard to judge.
 - Put anything you genuinely cannot tell in "caveat", briefly. Use null if there is nothing worth saying.
 - If there is no food at all, set name to "" and confidence to "low".
@@ -172,22 +172,37 @@ export function toEstimate(value: unknown): FoodEstimate | null {
 /* Recipes described in words                                           */
 /* ------------------------------------------------------------------ */
 
-/** Either a photo or a description — both estimators accept either. */
+/** Photos, a description, or both — the estimators accept any combination. */
 export interface AiInput {
-  photo?: File
+  photos?: File[]
   text?: string
 }
+
+/**
+ * More than this and the cost climbs without the answer improving — each image
+ * is around 1,100 tokens whatever its size.
+ */
+export const MAX_PHOTOS = 4
 
 /** Build the request parts for whichever input was given. */
 async function inputParts(input: AiInput, label: string): Promise<unknown[]> {
   const parts: unknown[] = []
+  const photos = (input.photos ?? []).slice(0, MAX_PHOTOS)
+
   if (input.text && input.text.trim() !== '') {
     parts.push({ text: `${label}: ${input.text.trim()}` })
   }
-  if (input.photo) {
-    const image = await prepareImage(input.photo)
+  if (photos.length > 1) {
+    // Without this the model can read a second angle as a second food.
+    parts.push({
+      text: `The following ${photos.length} photos all show the SAME item — different angles, a label, or something for scale. Treat them together as one.`,
+    })
+  }
+  for (const photo of photos) {
+    const image = await prepareImage(photo)
     parts.push({ inline_data: { mime_type: image.mimeType, data: image.data } })
   }
+
   if (parts.length === 0) throw new ModelError('Add a photo or a description first.')
   return parts
 }

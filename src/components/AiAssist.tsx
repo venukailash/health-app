@@ -3,6 +3,7 @@ import Button from './Button'
 import NutritionGrid from './NutritionGrid'
 import {
   DEFAULT_GEMINI_MODEL,
+  MAX_PHOTOS,
   MissingKeyError,
   ModelError,
   estimateFood,
@@ -68,8 +69,7 @@ export default function AiAssist({
 
   const [mode, setMode] = useState<AiMode>(initialMode)
   const [text, setText] = useState('')
-  const [photo, setPhoto] = useState<File | null>(null)
-  const [preview, setPreview] = useState<string | null>(null)
+  const [photos, setPhotos] = useState<{ file: File; preview: string }[]>([])
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [food, setFood] = useState<FoodEstimate | null>(null)
@@ -83,7 +83,7 @@ export default function AiAssist({
     setRecipe(null)
   }
 
-  async function run(input: { photo?: File; text?: string }) {
+  async function run(input: { photos?: File[]; text?: string }) {
     setBusy(true)
     reset()
     try {
@@ -106,13 +106,34 @@ export default function AiAssist({
     }
   }
 
-  function choosePhoto(file: File) {
-    setPhoto(file)
-    setPreview(URL.createObjectURL(file))
-    void run({ photo: file })
+  /**
+   * Choosing a photo no longer sends it.
+   *
+   * It used to go straight to Gemini, which left no room to say the thing that
+   * would have made the answer right — "cooked in two tablespoons of oil",
+   * "this is a half portion". Several photos can be added too: a second shot of
+   * the container or a hand beside the plate is often what makes the portion
+   * judgeable at all. The note and the extra shots are both optional.
+   */
+  function addPhotos(files: File[]) {
+    setPhotos((current) =>
+      [...current, ...files.map((file) => ({ file, preview: URL.createObjectURL(file) }))].slice(
+        0,
+        MAX_PHOTOS,
+      ),
+    )
+    reset()
   }
 
-  const ready = mode === 'photo' ? photo !== null : text.trim() !== ''
+  function removePhoto(index: number) {
+    setPhotos((current) => {
+      URL.revokeObjectURL(current[index].preview)
+      return current.filter((_, position) => position !== index)
+    })
+    reset()
+  }
+
+  const ready = mode === 'photo' ? photos.length > 0 : text.trim() !== ''
 
   // Recipe ingredients that already exist keep their own curated figures.
   const matched = recipe?.ingredients.map((ingredient) => ({
@@ -137,7 +158,7 @@ export default function AiAssist({
         className="hidden"
         onChange={(event) => {
           const file = event.target.files?.[0]
-          if (file) choosePhoto(file)
+          if (file) addPhotos([file])
           event.target.value = ''
         }}
       />
@@ -145,10 +166,10 @@ export default function AiAssist({
         ref={libraryInput}
         type="file"
         accept="image/*"
+        multiple
         className="hidden"
         onChange={(event) => {
-          const file = event.target.files?.[0]
-          if (file) choosePhoto(file)
+          addPhotos([...(event.target.files ?? [])])
           event.target.value = ''
         }}
       />
@@ -193,28 +214,90 @@ export default function AiAssist({
                 ? 'Photograph the food or its label.'
                 : 'Photograph the meal and its parts will be listed as ingredients.'}
             </p>
-            {preview && (
-              <img
-                src={preview}
-                alt="The photo being read"
-                className="mb-3 max-h-56 w-full rounded-xl object-cover"
-              />
+            {photos.length > 0 && (
+              <div className="mb-3 grid grid-cols-2 gap-2 sm:grid-cols-4">
+                {photos.map((item, index) => (
+                  <div key={item.preview} className="relative">
+                    <img
+                      src={item.preview}
+                      alt={`Photo ${index + 1} of ${photos.length}`}
+                      className="h-28 w-full rounded-xl object-cover"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => removePhoto(index)}
+                      aria-label={`Remove photo ${index + 1}`}
+                      className="absolute right-1 top-1 rounded-full p-1 text-white"
+                      style={{ background: 'rgba(0,0,0,0.55)' }}
+                    >
+                      <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
+                        <path d="M6 6l12 12M18 6L6 18" />
+                      </svg>
+                    </button>
+                  </div>
+                ))}
+              </div>
             )}
-            <div className="flex flex-wrap gap-2">
-              {/* Camera first, deliberately: it is what people want on a phone. */}
-              {hasCamera && (
-                <Button onClick={() => cameraInput.current?.click()} disabled={busy}>
-                  {busy ? 'Working it out…' : preview ? 'Retake' : 'Take a photo'}
+
+            {photos.length < MAX_PHOTOS && (
+              <div className="flex flex-wrap gap-2">
+                {/* Camera first, deliberately: it is what people want on a phone. */}
+                {hasCamera && (
+                  <Button
+                    variant={photos.length > 0 ? 'secondary' : 'primary'}
+                    onClick={() => cameraInput.current?.click()}
+                    disabled={busy}
+                  >
+                    {photos.length > 0 ? 'Add another photo' : 'Take a photo'}
+                  </Button>
+                )}
+                <Button
+                  variant={hasCamera || photos.length > 0 ? 'secondary' : 'primary'}
+                  onClick={() => libraryInput.current?.click()}
+                  disabled={busy}
+                >
+                  {photos.length > 0 ? 'Add from photos' : 'Choose a photo'}
                 </Button>
-              )}
-              <Button
-                variant={hasCamera ? 'secondary' : 'primary'}
-                onClick={() => libraryInput.current?.click()}
-                disabled={busy}
-              >
-                {hasCamera ? 'Choose a photo' : busy ? 'Working it out…' : 'Choose a photo'}
-              </Button>
-            </div>
+              </div>
+            )}
+
+            {photos.length >= MAX_PHOTOS && (
+              <p className="text-sm muted">
+                {MAX_PHOTOS} photos is the most that helps — remove one to swap it.
+              </p>
+            )}
+
+            {photos.length > 0 && (
+              <div className="mt-4">
+                <label htmlFor="photo-note" className="mb-1 block text-sm font-medium">
+                  Anything else that would help? <span className="muted">(optional)</span>
+                </label>
+                <textarea
+                  id="photo-note"
+                  className="field"
+                  rows={2}
+                  placeholder={
+                    target === 'food'
+                      ? 'e.g. fried in a tablespoon of olive oil, the glass is 8cm tall'
+                      : 'e.g. the rice is 200g cooked, serves 3'
+                  }
+                  value={text}
+                  onChange={(event) => setText(event.target.value)}
+                />
+                <p className="mt-1 text-xs muted">
+                  A photo cannot show how something was cooked, and scale is hard to judge from
+                  one. Say so here, or add a second shot with something for scale in it.
+                </p>
+                <div className="mt-3">
+                  <Button
+                    onClick={() => void run({ photos: photos.map((item) => item.file), text })}
+                    disabled={busy}
+                  >
+                    {busy ? 'Working it out…' : food || recipe ? 'Work it out again' : 'Work it out'}
+                  </Button>
+                </div>
+              </div>
+            )}
           </>
         ) : (
           <>

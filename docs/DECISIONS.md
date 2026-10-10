@@ -169,6 +169,18 @@ much oil went into it, so nothing is ever saved straight from the model: the fig
 food editor for review, the card above them says they came from a photo, and the model is asked
 for its own confidence and for whatever it could not tell — both of which are shown.
 
+Choosing a photo does **not** send it. It used to, which left no room to say the thing that would
+have made the answer right. A note box and a "Work it out" button come first, and the answer can
+be re-run with more context after a disappointing one — which is the point: tested on a packet,
+adding "fun size, about 18g" moved the portion from 51 g to 18 g while keeping the per-100 g
+figures.
+
+Up to four photos can go in one request, because scale is the hardest thing to judge from a single
+image — a second shot showing the container or a hand is often what makes a portion estimable at
+all. When there is more than one, the request says outright that they show the SAME item;
+without that a second angle reads as a second food. Four is the cap: each image costs about 1,100
+tokens whatever its size, so more climbs the bill without improving the answer.
+
 Other choices worth keeping:
 
 - **The image is downscaled to 1024px and re-encoded as JPEG** before sending. Tokens are charged
