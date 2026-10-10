@@ -115,9 +115,11 @@ Other choices worth keeping:
 
 - **The image is downscaled to 1024px and re-encoded as JPEG** before sending. Tokens are charged
   by image size and nothing in a nutrition estimate needs a full phone photo.
-- **The model name is configurable**, defaulting to the cheapest that can read an image. Google
-  retires names often enough that a hard-coded one becomes wrong rather than merely suboptimal; a
-  404 is reported as "no model called X", naming it.
+- **The default model is the `-latest` alias, not a pinned version.** A pinned
+  `gemini-2.5-flash-lite` was rejected with *"no longer available to new users"* on the first real
+  call, weeks after being current. Google retires names faster than a hard-coded default survives,
+  and `gemini-flash-lite-latest` always resolves to the cheapest lite model of the day. It stays
+  configurable, and a 404 names the offending model so a future breakage explains itself.
 - **`responseMimeType: application/json` and temperature 0**, and the parser still copes with a
   markdown fence and surrounding prose, because models add them anyway.
 - Saturated fat above total fat is clamped, as with the other sources.

@@ -20,11 +20,18 @@ import { LookupFailedError, RateLimitedError } from './openFoodFacts'
 const ENDPOINT = 'https://generativelanguage.googleapis.com/v1beta/models'
 
 /**
- * Cheapest model that can read an image. Configurable because Google's
- * line-up changes often and a hard-coded name becomes wrong, not just
- * suboptimal — a missing model returns 404 and the UI says so.
+ * Cheapest model that can read an image.
+ *
+ * The `-latest` alias, not a pinned version, and that is the whole point:
+ * a pinned `gemini-2.5-flash-lite` was rejected with "no longer available to
+ * new users" within weeks of being current. Google retires names faster than
+ * a hard-coded default survives, and the alias always resolves to whatever
+ * the cheapest lite model is today.
+ *
+ * Still configurable, and a 404 names the offending model so a future
+ * breakage is self-explanatory rather than mysterious.
  */
-export const DEFAULT_GEMINI_MODEL = 'gemini-2.5-flash-lite'
+export const DEFAULT_GEMINI_MODEL = 'gemini-flash-lite-latest'
 
 /** Keep the request small: large photos cost more and add nothing. */
 const MAX_IMAGE_EDGE = 1024
@@ -202,7 +209,9 @@ export async function estimateFromPhoto(
     throw new ModelError('Gemini rejected the key. Check it in Settings.')
   }
   if (response.status === 404) {
-    throw new ModelError(`Gemini has no model called "${model}". Change it in Settings.`)
+    throw new ModelError(
+      `Gemini has no model called "${model}" — it may have been retired. Change it in Settings.`,
+    )
   }
   if (!response.ok) throw new LookupFailedError('Gemini returned an error.')
 
