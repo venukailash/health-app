@@ -9,6 +9,7 @@ import { kcalFromMacros, roundNutrients, scaleNutrients, unsaturatedFat } from '
 import type { Food, Nutrients } from '../domain/types'
 import { useAppState, useDispatch } from '../state/AppStore'
 import { createFood, duplicateFood } from '../state/factories'
+import { useScrollTopOnChange } from '../hooks/useScrollTopOnChange'
 
 type Form = {
   name: string
@@ -93,6 +94,8 @@ export default function FoodEditPage() {
     return requested === 'photo' || requested === 'describe' ? requested : null
   })
   const [fromPhoto, setFromPhoto] = useState(false)
+
+  useScrollTopOnChange(assist)
 
   if (assist) {
     return (

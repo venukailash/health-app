@@ -19,6 +19,7 @@ import type { RecipeIngredient } from '../domain/types'
 import { useAppState, useDispatch } from '../state/AppStore'
 import { createFood, createRecipe } from '../state/factories'
 import { foodsById } from '../state/selectors'
+import { useScrollTopOnChange } from '../hooks/useScrollTopOnChange'
 
 export default function RecipeEditPage() {
   const { id } = useParams()
@@ -40,6 +41,8 @@ export default function RecipeEditPage() {
   const [assist, setAssist] = useState<AiMode | null>(null)
   const [confirmingDelete, setConfirmingDelete] = useState(false)
   const { lookup } = useBarcodeLookup()
+  // Picking and the assist replace the whole screen without changing route.
+  useScrollTopOnChange(`${picking}-${assist}`)
 
   const pickerItems = useMemo<SearchItem[]>(
     () =>

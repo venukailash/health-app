@@ -79,6 +79,20 @@ locally and failed on GitHub. Formatters take an optional locale that tests pin;
 *which* dates a period covers go through date-keyed links rather than rendered text. The suite is
 verified across en-US, en-GB, de-DE, ja-JP and fr-FR.
 
+## Scroll position is managed by hand
+
+React Router does not touch scroll, and its `<ScrollRestoration>` only works with a data router —
+this app uses `HashRouter`, so `ScrollManager` does it manually. Opening "Add to breakfast" from a
+scrolled Progress screen was landing part-way down a food list the user had never seen.
+
+Forward navigation always starts at the top; **Back restores that history entry's position**,
+keyed on `location.key`, so returning to a long list you had worked through does not dump you at
+the top of it. Scrolling is done in a layout effect so there is no visible jump.
+
+Several screens swap their whole contents without changing route — the ingredient picker, the
+Gemini assist, the quantity panel. `ScrollManager` never sees those, so they use
+`useScrollTopOnChange`: they are navigations as far as the user is concerned.
+
 ## HashRouter, not BrowserRouter
 
 GitHub Pages has no SPA rewrite, so a refresh on a path-based route 404s. URLs carry a `#`.

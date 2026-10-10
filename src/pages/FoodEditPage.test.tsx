@@ -151,3 +151,15 @@ describe('FoodEditPage — Gemini assist', () => {
     expect(screen.getByLabelText('Name')).toBeInTheDocument()
   })
 })
+
+describe('AppSettings — API keys', () => {
+  it('masks both keys, since both are credentials', async () => {
+    const { default: AppSettingsPage } = await import('./AppSettingsPage')
+    renderWithApp(<AppSettingsPage />, { path: '/settings/app', route: '/settings/app' })
+
+    expect(screen.getByLabelText(/FoodData Central API key/)).toHaveAttribute('type', 'password')
+    expect(screen.getByLabelText(/Gemini API key/)).toHaveAttribute('type', 'password')
+    // The model name is not a secret and stays readable.
+    expect(screen.getByLabelText(/^Model/)).toHaveAttribute('type', 'text')
+  })
+})

@@ -14,6 +14,7 @@ import { MEAL_LABELS, MEAL_TYPES, type MealType } from '../domain/types'
 import { useAppState, useDispatch } from '../state/AppStore'
 import { newId } from '../state/factories'
 import { foodsById } from '../state/selectors'
+import { useScrollTopOnChange } from '../hooks/useScrollTopOnChange'
 
 type Tab = 'foods' | 'recipes'
 
@@ -28,6 +29,8 @@ export default function AddEntryPage() {
   const [query, setQuery] = useState('')
   const [scanning, setScanning] = useState(false)
   const { lookup } = useBarcodeLookup()
+  // Choosing a food swaps the list for the quantity panel.
+  useScrollTopOnChange(selected?.id ?? null)
 
   const index = useMemo(() => foodsById(foods), [foods])
 

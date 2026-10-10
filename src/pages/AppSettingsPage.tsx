@@ -85,7 +85,9 @@ export default function AppSettingsPage() {
         <input
           id="fdc-key"
           className="field"
-          type="text"
+          // Masked like the Gemini key: both are credentials, and a key on
+          // screen in a cafe is a key on screen.
+          type="password"
           autoComplete="off"
           spellCheck={false}
           placeholder={DEMO_API_KEY}

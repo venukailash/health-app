@@ -1,6 +1,7 @@
 import { Navigate, Route, Routes } from 'react-router-dom'
 import NavBar from './components/NavBar'
 import QuickAddButton from './components/QuickAddButton'
+import ScrollManager from './components/ScrollManager'
 import { useAppUpdate } from './hooks/useAppUpdate'
 import { useKeyboardOpen } from './hooks/useKeyboardOpen'
 import StorageBanner from './components/StorageBanner'
@@ -24,6 +25,7 @@ export default function App() {
 
   return (
     <>
+      <ScrollManager />
       <StorageBanner />
       <main
         className="pt-1"
