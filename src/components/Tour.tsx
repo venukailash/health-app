@@ -23,117 +23,64 @@ import { useAppState, useDispatch } from '../state/AppStore'
 
 const CONTENT: Record<TourStepId, { title: string; body: ReactNode }> = {
   install: {
-    title: 'Keep it on your home screen',
+    title: 'Put it on your home screen',
     body: (
       <>
         <p>
-          This is a web app with no server behind it, so installing it is how you get an icon, a
-          full screen, and meals you can log with no signal.
+          <strong>iPhone:</strong> Share → Add to Home Screen. <strong>Android:</strong> Chrome’s
+          menu → Install app. You get an icon, a full screen, and it works with no signal.
         </p>
-        <ul className="ml-4 list-disc space-y-1">
-          <li>
-            <strong>iPhone or iPad:</strong> open it in Safari, tap Share, then{' '}
-            <strong>Add to Home Screen</strong>.
-          </li>
-          <li>
-            <strong>Android:</strong> Chrome offers <strong>Install app</strong> in its menu.
-          </li>
-        </ul>
         <p className="rounded-lg px-3 py-2" style={{ background: 'var(--track)' }}>
-          <strong>Worth knowing:</strong> on iPhone the installed app gets its own private
-          storage. Anything you logged in Safari first will not appear in it. If you have already
-          started, export a backup from Settings and import it once, then stick to the installed
-          one.
+          On iPhone the installed app has its own separate storage. Anything logged in Safari
+          first will not be in it.
         </p>
       </>
     ),
   },
   foodKey: {
-    title: 'A food search key, if you want one',
+    title: 'Food search key',
     body: (
-      <>
-        <p>
-          Search works without it, on a demo key shared with everyone else, which runs out after
-          about ten searches an hour. Your own is free and instant from{' '}
-          <strong>fdc.nal.usda.gov</strong> and raises that to a thousand.
-        </p>
-        <p>Paste it into the box behind this card and tap Save key. Barcode scanning needs none.</p>
-      </>
+      <p>
+        Optional. Without one, search shares a demo key good for about ten an hour. Your own is
+        free from <strong>fdc.nal.usda.gov</strong> and raises that to a thousand.
+      </p>
     ),
   },
   geminiKey: {
-    title: 'And a Gemini key, for the photo feature',
+    title: 'Gemini key',
     body: (
-      <>
-        <p>
-          This one unlocks working out nutrition from a photo or a description. Free keys come
-          from <strong>aistudio.google.com/apikey</strong>.
-        </p>
-        <p className="rounded-lg px-3 py-2" style={{ background: 'var(--track)' }}>
-          Both keys are stored on this device only. They are left out of backups, and go nowhere
-          except to the service they belong to. Use keys made only for this, and set a spending
-          cap on the Google one.
-        </p>
-      </>
+      <p>
+        Optional, and what unlocks working nutrition out from a photo. Free from{' '}
+        <strong>aistudio.google.com/apikey</strong>. Both keys stay on this device and are left
+        out of backups.
+      </p>
     ),
   },
   ai: {
-    title: 'Photograph it, or just describe it',
+    title: 'Photo, or just describe it',
     body: (
-      <>
-        <p>
-          The <strong>sparkle button</strong> highlighted here, and the same option inside a new
-          food or recipe, will estimate nutrition two ways:
-        </p>
-        <ul className="ml-4 list-disc space-y-1">
-          <li>
-            <strong>Photo</strong> — camera or library, up to four shots of the same thing. A
-            second angle showing the size of the container makes the portion much better.
-          </li>
-          <li>
-            <strong>Describe</strong> — “28 g of coffee in a moka pot with 200 g whole milk,
-            serves 2” is enough to build a recipe.
-          </li>
-        </ul>
-        <p>
-          You can add a note to a photo before sending it. Nothing is ever saved straight from an
-          estimate: it fills the editor and you check it first.
-        </p>
-      </>
+      <p>
+        This button estimates nutrition from up to four photos, or from words — “28 g coffee in a
+        moka pot with 200 g whole milk, serves 2”. You always check it before it is saved.
+      </p>
     ),
   },
   targets: {
-    title: 'Set what you are aiming for',
+    title: 'Your daily targets',
     body: (
-      <>
-        <p>
-          This is <strong>Settings → Targets</strong>: your daily calories, carbs, fibre,
-          protein, fat, saturated fat and salt. Sensible defaults are already in there.
-        </p>
-        <p>
-          Every percentage in the app is measured against these — the ring, the bars, and each
-          meal’s share of the day.
-        </p>
-      </>
+      <p>
+        Calories and each macro, with sensible defaults already set. Every percentage in the app
+        is measured against these.
+      </p>
     ),
   },
   log: {
     title: 'Logging a meal',
     body: (
-      <>
-        <p>
-          This is the one for breakfast; each meal has its own. Tap it, then either:
-        </p>
-        <ul className="ml-4 list-disc space-y-1">
-          <li>search the food library and your own recipes,</li>
-          <li>scan a barcode, or type the number off the packet, or</li>
-          <li>use the sparkle button for a photo.</li>
-        </ul>
-        <p>
-          Set the amount in grams, or by the portion if the food has one. Tap a meal heading to
-          see what it contributed to your day.
-        </p>
-      </>
+      <p>
+        Tap this to add to breakfast; each meal has its own. Search, scan a barcode, or use the
+        sparkle button. Tap a meal heading to see what it contributed.
+      </p>
     ),
   },
 }
@@ -185,39 +132,30 @@ export default function Tour() {
   }, [wanted, location.pathname, navigate])
 
   const onRoute = !wanted || location.pathname === wanted
-  const rect = useSpotlight(step?.anchor, open && onRoute)
+  const ring = useRef<HTMLDivElement>(null)
+  const { visible, cardAtTop } = useSpotlight(step?.anchor, open && onRoute, ring)
 
   if (!open || !step) return null
 
   const content = CONTENT[step.id]
   const last = index >= steps.length - 1
-  // With a hole cut in the dimming, the card takes whichever side of it has
-  // more room left: measuring the gaps beats guessing from the midpoint,
-  // which put the card on top of anything tall.
-  const roomAbove = rect ? rect.top : 0
-  const roomBelow = rect ? window.innerHeight - (rect.top + rect.height) : 0
-  const cardAtTop = rect !== null && roomAbove > roomBelow
 
   return (
     <div className="fixed inset-0 z-50">
-      {/* The dimming. With a spotlight it is an enormous shadow around the
-          hole, which is one element and no clipping; without one it is a
-          plain sheet over everything. */}
-      {rect ? (
-        <div
-          aria-hidden="true"
-          className="pointer-events-none fixed rounded-2xl"
-          style={{
-            top: rect.top,
-            left: rect.left,
-            width: rect.width,
-            height: rect.height,
-            boxShadow: '0 0 0 9999px rgba(0, 0, 0, 0.6)',
-            outline: '2px solid var(--color-brand)',
-            outlineOffset: 0,
-          }}
-        />
-      ) : (
+      {/* The dimming. The ring is always mounted so the hook has something to
+          position before the first paint; when there is nothing to point at
+          it is simply hidden and a plain sheet covers everything instead. */}
+      <div
+        ref={ring}
+        aria-hidden="true"
+        className="pointer-events-none fixed rounded-xl"
+        style={{
+          boxShadow: '0 0 0 9999px rgba(0, 0, 0, 0.6)',
+          outline: '2px solid var(--color-brand)',
+          display: visible ? undefined : 'none',
+        }}
+      />
+      {!visible && (
         <div aria-hidden="true" className="fixed inset-0" style={{ background: 'rgba(0, 0, 0, 0.55)' }} />
       )}
 
@@ -230,13 +168,13 @@ export default function Tour() {
         role="dialog"
         aria-modal="true"
         aria-labelledby="tour-title"
-        className={`card fixed inset-x-0 mx-auto flex max-h-[70vh] w-full max-w-lg flex-col sm:inset-x-4 ${
+        className={`card fixed inset-x-0 mx-auto flex max-h-[52vh] w-full max-w-lg flex-col sm:inset-x-4 ${
           cardAtTop ? 'top-0 rounded-t-none sm:top-4 sm:rounded-t-2xl' : 'bottom-0 rounded-b-none sm:bottom-4 sm:rounded-b-2xl'
         }`}
         style={cardAtTop ? { paddingTop: 'env(safe-area-inset-top)' } : undefined}
       >
         <header
-          className="flex items-center justify-between gap-3 border-b px-4 py-3"
+          className="flex items-center justify-between gap-3 border-b px-4 py-2"
           style={{ borderColor: 'var(--border)' }}
         >
           <p className="text-xs font-semibold uppercase tracking-wide muted">
@@ -252,16 +190,16 @@ export default function Tour() {
           </button>
         </header>
 
-        <div className="flex-1 space-y-3 overflow-y-auto px-4 py-4 text-sm">
-          <h2 id="tour-title" className="text-lg font-semibold">
+        <div className="flex-1 space-y-2 overflow-y-auto px-4 py-3 text-sm">
+          <h2 id="tour-title" className="text-base font-semibold">
             {content.title}
           </h2>
           {content.body}
         </div>
 
         <footer
-          className="flex items-center gap-2 border-t px-4 py-3"
-          style={{ borderColor: 'var(--border)', paddingBottom: 'calc(0.75rem + env(safe-area-inset-bottom))' }}
+          className="flex items-center gap-2 border-t px-4 py-2"
+          style={{ borderColor: 'var(--border)', paddingBottom: 'calc(0.5rem + env(safe-area-inset-bottom))' }}
         >
           <div className="flex flex-1 gap-1.5" aria-hidden="true">
             {steps.map((dot, dotIndex) => (

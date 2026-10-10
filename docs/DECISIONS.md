@@ -396,6 +396,11 @@ Three details that are not obvious:
   The target moves for too many reasons — the page scrolls, a card above it expands, the keyboard
   opens, the route is still settling — and one rule covers all of them. A `getBoundingClientRect`
   per frame costs nothing next to being subtly wrong.
+- **The ring is positioned by writing to its style, not by re-rendering.** Going through React
+  state meant the ring was drawn from the PREVIOUS frame's numbers, so it visibly lagged the page
+  during a scroll and the border sat off the thing it was supposed to be round. Only two coarse
+  facts — whether there is anything to point at, and which side the card goes — go through state,
+  and only when they change.
 - **The scroll is re-issued, not fired once.** `ScrollManager` sends every new route to the top,
   and that can land after the tour's own scroll and undo it. The hook keeps nudging until the
   target is near the middle, at most six times, and gives up the moment the reader scrolls for
@@ -403,8 +408,15 @@ Three details that are not obvious:
 - **The card takes whichever side of the hole has more room**, measured. Choosing by the target's
   midpoint instead put the card on top of anything tall.
 
-Keys got a card each rather than one card for both. One highlight covering both boxes was most
-of the screen, which left the card nowhere to go and pointed at nothing in particular.
+**Anchors are controls, not cards.** Pointing at a whole settings section meant a ring taller
+than a phone screen, with its edges off both ends — a hole that framed nothing. The anchors are
+now the key input, the calorie box, the one button. Keys got a card each for the same reason: one
+highlight over both boxes was most of the screen.
+
+**The cards are short on purpose.** Every card is two or three sentences and the whole thing is
+capped at just over half the viewport height, because a tour card that fills a phone screen is a
+wall of text in front of the thing it is pointing at. If a card needs a list, it is really two
+cards.
 
 The first card leads with the iPhone storage trap rather than burying it: a home-screen web app
 gets its own storage, so anything logged in Safari first is invisible to it. Finding that out

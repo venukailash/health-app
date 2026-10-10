@@ -29,7 +29,7 @@ describe('Tour', () => {
     renderTour()
     expect(screen.getByRole('dialog')).toBeInTheDocument()
     expect(screen.getByText(`Welcome · 1 of ${TOUR_STEPS.length}`)).toBeInTheDocument()
-    expect(screen.getByRole('heading', { name: 'Keep it on your home screen' })).toBeInTheDocument()
+    expect(screen.getByRole('heading', { name: 'Put it on your home screen' })).toBeInTheDocument()
   })
 
   it('stays away from someone who is up to date', () => {

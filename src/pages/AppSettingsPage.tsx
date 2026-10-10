@@ -74,7 +74,7 @@ export default function AppSettingsPage() {
 
       <AppearancePicker />
 
-      <section className="card mb-4 p-4" data-tour="fdc-key">
+      <section className="card mb-4 p-4">
         <h2 className="mb-1 font-semibold">Food search</h2>
         <p className="mb-4 text-sm muted">
           Searching queries Open Food Facts for branded products and USDA FoodData Central for
@@ -96,6 +96,7 @@ export default function AppSettingsPage() {
         </label>
         <input
           id="fdc-key"
+          data-tour="fdc-key"
           className="field"
           // Masked like the Gemini key: both are credentials, and a key on
           // screen in a cafe is a key on screen.
@@ -138,7 +139,7 @@ export default function AppSettingsPage() {
         </div>
       </section>
 
-      <section className="card mb-4 p-4" data-tour="gemini-key">
+      <section className="card mb-4 p-4">
         <h2 className="mb-1 font-semibold">Estimate from a photo</h2>
         <p className="mb-4 text-sm muted">
           With a Google Gemini key, the food editor can suggest nutrition from a photo. It is
@@ -168,6 +169,7 @@ export default function AppSettingsPage() {
         </label>
         <input
           id="gemini-key"
+          data-tour="gemini-key"
           className="field"
           type="password"
           autoComplete="off"

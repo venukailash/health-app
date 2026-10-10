@@ -66,14 +66,16 @@ export default function TargetsSettingsPage() {
     <Page title="Targets" subtitle="What you are aiming for each day">
       <SettingsTabs active="targets" />
 
-      <section className="card mb-4 p-4" data-tour="daily-targets">
+      <section className="card mb-4 p-4">
         <h2 className="mb-1 font-semibold">Daily targets</h2>
         <p className="mb-4 text-sm muted">
           Everything on the Progress screens is measured against these numbers.
         </p>
 
         <div className="grid gap-4 sm:grid-cols-2">
-          <NumberField label="Calories" value={form.kcal} onChange={set('kcal')} suffix="kcal" step="10" />
+          <div data-tour="daily-targets">
+            <NumberField label="Calories" value={form.kcal} onChange={set('kcal')} suffix="kcal" step="10" />
+          </div>
           <NumberField label="Carbohydrate" value={form.carbs} onChange={set('carbs')} suffix="g" />
           <NumberField label="Fibre" value={form.fibre} onChange={set('fibre')} suffix="g" />
           <NumberField label="Protein" value={form.protein} onChange={set('protein')} suffix="g" />
