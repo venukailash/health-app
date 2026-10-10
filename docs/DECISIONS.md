@@ -459,3 +459,14 @@ Testing this against a key that turned out to be an OAuth token rather than an A
 `401 ACCESS_TOKEN_TYPE_UNSUPPORTED`, and the code only special-cased 400 and 403 — so the user
 saw "Gemini returned an error", which says nothing about what to do. 401 now joins them, and the
 message names what a real key looks like.
+
+## The Foods sections stay in alphabetical order
+
+Your own foods sort above the bundled ones inside a section, and that is as far as it goes.
+
+Floating whole SECTIONS that contain your own foods to the top was tried, because adopted foods
+are filed by where they came from — "From a photo", "From Gemini" — so each sits alone in its own
+section and the within-section rule had nothing to act on. It worked, and it was wrong: with four
+such sections stacked at the top, the page read as though the Mine filter were permanently on.
+That filter is already a button, and a list that silently looks filtered is worse than one that
+needs a tap.

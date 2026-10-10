@@ -10,7 +10,13 @@ export function matchesQuery(food: Food, query: string): boolean {
 }
 
 /** Bucket foods by category for the library list, alphabetically by heading. */
-/** Your own foods first, then everything else, each run alphabetical. */
+/**
+ * Your own foods first, then everything else, each run alphabetical.
+ *
+ * Within a category, and the CATEGORY ORDER stays alphabetical — see
+ * docs/DECISIONS.md. Floating your own sections to the top was tried and
+ * reverted: it made the page look permanently filtered.
+ */
 export function byMineThenName(a: Food, b: Food): number {
   const mine = Number(b.source === 'user') - Number(a.source === 'user')
   return mine !== 0 ? mine : a.name.localeCompare(b.name)
@@ -24,20 +30,5 @@ export function groupByCategory(foods: Food[]): [string, Food[]][] {
     if (bucket) bucket.push(food)
     else groups.set(key, [food])
   }
-  /*
-   * Sections holding anything of your own come first, then the rest
-   * alphabetically.
-   *
-   * Sorting your foods to the top WITHIN a section looked right and did
-   * nothing: foods adopted from a photo, a barcode or Gemini are filed under
-   * where they came from, so each one is alone in a section of its own and
-   * had nothing to be sorted above. What buries them is the section order —
-   * "From Gemini" lands between "Fish & seafood" and "Fruit". So the sections
-   * move, and nothing moves out of the section it belongs to.
-   */
-  const isMine = (items: Food[]) => items.some((food) => food.source === 'user')
-  return [...groups.entries()].sort(([aName, aItems], [bName, bItems]) => {
-    const mine = Number(isMine(bItems)) - Number(isMine(aItems))
-    return mine !== 0 ? mine : aName.localeCompare(bName)
-  })
+  return [...groups.entries()].sort(([a], [b]) => a.localeCompare(b))
 }
