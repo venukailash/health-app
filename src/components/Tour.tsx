@@ -133,7 +133,7 @@ export default function Tour() {
 
   const onRoute = !wanted || location.pathname === wanted
   const ring = useRef<HTMLDivElement>(null)
-  const { visible, cardAtTop } = useSpotlight(step?.anchor, open && onRoute, ring)
+  const { visible, lift } = useSpotlight(step?.anchor, open && onRoute, ring)
 
   if (!open || !step) return null
 
@@ -168,10 +168,11 @@ export default function Tour() {
         role="dialog"
         aria-modal="true"
         aria-labelledby="tour-title"
-        className={`card fixed inset-x-0 mx-auto flex max-h-[52vh] w-full max-w-lg flex-col sm:inset-x-4 ${
-          cardAtTop ? 'top-0 rounded-t-none sm:top-4 sm:rounded-t-2xl' : 'bottom-0 rounded-b-none sm:bottom-4 sm:rounded-b-2xl'
-        }`}
-        style={cardAtTop ? { paddingTop: 'env(safe-area-inset-top)' } : undefined}
+        // Always along the bottom, and nowhere else. The buttons are the one
+        // part of this the reader has to find on every card, so they do not
+        // move; the highlight is scrolled into the space above instead.
+        className="card fixed inset-x-0 mx-auto flex max-h-[52vh] w-full max-w-lg flex-col rounded-b-none sm:inset-x-4 sm:rounded-b-2xl"
+        style={{ bottom: lift }}
       >
         <header
           className="flex items-center justify-between gap-3 border-b px-4 py-2"

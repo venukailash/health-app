@@ -405,8 +405,15 @@ Three details that are not obvious:
   and that can land after the tour's own scroll and undo it. The hook keeps nudging until the
   target is near the middle, at most six times, and gives up the moment the reader scrolls for
   themselves.
-- **The card takes whichever side of the hole has more room**, measured. Choosing by the target's
-  midpoint instead put the card on top of anything tall.
+- **The card is always along the bottom.** It used to take whichever side of the hole had more
+  room, which meant Back and Next moved to the top of the screen for some cards and the bottom
+  for others — the one part of the tour the reader has to find every single time. Now the card
+  stays put and the TARGET moves instead: it is scrolled into the band above the card rather than
+  into the middle of the window.
+
+  The exception is a target that is itself pinned to the bottom, which is the floating assist
+  button. No scroll can move that out from under a bottom sheet, so for that one card the sheet
+  lifts just far enough to clear it — tens of pixels, not a jump across the screen.
 
 **Anchors are controls, not cards.** Pointing at a whole settings section meant a ring taller
 than a phone screen, with its edges off both ends — a hole that framed nothing. The anchors are
