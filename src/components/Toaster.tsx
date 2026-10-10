@@ -16,7 +16,8 @@ export default function Toaster() {
       role="status"
       aria-live="polite"
       className="pointer-events-none fixed inset-x-0 z-30 flex flex-col items-center gap-2 px-4"
-      style={{ bottom: `calc(5rem + env(safe-area-inset-bottom))` }}
+      // Clears both the nav bar and the floating camera button.
+      style={{ bottom: `calc(9rem + env(safe-area-inset-bottom))` }}
     >
       {toasts.map((toast) => (
         <div

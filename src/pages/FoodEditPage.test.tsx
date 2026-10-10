@@ -109,3 +109,16 @@ describe('FoodEditPage — existing food', () => {
     expect(screen.getByRole('heading', { name: 'Food not found' })).toBeInTheDocument()
   })
 })
+
+describe('FoodEditPage — opened from the floating button', () => {
+  it('starts on the camera when asked to', () => {
+    renderWithApp(<FoodEditPage />, { path: '/foods/new', route: '/foods/new?photo=1' })
+    expect(screen.getByRole('heading', { name: /Estimate from a photo/ })).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'Take a photo' })).toBeInTheDocument()
+  })
+
+  it('starts on the form otherwise', () => {
+    renderWithApp(<FoodEditPage />, { path: '/foods/new', route: '/foods/new' })
+    expect(screen.getByLabelText('Name')).toBeInTheDocument()
+  })
+})

@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { useNavigate, useParams } from 'react-router-dom'
+import { useNavigate, useParams, useSearchParams } from 'react-router-dom'
 import Button from '../components/Button'
 import NumberField from '../components/NumberField'
 import Page from '../components/Page'
@@ -75,6 +75,7 @@ function toNutrients(form: Form): Nutrients {
 
 export default function FoodEditPage() {
   const { id } = useParams()
+  const [params] = useSearchParams()
   const navigate = useNavigate()
   const dispatch = useDispatch()
   const { foods } = useAppState()
@@ -84,7 +85,9 @@ export default function FoodEditPage() {
 
   const [form, setForm] = useState<Form>(() => (existing ? toForm(existing) : EMPTY_FORM))
   const [confirmingDelete, setConfirmingDelete] = useState(false)
-  const [estimating, setEstimating] = useState(false)
+  // ?photo=1 comes from the floating button, which exists to skip the two
+  // taps it otherwise takes to reach the camera.
+  const [estimating, setEstimating] = useState(() => params.get('photo') === '1')
   const [fromPhoto, setFromPhoto] = useState(false)
 
   if (estimating) {

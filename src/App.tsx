@@ -1,5 +1,6 @@
 import { Navigate, Route, Routes } from 'react-router-dom'
 import NavBar from './components/NavBar'
+import QuickAddButton from './components/QuickAddButton'
 import { useAppUpdate } from './hooks/useAppUpdate'
 import { useKeyboardOpen } from './hooks/useKeyboardOpen'
 import StorageBanner from './components/StorageBanner'
@@ -51,6 +52,7 @@ export default function App() {
         </Routes>
       </main>
       <Toaster />
+      <QuickAddButton />
       <NavBar />
     </>
   )
