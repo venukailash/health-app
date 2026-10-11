@@ -358,3 +358,45 @@ describe('RecipeEditPage — adding it to a meal', () => {
     expect(Object.values(store().log)[0][0].label).toBe('Dhal')
   })
 })
+
+describe('RecipeEditPage — the action row', () => {
+  const dhal = createRecipe({
+    name: 'Dhal',
+    servings: 2,
+    ingredients: [{ foodId: oats.id, grams: 200 }],
+  })
+
+  const renderSaved = () =>
+    renderWithApp(<RecipeEditPage />, {
+      path: '/recipes/:id',
+      route: `/recipes/${dhal.id}`,
+      state: { foods: [oats], recipes: [dhal] },
+    })
+
+  it('names the two icon buttons, since a symbol says nothing out loud', () => {
+    renderSaved()
+    expect(screen.getByRole('button', { name: 'Add to a meal' })).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'Delete recipe' })).toBeInTheDocument()
+  })
+
+  it('still asks before deleting', async () => {
+    const user = userEvent.setup()
+    const { store } = renderSaved()
+
+    await user.click(screen.getByRole('button', { name: 'Delete recipe' }))
+    expect(screen.getByText('Delete this recipe?')).toBeInTheDocument()
+    expect(store().recipes).toHaveLength(1)
+
+    await user.click(screen.getByRole('button', { name: 'Cancel' }))
+    expect(store().recipes).toHaveLength(1)
+
+    await user.click(screen.getByRole('button', { name: 'Delete recipe' }))
+    await user.click(screen.getByRole('button', { name: 'Delete' }))
+    expect(store().recipes).toHaveLength(0)
+  })
+
+  it('says Save, not Save changes, once a recipe exists', () => {
+    renderSaved()
+    expect(screen.getByRole('button', { name: 'Save' })).toBeInTheDocument()
+  })
+})

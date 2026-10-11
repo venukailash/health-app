@@ -419,29 +419,60 @@ function RecipeEditor() {
         <NutritionGrid nutrients={totals} caption={`Whole recipe · ${yieldCount} servings`} />
       </section>
 
-      <div className="flex flex-wrap items-center gap-2">
-        <Button onClick={save} disabled={!canSave}>
-          {existing ? 'Save changes' : source ? 'Save copy' : 'Create recipe'}
+      {/* One line on a phone: the two actions with an obvious symbol wear it
+          instead of a word, and Delete keeps the far end to itself. */}
+      <div className="flex flex-wrap items-center gap-1.5">
+        <Button compact={Boolean(existing)} onClick={save} disabled={!canSave}>
+          {existing ? 'Save' : source ? 'Save copy' : 'Create recipe'}
         </Button>
         {existing && !confirmingDelete && (
           <>
-            {/* A button rather than four. Four meals laid out on the page is a
-                card's worth of height for something most visits never touch. */}
-            <Button variant="secondary" onClick={() => setLogging(true)}>
-              Add to a meal
+            <Button
+              variant="secondary"
+              compact
+              aria-label="Add to a meal"
+              title="Add to a meal"
+              onClick={() => setLogging(true)}
+            >
+              <svg
+                viewBox="0 0 24 24"
+                aria-hidden="true"
+                className="h-5 w-5"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+              >
+                <path d="M12 5v14M5 12h14" />
+              </svg>
             </Button>
             <Button
               variant="secondary"
+              compact
               onClick={() => navigate(`/recipes/new?from=${existing.id}`)}
             >
               Duplicate
             </Button>
             <Button
               variant="ghost"
+              compact
               className="ml-auto"
+              aria-label="Delete recipe"
+              title="Delete recipe"
               onClick={() => setConfirmingDelete(true)}
             >
-              Delete
+              <svg
+                viewBox="0 0 24 24"
+                aria-hidden="true"
+                className="h-5 w-5"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
+                <path d="M4 7h16M10 11v6M14 11v6M6 7l1 13a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1l1-13M9 7V4h6v3" />
+              </svg>
             </Button>
           </>
         )}

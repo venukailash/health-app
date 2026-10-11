@@ -601,5 +601,13 @@ It logs the recipe as SAVED, not as it is being typed. Logging an unsaved edit w
 in the diary that exist nowhere else — entries store a snapshot — and there would be no way to
 account for them afterwards.
 
-Save, Add to a meal, Duplicate and Delete share one row, with Delete pushed to the far end —
-away from the three it would be a disaster to confuse it with.
+Save, +, Duplicate and a bin share one row, with the bin pushed to the far end — away from the
+three it would be a disaster to confuse it with. The two whose symbol is unambiguous wear it
+instead of a word, which is what keeps the row on one line down to 300 px. Both carry a spoken
+name and a tooltip, because a symbol says nothing out loud.
+
+**Button padding is a prop, not a class.** A `px-3` passed through `className` loses to the
+`px-4` in the button's base: Tailwind decides which wins by the order of its own stylesheet, not
+the order of the class attribute, so the override silently did nothing and the row stayed too
+wide. `compact` picks the padding before the class list is built, so there is only ever one to
+apply.
