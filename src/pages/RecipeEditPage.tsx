@@ -18,9 +18,11 @@ import { newId } from '../state/factories'
 import { perServing, recipeTotals, round, roundNutrients, scaleNutrients } from '../domain/nutrition'
 import { MEAL_LABELS, MEAL_TYPES, type MealType, type RecipeIngredient } from '../domain/types'
 import { useAppState, useDispatch } from '../state/AppStore'
-import { createFood, createRecipe } from '../state/factories'
+import { createFood, createRecipe, logRecipe } from '../state/factories'
 import { foodsById } from '../state/selectors'
 import { useScrollTopOnChange } from '../hooks/useScrollTopOnChange'
+import { useToast } from '../state/ToastProvider'
+import { formatDayLabel, todayKey } from '../domain/date'
 
 function RecipeEditor() {
   const { id } = useParams()
@@ -59,6 +61,8 @@ function RecipeEditor() {
   const [assist, setAssist] = useState<AiMode | null>(null)
   const [confirmingDelete, setConfirmingDelete] = useState(false)
   const { lookup } = useBarcodeLookup()
+  const { showToast } = useToast()
+  const today = todayKey()
   // Picking and the assist replace the whole screen without changing route.
   useScrollTopOnChange(`${picking}-${assist}`)
 
@@ -135,6 +139,19 @@ function RecipeEditor() {
 
   function removeIngredient(position: number) {
     setIngredients((current) => current.filter((_, index_) => index_ !== position))
+  }
+
+  /**
+   * One serving onto today, from the recipe as it is SAVED — not as it is
+   * being edited. Logging an unsaved edit would put a number in the diary
+   * that exists nowhere else, and the entry stores a snapshot, so it could
+   * never be explained afterwards.
+   */
+  function logToday(meal: MealType) {
+    if (!existing) return
+    dispatch({ type: 'entry/add', entry: logRecipe(existing, 1, index, meal, today) })
+    showToast(`${existing.name} added to ${MEAL_LABELS[meal].toLowerCase()}.`, { tone: 'success' })
+    navigate(`/day/${today}`)
   }
 
   function save() {
@@ -341,10 +358,13 @@ function RecipeEditor() {
               return (
                 <li
                   key={`${ingredient.foodId}-${position}`}
-                  className="flex items-center gap-3 rounded-xl px-3 py-2"
+                  className="flex flex-wrap items-center gap-x-3 gap-y-1 rounded-xl px-3 py-2"
                   style={{ background: 'var(--track)' }}
                 >
-                  <div className="min-w-0 flex-1">
+                  {/* The name gets a line to itself on a phone. Sharing one
+                      row with the amount, the unit and the remove button left
+                      it as "Tesco …", which is not a readable ingredient. */}
+                  <div className="min-w-0 basis-full sm:flex-1 sm:basis-0">
                     <p className="truncate text-sm font-medium">
                       {food?.name ?? 'Deleted food'}
                       {food?.brand && <span className="muted"> · {food.brand}</span>}
@@ -365,7 +385,7 @@ function RecipeEditor() {
                     type="button"
                     onClick={() => removeIngredient(position)}
                     aria-label={`Remove ${food?.name ?? 'ingredient'}`}
-                    className="shrink-0 rounded-lg p-1.5 muted hover:text-[var(--color-over)]"
+                    className="ml-auto shrink-0 rounded-lg p-1.5 muted hover:text-[var(--color-over)]"
                   >
                     <svg viewBox="0 0 24 24" className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
                       <path d="M6 6l12 12M18 6L6 18" />
@@ -389,26 +409,59 @@ function RecipeEditor() {
         <NutritionGrid nutrients={totals} caption={`Whole recipe · ${yieldCount} servings`} />
       </section>
 
+      {/* Logging it comes first: a saved recipe is something you want to eat
+          far more often than something you want to rename. Editing it is the
+          screen you are already on, so Save sits with the other changes and
+          the destructive pair is kept apart from both. */}
+      {existing && (
+        <section className="card mb-4 p-4">
+          <h2 className="mb-1 font-semibold">Eat this today</h2>
+          <p className="mb-3 text-sm muted">
+            Adds one serving to {formatDayLabel(today, today).toLowerCase()}. Change the amount on
+            the day screen if it was more or less.
+          </p>
+          <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
+            {MEAL_TYPES.map((meal) => (
+              <Button
+                key={meal}
+                variant="secondary"
+                // The meal TAGS above carry the same four words. The spoken
+                // name says which set this is; the visible word is inside it,
+                // so the two still agree.
+                aria-label={`Add to ${MEAL_LABELS[meal].toLowerCase()} today`}
+                onClick={() => logToday(meal)}
+              >
+                {MEAL_LABELS[meal]}
+              </Button>
+            ))}
+          </div>
+        </section>
+      )}
+
       <div className="flex flex-wrap items-center gap-2">
         <Button onClick={save} disabled={!canSave}>
           {existing ? 'Save changes' : source ? 'Save copy' : 'Create recipe'}
         </Button>
         {existing && !confirmingDelete && (
-          <Button
-            variant="secondary"
-            onClick={() => navigate(`/recipes/new?from=${existing.id}`)}
-          >
-            Duplicate
-          </Button>
-        )}
-        {existing && !confirmingDelete && (
-          <Button variant="ghost" onClick={() => setConfirmingDelete(true)}>
-            Delete
-          </Button>
+          <>
+            <Button
+              variant="secondary"
+              onClick={() => navigate(`/recipes/new?from=${existing.id}`)}
+            >
+              Duplicate
+            </Button>
+            <Button
+              variant="ghost"
+              className="ml-auto"
+              onClick={() => setConfirmingDelete(true)}
+            >
+              Delete
+            </Button>
+          </>
         )}
         {existing && confirmingDelete && (
           <>
-            <span className="text-sm">Delete this recipe?</span>
+            <span className="ml-auto text-sm">Delete this recipe?</span>
             <Button variant="danger" onClick={remove}>
               Delete
             </Button>

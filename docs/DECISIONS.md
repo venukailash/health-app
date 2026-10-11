@@ -577,3 +577,29 @@ tests, which each mounted a single route.
 The fix is a remount: the default export is a thin wrapper that keys the editor on the recipe it
 is pointed at. `RecipeEditPage.test.tsx` now mounts both routes together and clicks Duplicate, so
 the bug cannot come back quietly.
+
+## An ingredient row gives the name its own line on a phone
+
+The unit dropdown was as wide as its longest option — "1 medium avocado" — and `.field` sets
+`width: 100%`, which a utility class could not reliably beat. Between them the controls left the
+ingredient itself showing as "Avo…", which is not a readable ingredient. The select now sizes to
+its content with a cap, and below `sm` the name takes a line of its own with the amount, unit and
+remove button beneath it. Two lines per ingredient costs height; an unreadable name costs more.
+
+## A saved recipe can be eaten from the screen you are on
+
+"Eat this today" sits above the editing actions, with one button per meal, because a recipe you
+have already written is something you want to eat far more often than something you want to
+rename. One tap logs one serving to today and takes you to the day screen; the amount is editable
+there, which is the right place for the exception.
+
+It logs the recipe as SAVED, not as it is being typed. Logging an unsaved edit would put numbers
+in the diary that exist nowhere else — entries store a snapshot — and there would be no way to
+account for them afterwards.
+
+The four buttons repeat the four words used by the meal TAGS further up the same screen, so they
+carry spoken names of their own: "Add to breakfast today". The visible word is inside the spoken
+name, so the two still agree.
+
+Save, Duplicate and Delete share one row below it, with Delete pushed to the far end — away from
+the two it would be a disaster to confuse it with.

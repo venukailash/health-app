@@ -274,3 +274,63 @@ describe('RecipeEditPage — going straight from a recipe to its copy', () => {
     expect(screen.getByRole('button', { name: 'Save copy' })).toBeInTheDocument()
   })
 })
+
+describe('RecipeEditPage — eating it today', () => {
+  const dhal = createRecipe({
+    name: 'Dhal',
+    servings: 2,
+    ingredients: [{ foodId: oats.id, grams: 200 }],
+  })
+
+  const renderSaved = () =>
+    renderWithApp(<RecipeEditPage />, {
+      path: '/recipes/:id',
+      route: `/recipes/${dhal.id}`,
+      state: { foods: [oats], recipes: [dhal] },
+    })
+
+  it('offers every meal, without clashing with the meal tags', () => {
+    renderSaved()
+    for (const meal of ['breakfast', 'lunch', 'dinner', 'snacks']) {
+      expect(screen.getByRole('button', { name: `Add to ${meal} today` })).toBeInTheDocument()
+    }
+    // The tag chips keep their own plain names.
+    expect(screen.getByRole('button', { name: 'Breakfast' })).toBeInTheDocument()
+  })
+
+  it('logs one serving to the meal that was tapped, today', async () => {
+    const user = userEvent.setup()
+    const { store } = renderSaved()
+
+    await user.click(screen.getByRole('button', { name: 'Add to lunch today' }))
+
+    const days = Object.values(store().log)
+    expect(days).toHaveLength(1)
+    const [entry] = days[0]
+    expect(entry.meal).toBe('lunch')
+    expect(entry.label).toBe('Dhal')
+    expect(entry.ref).toEqual({ kind: 'recipe', id: dhal.id, servings: 1 })
+    // Half the recipe's 200 g of oats, per serving.
+    expect(Math.round(entry.nutrients.kcal)).toBe(379)
+  })
+
+  it('does not offer it for a recipe that has never been saved', () => {
+    renderWithApp(<RecipeEditPage />, {
+      path: '/recipes/new',
+      route: '/recipes/new',
+      state: { foods: [oats] },
+    })
+    expect(screen.queryByRole('button', { name: 'Add to breakfast today' })).not.toBeInTheDocument()
+  })
+
+  it('logs what is saved, not what is being typed', async () => {
+    const user = userEvent.setup()
+    const { store } = renderSaved()
+
+    await user.clear(screen.getByLabelText('Name'))
+    await user.type(screen.getByLabelText('Name'), 'Renamed but not saved')
+    await user.click(screen.getByRole('button', { name: 'Add to dinner today' }))
+
+    expect(Object.values(store().log)[0][0].label).toBe('Dhal')
+  })
+})

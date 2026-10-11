@@ -34,7 +34,7 @@ export default function IngredientAmount({
 
   return (
     <div className="flex shrink-0 items-center gap-1.5">
-      <div className="relative w-20">
+      <div className="relative w-16">
         <input
           className="field"
           type="number"
@@ -50,7 +50,12 @@ export default function IngredientAmount({
 
       {serving && serving.grams > 0 ? (
         <select
-          className="field w-auto px-1.5 py-1 text-xs"
+          className="field max-w-24 truncate px-1.5 py-1 text-xs"
+          // `.field` sets width:100%, which a utility class cannot reliably
+          // beat here — and the select was then as wide as its longest
+          // option, "1 medium avocado", squeezing the ingredient's own name
+          // down to "Avo…".
+          style={{ width: 'auto' }}
           aria-label={`Unit for ${label}`}
           value={unit}
           onChange={(event) => setUnit(event.target.value as 'g' | 'serving')}
