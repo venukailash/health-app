@@ -586,20 +586,20 @@ ingredient itself showing as "Avo…", which is not a readable ingredient. The s
 its content with a cap, and below `sm` the name takes a line of its own with the amount, unit and
 remove button beneath it. Two lines per ingredient costs height; an unreadable name costs more.
 
-## A saved recipe can be eaten from the screen you are on
+## A saved recipe can be logged from the screen you are on
 
-"Eat this today" sits above the editing actions, with one button per meal, because a recipe you
-have already written is something you want to eat far more often than something you want to
-rename. One tap logs one serving to today and takes you to the day screen; the amount is editable
-there, which is the right place for the exception.
+"Add to a meal" sits in the action row and opens a sheet with the four meals. It was a card with
+the four laid out on the page, which was a card's worth of height spent on something most visits
+to the screen never touch — and on the same screen as the meal TAGS, two four-button rows reading
+Breakfast / Lunch / Dinner / Snacks were easy to mistake for each other. Behind a button they are
+unmistakable: the sheet says what it is about to do, and the tags stay where they are.
+
+One tap logs one serving to today and takes you to the day screen; the amount is editable there,
+which is the right place for the exception.
 
 It logs the recipe as SAVED, not as it is being typed. Logging an unsaved edit would put numbers
 in the diary that exist nowhere else — entries store a snapshot — and there would be no way to
 account for them afterwards.
 
-The four buttons repeat the four words used by the meal TAGS further up the same screen, so they
-carry spoken names of their own: "Add to breakfast today". The visible word is inside the spoken
-name, so the two still agree.
-
-Save, Duplicate and Delete share one row below it, with Delete pushed to the far end — away from
-the two it would be a disaster to confuse it with.
+Save, Add to a meal, Duplicate and Delete share one row, with Delete pushed to the far end —
+away from the three it would be a disaster to confuse it with.

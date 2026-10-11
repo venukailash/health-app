@@ -275,7 +275,7 @@ describe('RecipeEditPage — going straight from a recipe to its copy', () => {
   })
 })
 
-describe('RecipeEditPage — eating it today', () => {
+describe('RecipeEditPage — adding it to a meal', () => {
   const dhal = createRecipe({
     name: 'Dhal',
     servings: 2,
@@ -289,20 +289,31 @@ describe('RecipeEditPage — eating it today', () => {
       state: { foods: [oats], recipes: [dhal] },
     })
 
-  it('offers every meal, without clashing with the meal tags', () => {
+  const openSheet = async (user: ReturnType<typeof userEvent.setup>) => {
+    await user.click(screen.getByRole('button', { name: 'Add to a meal' }))
+    return screen.getByRole('dialog')
+  }
+
+  it('keeps the four meals behind one button', async () => {
+    const user = userEvent.setup()
     renderSaved()
-    for (const meal of ['breakfast', 'lunch', 'dinner', 'snacks']) {
-      expect(screen.getByRole('button', { name: `Add to ${meal} today` })).toBeInTheDocument()
+
+    // Nothing on the page until asked for — the meal TAGS above are a
+    // different control and stay where they are.
+    expect(screen.queryByRole('dialog')).not.toBeInTheDocument()
+
+    const sheet = await openSheet(user)
+    for (const meal of ['Breakfast', 'Lunch', 'Dinner', 'Snacks']) {
+      expect(within(sheet).getByRole('button', { name: meal })).toBeInTheDocument()
     }
-    // The tag chips keep their own plain names.
-    expect(screen.getByRole('button', { name: 'Breakfast' })).toBeInTheDocument()
   })
 
   it('logs one serving to the meal that was tapped, today', async () => {
     const user = userEvent.setup()
     const { store } = renderSaved()
 
-    await user.click(screen.getByRole('button', { name: 'Add to lunch today' }))
+    const sheet = await openSheet(user)
+    await user.click(within(sheet).getByRole('button', { name: 'Lunch' }))
 
     const days = Object.values(store().log)
     expect(days).toHaveLength(1)
@@ -312,6 +323,18 @@ describe('RecipeEditPage — eating it today', () => {
     expect(entry.ref).toEqual({ kind: 'recipe', id: dhal.id, servings: 1 })
     // Half the recipe's 200 g of oats, per serving.
     expect(Math.round(entry.nutrients.kcal)).toBe(379)
+    expect(screen.queryByRole('dialog')).not.toBeInTheDocument()
+  })
+
+  it('backs out without logging anything', async () => {
+    const user = userEvent.setup()
+    const { store } = renderSaved()
+
+    const sheet = await openSheet(user)
+    await user.click(within(sheet).getByRole('button', { name: 'Cancel' }))
+
+    expect(screen.queryByRole('dialog')).not.toBeInTheDocument()
+    expect(store().log).toEqual({})
   })
 
   it('does not offer it for a recipe that has never been saved', () => {
@@ -320,7 +343,7 @@ describe('RecipeEditPage — eating it today', () => {
       route: '/recipes/new',
       state: { foods: [oats] },
     })
-    expect(screen.queryByRole('button', { name: 'Add to breakfast today' })).not.toBeInTheDocument()
+    expect(screen.queryByRole('button', { name: 'Add to a meal' })).not.toBeInTheDocument()
   })
 
   it('logs what is saved, not what is being typed', async () => {
@@ -329,7 +352,8 @@ describe('RecipeEditPage — eating it today', () => {
 
     await user.clear(screen.getByLabelText('Name'))
     await user.type(screen.getByLabelText('Name'), 'Renamed but not saved')
-    await user.click(screen.getByRole('button', { name: 'Add to dinner today' }))
+    const sheet = await openSheet(user)
+    await user.click(within(sheet).getByRole('button', { name: 'Dinner' }))
 
     expect(Object.values(store().log)[0][0].label).toBe('Dhal')
   })

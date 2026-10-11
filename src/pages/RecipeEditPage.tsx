@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom'
 import BarcodeScanner from '../components/BarcodeScanner'
 import Button from '../components/Button'
@@ -63,6 +63,15 @@ function RecipeEditor() {
   const { lookup } = useBarcodeLookup()
   const { showToast } = useToast()
   const today = todayKey()
+  const [logging, setLogging] = useState(false)
+  useEffect(() => {
+    if (!logging) return
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') setLogging(false)
+    }
+    document.addEventListener('keydown', onKeyDown)
+    return () => document.removeEventListener('keydown', onKeyDown)
+  }, [logging])
   // Picking and the assist replace the whole screen without changing route.
   useScrollTopOnChange(`${picking}-${assist}`)
 
@@ -149,6 +158,7 @@ function RecipeEditor() {
    */
   function logToday(meal: MealType) {
     if (!existing) return
+    setLogging(false)
     dispatch({ type: 'entry/add', entry: logRecipe(existing, 1, index, meal, today) })
     showToast(`${existing.name} added to ${MEAL_LABELS[meal].toLowerCase()}.`, { tone: 'success' })
     navigate(`/day/${today}`)
@@ -409,41 +419,17 @@ function RecipeEditor() {
         <NutritionGrid nutrients={totals} caption={`Whole recipe · ${yieldCount} servings`} />
       </section>
 
-      {/* Logging it comes first: a saved recipe is something you want to eat
-          far more often than something you want to rename. Editing it is the
-          screen you are already on, so Save sits with the other changes and
-          the destructive pair is kept apart from both. */}
-      {existing && (
-        <section className="card mb-4 p-4">
-          <h2 className="mb-1 font-semibold">Eat this today</h2>
-          <p className="mb-3 text-sm muted">
-            Adds one serving to {formatDayLabel(today, today).toLowerCase()}. Change the amount on
-            the day screen if it was more or less.
-          </p>
-          <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
-            {MEAL_TYPES.map((meal) => (
-              <Button
-                key={meal}
-                variant="secondary"
-                // The meal TAGS above carry the same four words. The spoken
-                // name says which set this is; the visible word is inside it,
-                // so the two still agree.
-                aria-label={`Add to ${MEAL_LABELS[meal].toLowerCase()} today`}
-                onClick={() => logToday(meal)}
-              >
-                {MEAL_LABELS[meal]}
-              </Button>
-            ))}
-          </div>
-        </section>
-      )}
-
       <div className="flex flex-wrap items-center gap-2">
         <Button onClick={save} disabled={!canSave}>
           {existing ? 'Save changes' : source ? 'Save copy' : 'Create recipe'}
         </Button>
         {existing && !confirmingDelete && (
           <>
+            {/* A button rather than four. Four meals laid out on the page is a
+                card's worth of height for something most visits never touch. */}
+            <Button variant="secondary" onClick={() => setLogging(true)}>
+              Add to a meal
+            </Button>
             <Button
               variant="secondary"
               onClick={() => navigate(`/recipes/new?from=${existing.id}`)}
@@ -471,6 +457,44 @@ function RecipeEditor() {
           </>
         )}
       </div>
+
+      {logging && existing && (
+        <div className="fixed inset-0 z-50 flex items-end justify-center sm:items-center sm:p-4">
+          <div
+            aria-hidden="true"
+            className="fixed inset-0"
+            style={{ background: 'rgba(0, 0, 0, 0.55)' }}
+            onClick={() => setLogging(false)}
+          />
+          <div
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="log-recipe-title"
+            className="card relative w-full max-w-lg rounded-b-none p-4 sm:rounded-b-2xl"
+            style={{ paddingBottom: 'calc(1rem + env(safe-area-inset-bottom))' }}
+          >
+            <h2 id="log-recipe-title" className="font-semibold">
+              Add to {formatDayLabel(today, today).toLowerCase()}
+            </h2>
+            <p className="mb-3 mt-1 text-sm muted">
+              One serving of {existing.name}. Change the amount on the day screen if it was more
+              or less.
+            </p>
+            <div className="grid grid-cols-2 gap-2">
+              {MEAL_TYPES.map((meal) => (
+                <Button key={meal} variant="secondary" onClick={() => logToday(meal)}>
+                  {MEAL_LABELS[meal]}
+                </Button>
+              ))}
+            </div>
+            <div className="mt-3">
+              <Button variant="ghost" onClick={() => setLogging(false)}>
+                Cancel
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
     </Page>
   )
 }
