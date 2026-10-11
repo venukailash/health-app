@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react'
-import { useNavigate, useParams } from 'react-router-dom'
+import { useNavigate, useParams, useSearchParams } from 'react-router-dom'
 import BarcodeScanner from '../components/BarcodeScanner'
 import Button from '../components/Button'
 import IngredientAmount from '../components/IngredientAmount'
@@ -8,6 +8,7 @@ import Page from '../components/Page'
 import RemoteFoodResults from '../components/RemoteFoodResults'
 import AiAssist, { type AiMode } from '../components/AiAssist'
 import AiAssistCard from '../components/AiAssistCard'
+import { copyName } from '../domain/copyName'
 import { findMatchingFood } from '../domain/matchFood'
 import ScanButton from '../components/ScanButton'
 import SearchList, { type SearchItem } from '../components/SearchList'
@@ -21,7 +22,7 @@ import { createFood, createRecipe } from '../state/factories'
 import { foodsById } from '../state/selectors'
 import { useScrollTopOnChange } from '../hooks/useScrollTopOnChange'
 
-export default function RecipeEditPage() {
+function RecipeEditor() {
   const { id } = useParams()
   const navigate = useNavigate()
   const dispatch = useDispatch()
@@ -30,11 +31,27 @@ export default function RecipeEditPage() {
   const existing = id ? recipes.find((recipe) => recipe.id === id) : undefined
   const index = useMemo(() => foodsById(foods), [foods])
 
-  const [name, setName] = useState(existing?.name ?? '')
-  const [servings, setServings] = useState(String(existing?.servings ?? 1))
-  const [meals, setMeals] = useState<MealType[]>(existing?.meals ?? [])
+  /*
+   * `/recipes/new?from=<id>` opens a copy of a saved recipe: same
+   * ingredients, ready to be changed, nothing written until Save. Copying by
+   * creating the record up front would leave an abandoned duplicate behind
+   * every time someone changed their mind, and the original must come
+   * through untouched whatever happens here.
+   *
+   * A `from` that no longer resolves just opens a blank recipe — the source
+   * may have been deleted on another device since the link was made.
+   */
+  const [params] = useSearchParams()
+  const source = !id ? recipes.find((recipe) => recipe.id === params.get('from')) : undefined
+  const seed = existing ?? source
+
+  const [name, setName] = useState(() =>
+    source ? copyName(source.name, recipes.map((recipe) => recipe.name)) : (existing?.name ?? ''),
+  )
+  const [servings, setServings] = useState(String(seed?.servings ?? 1))
+  const [meals, setMeals] = useState<MealType[]>(seed?.meals ?? [])
   const [ingredients, setIngredients] = useState<RecipeIngredient[]>(
-    () => existing?.ingredients.map((ingredient) => ({ ...ingredient })) ?? [],
+    () => seed?.ingredients.map((ingredient) => ({ ...ingredient })) ?? [],
   )
   const [picking, setPicking] = useState(false)
   const [pickerQuery, setPickerQuery] = useState('')
@@ -221,8 +238,10 @@ export default function RecipeEditPage() {
 
   return (
     <Page
-      title={existing ? existing.name : 'New recipe'}
-      subtitle="Totals update as you go"
+      title={existing ? existing.name : source ? `Copy of ${source.name}` : 'New recipe'}
+      subtitle={
+        source ? 'Change what you like — the original stays as it is' : 'Totals update as you go'
+      }
       backTo="/recipes"
     >
       {!existing && ingredients.length === 0 && (
@@ -372,8 +391,16 @@ export default function RecipeEditPage() {
 
       <div className="flex flex-wrap items-center gap-2">
         <Button onClick={save} disabled={!canSave}>
-          {existing ? 'Save changes' : 'Create recipe'}
+          {existing ? 'Save changes' : source ? 'Save copy' : 'Create recipe'}
         </Button>
+        {existing && !confirmingDelete && (
+          <Button
+            variant="secondary"
+            onClick={() => navigate(`/recipes/new?from=${existing.id}`)}
+          >
+            Duplicate
+          </Button>
+        )}
         {existing && !confirmingDelete && (
           <Button variant="ghost" onClick={() => setConfirmingDelete(true)}>
             Delete
@@ -393,4 +420,19 @@ export default function RecipeEditPage() {
       </div>
     </Page>
   )
+}
+
+/**
+ * Remounts the editor whenever it is pointed at a different recipe.
+ *
+ * The form is seeded from the recipe once, in `useState` initialisers, which
+ * only run on mount. React Router renders the same component for
+ * `/recipes/:id` and `/recipes/new`, so going straight from a saved recipe to
+ * a copy of it — which the Duplicate button does — reused the instance and
+ * kept the old name and ingredients. The key makes that a remount.
+ */
+export default function RecipeEditPage() {
+  const { id } = useParams()
+  const [params] = useSearchParams()
+  return <RecipeEditor key={`${id ?? 'new'}:${params.get('from') ?? ''}`} />
 }

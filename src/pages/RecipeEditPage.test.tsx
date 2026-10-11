@@ -1,9 +1,13 @@
-import { screen, within } from '@testing-library/react'
+import { render, screen, within } from '@testing-library/react'
+import { MemoryRouter, Route, Routes } from 'react-router-dom'
 import userEvent from '@testing-library/user-event'
 import { describe, expect, it } from 'vitest'
 import RecipeEditPage from './RecipeEditPage'
 import { renderWithApp } from '../test/renderWithApp'
-import { createFood } from '../state/factories'
+import { createFood, createRecipe } from '../state/factories'
+import { AppStoreProvider } from '../state/AppStore'
+import { ToastProvider } from '../state/ToastProvider'
+import { EMPTY_STATE } from '../state/reducer'
 
 const oats = createFood({
   name: 'Porridge oats',
@@ -146,5 +150,127 @@ describe('RecipeEditPage — meal tags', () => {
   it('says plainly that a tag is not a restriction', () => {
     renderNew()
     expect(screen.getByText(/never stops you logging this to any meal/)).toBeInTheDocument()
+  })
+})
+
+describe('RecipeEditPage — duplicating', () => {
+  const rice = createFood({
+    name: 'Basmati rice',
+    per100g: { kcal: 130, fat: 0.3, satFat: 0.1, carbs: 28, fibre: 0.4, protein: 2.7, salt: 0 },
+  })
+
+  const dhal = createRecipe({
+    name: 'Dhal',
+    servings: 4,
+    meals: ['dinner'],
+    ingredients: [
+      { foodId: oats.id, grams: 200 },
+      { foodId: rice.id, grams: 300 },
+    ],
+  })
+
+  const renderCopy = (recipes = [dhal]) =>
+    renderWithApp(<RecipeEditPage />, {
+      path: '/recipes/new',
+      route: `/recipes/new?from=${dhal.id}`,
+      state: { foods: [oats, rice], recipes },
+    })
+
+  it('opens a copy with the ingredients already in it', () => {
+    renderCopy()
+
+    expect(screen.getByRole('heading', { name: 'Copy of Dhal' })).toBeInTheDocument()
+    expect(screen.getByLabelText('Name')).toHaveValue('Dhal (copy)')
+    expect(screen.getByLabelText('Makes')).toHaveValue(4)
+    expect(screen.getByText('Porridge oats')).toBeInTheDocument()
+    expect(screen.getByText('Basmati rice')).toBeInTheDocument()
+  })
+
+  it('numbers the copy when an earlier one is already saved', () => {
+    renderCopy([dhal, createRecipe({ name: 'Dhal (copy)', servings: 1, ingredients: [] })])
+    expect(screen.getByLabelText('Name')).toHaveValue('Dhal (copy 2)')
+  })
+
+  it('saves as a new recipe and leaves the original alone', async () => {
+    const user = userEvent.setup()
+    const { store } = renderCopy()
+
+    // Take one ingredient out — the point of a copy.
+    await user.click(screen.getByRole('button', { name: 'Remove Basmati rice' }))
+    await user.click(screen.getByRole('button', { name: 'Save copy' }))
+
+    const saved = store().recipes
+    expect(saved).toHaveLength(2)
+
+    const original = saved.find((recipe) => recipe.id === dhal.id)
+    expect(original?.name).toBe('Dhal')
+    expect(original?.ingredients).toHaveLength(2)
+
+    const copy = saved.find((recipe) => recipe.id !== dhal.id)
+    expect(copy?.name).toBe('Dhal (copy)')
+    expect(copy?.ingredients).toEqual([{ foodId: oats.id, grams: 200 }])
+    expect(copy?.meals).toEqual(['dinner'])
+  })
+
+  it('opens a blank recipe when the source has since been deleted', () => {
+    renderWithApp(<RecipeEditPage />, {
+      path: '/recipes/new',
+      route: '/recipes/new?from=gone',
+      state: { foods: [oats], recipes: [dhal] },
+    })
+
+    expect(screen.getByRole('heading', { name: 'New recipe' })).toBeInTheDocument()
+    expect(screen.getByLabelText('Name')).toHaveValue('')
+  })
+
+  it('offers Duplicate from a saved recipe', () => {
+    renderWithApp(<RecipeEditPage />, {
+      path: '/recipes/:id',
+      route: `/recipes/${dhal.id}`,
+      state: { foods: [oats, rice], recipes: [dhal] },
+    })
+
+    expect(screen.getByRole('button', { name: 'Duplicate' })).toBeInTheDocument()
+  })
+})
+
+describe('RecipeEditPage — going straight from a recipe to its copy', () => {
+  const dhal = createRecipe({
+    name: 'Dhal',
+    servings: 4,
+    ingredients: [{ foodId: oats.id, grams: 200 }],
+  })
+
+  /**
+   * Both routes mounted together, which is what the app does. React Router
+   * renders the same component for each, so without a remount the editor
+   * carries the previous recipe's state across — the bug this covers.
+   */
+  function renderBothRoutes() {
+    return render(
+      <ToastProvider>
+        <AppStoreProvider initialState={{ ...EMPTY_STATE, foods: [oats], recipes: [dhal] }}>
+          <MemoryRouter initialEntries={[`/recipes/${dhal.id}`]}>
+            <Routes>
+              <Route path="/recipes/new" element={<RecipeEditPage />} />
+              <Route path="/recipes/:id" element={<RecipeEditPage />} />
+            </Routes>
+          </MemoryRouter>
+        </AppStoreProvider>
+      </ToastProvider>,
+    )
+  }
+
+  it('starts the copy from the original, not from whatever was on screen', async () => {
+    const user = userEvent.setup()
+    renderBothRoutes()
+
+    expect(screen.getByLabelText('Name')).toHaveValue('Dhal')
+
+    await user.click(screen.getByRole('button', { name: 'Duplicate' }))
+
+    expect(screen.getByRole('heading', { name: 'Copy of Dhal' })).toBeInTheDocument()
+    expect(screen.getByLabelText('Name')).toHaveValue('Dhal (copy)')
+    expect(screen.getByRole('button', { name: 'Save copy' })).toBeInTheDocument()
   })
 })

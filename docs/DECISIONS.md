@@ -551,3 +551,29 @@ through the same checker as everything else. Two rules were added for it: the wa
 between 1.03 and 1.6 against the surface (visible as a tint, not a block of colour), and both the
 accent label and the muted one have to clear 4.5:1 on top of it, because the button carries both
 depending on whether there is enough logged.
+
+## Duplicating a recipe writes nothing until Save
+
+Duplicate opens `/recipes/new?from=<id>` — the same editor, seeded from the saved recipe, named
+"Dhal (copy)". The original is not touched, and the copy does not exist until Save is pressed.
+Creating the record up front would leave an abandoned duplicate behind every time somebody opened
+a copy and thought better of it.
+
+A `from` that no longer resolves opens a blank recipe rather than an error: the source may have
+been deleted on another device since the link was made, and there is nothing useful to say about
+that.
+
+Copy names avoid collisions and do not stack: a copy of "Dhal (copy)" is "Dhal (copy 2)", and a
+gap in the numbering gets filled before the count goes higher.
+
+### The editor is keyed, because the same component serves both routes
+
+React Router renders `RecipeEditPage` for `/recipes/:id` and for `/recipes/new`, and React
+reuses the instance across them. The form is seeded in `useState` initialisers, which only run on
+mount — so going straight from a saved recipe to a copy of it, which is exactly what Duplicate
+does, carried the old name and ingredients across. Found by clicking it in a browser, not by the
+tests, which each mounted a single route.
+
+The fix is a remount: the default export is a thin wrapper that keys the editor on the recipe it
+is pointed at. `RecipeEditPage.test.tsx` now mounts both routes together and clicks Duplicate, so
+the bug cannot come back quietly.
