@@ -611,3 +611,28 @@ name and a tooltip, because a symbol says nothing out loud.
 the order of the class attribute, so the override silently did nothing and the row stayed too
 wide. `compact` picks the padding before the class list is built, so there is only ever one to
 apply.
+
+## The scanner says what it is doing, and turns the camera off when you type
+
+A camera that just sits there tells you nothing: you cannot tell whether it has read anything,
+whether it is fetching, or whether it has quietly failed. The overlay now narrates — starting,
+pointing, "Read 5012345678900 — looking it up", "Nothing came back for it" — in a live region, so
+the stage is not something only the sighted can follow, and the reticle turns brand-coloured
+while a lookup runs and red when one comes back empty.
+
+**A failed lookup keeps the camera open.** `onDetected` returns whether the code led anywhere,
+and a false goes back to scanning after a couple of seconds. Closing the camera to show a toast
+means opening it again to try — the whole job twice, usually because the wrong thing was read.
+
+**A code that has already been refused is not asked about again.** The packet does not leave the
+frame when a lookup fails, so without that the same unknown barcode is read, queried and refused
+every couple of seconds for as long as it is held there — a loop against someone else's API. The
+test for the retry path is what turned this up.
+
+**Choosing to type stops the camera.** It has nothing to do while the keyboard is up, and leaving
+it running behind the form drains the battery and looks like the app is still watching. "Use the
+camera" starts it again.
+
+`onDetected` is held in a ref. Every caller passes an inline arrow, so with it in the effect's
+dependencies a parent re-render — a toast, say — would tear down the camera and start it again
+mid-scan.

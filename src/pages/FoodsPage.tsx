@@ -24,11 +24,18 @@ export default function FoodsPage() {
   const [category, setCategory] = useState<string | null>(null)
   const [scanning, setScanning] = useState(false)
 
-  async function handleScan(barcode: string) {
-    setScanning(false)
+  /**
+   * Returns whether the code led anywhere, which is what keeps the camera
+   * open on a miss. Closing it to show a toast means opening it again to
+   * try — the whole job twice, usually because the wrong thing was read.
+   */
+  async function handleScan(barcode: string): Promise<boolean> {
     const food = await lookup(barcode)
+    if (!food) return false
+    setScanning(false)
     // Straight into the editor so the values can be checked against the packet.
-    if (food) navigate(`/foods/${food.id}`)
+    navigate(`/foods/${food.id}`)
+    return true
   }
 
   function adoptProduct(product: FoundFood) {
@@ -189,7 +196,7 @@ export default function FoodsPage() {
       {!mineOnly && <RemoteFoodResults query={query} onPick={adoptProduct} />}
 
       {scanning && (
-        <BarcodeScanner onDetected={(code) => void handleScan(code)} onCancel={() => setScanning(false)} />
+        <BarcodeScanner onDetected={handleScan} onCancel={() => setScanning(false)} />
       )}
     </Page>
   )

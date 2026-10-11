@@ -52,10 +52,17 @@ export default function AddEntryPage() {
     setSelected({ kind: 'foods', id: food.id })
   }
 
-  async function handleScan(barcode: string) {
-    setScanning(false)
+  /**
+   * Returns whether the code led anywhere, which is what keeps the camera
+   * open on a miss. Closing it to show a toast means opening it again to
+   * try — the whole job twice, usually because the wrong thing was read.
+   */
+  async function handleScan(barcode: string): Promise<boolean> {
     const food = await lookup(barcode)
-    if (food) setSelected({ kind: 'foods', id: food.id })
+    if (!food) return false
+    setScanning(false)
+    setSelected({ kind: 'foods', id: food.id })
+    return true
   }
 
   const foodItems = useMemo<SearchItem[]>(
@@ -204,7 +211,7 @@ export default function AddEntryPage() {
       />
 
       {scanning && (
-        <BarcodeScanner onDetected={(code) => void handleScan(code)} onCancel={() => setScanning(false)} />
+        <BarcodeScanner onDetected={handleScan} onCancel={() => setScanning(false)} />
       )}
     </Page>
   )
