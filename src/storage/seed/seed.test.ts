@@ -84,3 +84,36 @@ describe('missingSeedFoods', () => {
     expect(missingSeedFoods([userFood])).toHaveLength(seedFoods.length)
   })
 })
+
+describe('cooking basics', () => {
+  const by = (id: string) => seedFoods.find((food) => food.id === id)
+
+  it('includes salt, which a recipe needs more often than anything else', () => {
+    const salt = by('seed-salt')
+    expect(salt?.name).toBe('Salt, table')
+    // Sodium chloride: no energy, and 100 g of salt per 100 g by the UK
+    // labelling convention. A teaspoon is a whole day's target.
+    expect(salt?.per100g).toEqual({
+      kcal: 0,
+      fat: 0,
+      satFat: 0,
+      carbs: 0,
+      fibre: 0,
+      protein: 0,
+      salt: 100,
+    })
+    expect(salt?.defaultServing).toEqual({ label: '1 tsp', grams: 6 })
+  })
+
+  it('includes the seasonings and aromatics that recipes assume', () => {
+    for (const id of ['seed-black-pepper', 'seed-garlic', 'seed-ginger']) {
+      expect(by(id), id).toBeDefined()
+    }
+  })
+
+  it('files them somewhere a person would look', () => {
+    for (const id of ['seed-salt', 'seed-black-pepper', 'seed-garlic', 'seed-ginger']) {
+      expect(by(id)?.category, id).toBe('Herbs, spices & seasoning')
+    }
+  })
+})

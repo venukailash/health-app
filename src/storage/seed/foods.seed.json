@@ -1,5 +1,5 @@
 {
-  "seedVersion": 2,
+  "seedVersion": 3,
   "foods": [
     {
       "id": "seed-porridge-oats-dry",
@@ -2303,6 +2303,78 @@
       "defaultServing": {
         "label": "1 bowl",
         "grams": 300
+      }
+    },
+    {
+      "id": "seed-salt",
+      "name": "Salt, table",
+      "category": "Herbs, spices & seasoning",
+      "per100g": {
+        "kcal": 0,
+        "fat": 0,
+        "satFat": 0,
+        "carbs": 0,
+        "fibre": 0,
+        "protein": 0,
+        "salt": 100
+      },
+      "defaultServing": {
+        "label": "1 tsp",
+        "grams": 6
+      }
+    },
+    {
+      "id": "seed-black-pepper",
+      "name": "Black pepper, ground",
+      "category": "Herbs, spices & seasoning",
+      "per100g": {
+        "kcal": 251,
+        "fat": 3.3,
+        "satFat": 1.4,
+        "carbs": 38.7,
+        "fibre": 25.3,
+        "protein": 10.4,
+        "salt": 0.05
+      },
+      "defaultServing": {
+        "label": "1 tsp",
+        "grams": 2
+      }
+    },
+    {
+      "id": "seed-garlic",
+      "name": "Garlic, raw",
+      "category": "Herbs, spices & seasoning",
+      "per100g": {
+        "kcal": 149,
+        "fat": 0.5,
+        "satFat": 0.1,
+        "carbs": 31,
+        "fibre": 2.1,
+        "protein": 6.4,
+        "salt": 0.04
+      },
+      "defaultServing": {
+        "label": "1 clove",
+        "grams": 3
+      }
+    },
+    {
+      "id": "seed-ginger",
+      "name": "Ginger, raw",
+      "category": "Herbs, spices & seasoning",
+      "per100g": {
+        "kcal": 80,
+        "fat": 0.8,
+        "satFat": 0.2,
+        "carbs": 15.8,
+        "fibre": 2,
+        "protein": 1.8,
+        "salt": 0.03
+      },
+      "defaultServing": {
+        "label": "1 tsp, grated",
+        "grams": 5
       }
     }
   ]
